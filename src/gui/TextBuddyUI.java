@@ -1,5 +1,6 @@
 package gui;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 import logic.TextBuddyLogic;
@@ -11,11 +12,19 @@ public class TextBuddyUI {
 	private static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , clear , sort , search , exit";
 	private static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
 	private static final String STRING_ADD = "added to %1$s: \"%2$s\"";
+	private static final String STRING_CLEAR = "All content deleted from %1$s";
+	
+	//ERRORS
 	private static final String ERROR_ADD = "Task cannot be blank.";
 	private static final String ERROR_UNKNOWN = "Unknown error occured!";
 	
+	//USAGE
+	private static final String USAGE_ADD = "Usage: add <todo>";
+	private static final String USAGE_DELETE = "Usage: delete <lineno>";
+	
 	Scanner scanner;
 	TextBuddyLogic logic;
+
 	//possible commands
 	public enum Commands{
 		ADD,DISPLAY,DELETE,CLEAR,EXIT
@@ -39,30 +48,37 @@ public class TextBuddyUI {
 	public void init(String fileName){
 		logic = new TextBuddyLogic(fileName);
 		printWelcomeMsg(fileName);
-		printStatement(start(fileName));
+		start(fileName);
 	}
 
-	private String start(String fileName) {
+	private void start(String fileName) {
 		scanner = new Scanner(System.in);
 		String userInput = "";
 		String[] splittedString;
 		String task = "";
 		Commands command;
 		for(;;){
+			System.out.print("Command: ");
 			userInput = scanner.nextLine();
 			splittedString = getSplittedString(userInput);
 			command = getCommandType(splittedString[0]);
-			task = splittedString[1];
+			if(splittedString.length>1){
+				task = splittedString[1];
+			}
 			if(command != null){
 				switch(command){
 				case ADD:
-					return add(task);
+					printStatement(add(task));
+					break;
 				case DISPLAY:
-					return display();
+					printStatement(display());
+					break;
 				case CLEAR:
-					return clear();
+					printStatement(clear());
+					break;
 				case DELETE:
-					return delete(task);
+					printStatement(delete(task));
+					break;
 				case EXIT:
 					systemExit();
 				default:
@@ -74,26 +90,45 @@ public class TextBuddyUI {
 			}
 		}
 	}
-	private String delete(String task) {
-		// TODO Auto-generated method stub
-		return null;
+	private String delete(String lineNo) {
+		if(lineNo != null && !lineNo.isEmpty()){
+			int lineNumber;
+			try{
+				lineNumber = Integer.parseInt(lineNo);
+				return logic.delete(lineNumber);
+			}catch(NumberFormatException | IOException e){
+				return USAGE_DELETE;
+			}
+		}else{
+			return USAGE_DELETE;
+		}
 	}
+
 	private String clear() {
-		// TODO Auto-generated method stub
-		return null;
+		boolean isCleared = logic.clear();
+		if(isCleared){
+			return String.format(STRING_CLEAR, logic.getFileName());
+		}else{
+			return ERROR_UNKNOWN;
+		}
 	}
+
 	private String display() {
-		
-		return null;
+		try {
+			return logic.display();
+		} catch (IOException e) {
+			return ERROR_UNKNOWN;
+		}
 	}
+
 	private String add(String task) {
 		Task tsk = new Task(task);
 		if(tsk != null && !tsk.isEmpty()){
 			boolean isSuccess = logic.add(tsk);
 			if(isSuccess){
-				return STRING_ADD;
+				return String.format(STRING_ADD,logic.getFileName(),task);
 			}else{
-				return ERROR_UNKNOWN;
+				return USAGE_ADD;
 			}
 		}else{
 			return ERROR_ADD;
@@ -131,6 +166,7 @@ public class TextBuddyUI {
 		System.out.println(str);
 	}
 	private void systemExit(){
+		printStatement("Bye!");
 		System.exit(0);
 	}
 }

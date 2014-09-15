@@ -13,10 +13,19 @@ import model.Task;
 public class TextBuddyLogic {
 	
 	String fileName;
+
 	public TextBuddyLogic(String fileName){
 		this.fileName=fileName;
 	}
 	
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
 	public boolean add(Task task){
 		try {
 			FileWriter fstream = new FileWriter(fileName,true);
@@ -62,7 +71,7 @@ public class TextBuddyLogic {
 				deletedLine = "deleted from " + fileName + ": \"" + existingToDos.get(lineNo - 1) + "\"";
 				existingToDos.remove(lineNo - 1);
 				for(int i=0;i<existingToDos.size();i++){
-					add(existingToDos.get(i));
+					add(new Task(existingToDos.get(i)));
 				}
 			}else{
 				deletedLine = "Line number not found! None was deleted.";
