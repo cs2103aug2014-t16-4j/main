@@ -7,6 +7,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 import model.Task;
 
@@ -93,4 +95,42 @@ public class TextBuddyLogic {
 		}
 		return false;
 	}
+	
+	public void sort() throws Exception{
+		Map<String,String> map = new TreeMap<String,String>();
+		String line="";
+		BufferedReader in = new BufferedReader(new FileReader(fileName));
+		while((line=in.readLine())!=null){
+			map.put(line,line);
+		}
+		in.close();
+		clear();
+		for(String s:map.values()){
+			add(new Task(s));
+		}
+	}
+	
+	public String search(String keyword) throws IOException{
+		keyword = keyword.toLowerCase(); //case insensitive
+		String foundLine = "";
+		String line;
+		int lineNo = 1;
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(fileName));
+			while((line = in.readLine())!=null){
+				if(line.contains(keyword)){
+					foundLine += lineNo + ". "+ line + "\n";
+					lineNo++;
+				}
+			}
+			if(foundLine.isEmpty()){
+				foundLine = "None was found\n";
+			}
+			in.close();
+		} catch (FileNotFoundException e) {
+		}
+		// To escape the last next line character ('\n')
+		return foundLine.substring(0,foundLine.length()-1);
+	}
+	
 }

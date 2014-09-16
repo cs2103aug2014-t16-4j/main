@@ -27,7 +27,7 @@ public class TextBuddyUI {
 
 	//possible commands
 	public enum Commands{
-		ADD,DISPLAY,DELETE,CLEAR,EXIT
+		ADD,DISPLAY,DELETE,CLEAR,SORT,SEARCH,EXIT
 	};
 	
 	public TextBuddyUI(String[] args){
@@ -79,6 +79,12 @@ public class TextBuddyUI {
 				case DELETE:
 					printStatement(delete(task));
 					break;
+				case SORT:
+					printStatement(sort());
+					break;
+				case SEARCH:
+					printStatement(search(task));
+					break;
 				case EXIT:
 					systemExit();
 				default:
@@ -90,6 +96,23 @@ public class TextBuddyUI {
 			}
 		}
 	}
+	private String search(String keyword) {
+		printStatement("=== Found line ===");
+		try {
+			return logic.search(keyword);
+		} catch (IOException e) {
+			return ERROR_UNKNOWN;
+		}
+	}
+	private String sort(){
+		try {
+			logic.sort();
+		} catch (Exception e) {
+		}
+		printStatement("== Sorted list ==");
+		return display();
+	}
+
 	private String delete(String lineNo) {
 		if(lineNo != null && !lineNo.isEmpty()){
 			int lineNumber;
