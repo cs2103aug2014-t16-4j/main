@@ -8,6 +8,7 @@ import model.Task;
 
 public class TextBuddyUI {
 	
+	//FEEDBACK STRINGS
 	private static final String STRING_WELCOME = "Welcome to TextBuddy.%1$s is ready for use.\n";
 	private static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , clear , sort , search , exit";
 	private static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
@@ -29,12 +30,15 @@ public class TextBuddyUI {
 	public enum Commands{
 		ADD,DISPLAY,DELETE,CLEAR,SORT,SEARCH,EXIT
 	};
+
 	public TextBuddyUI(String fileName){
 		logic = new TextBuddyLogic(fileName);
 	}
+	
 	public TextBuddyUI(String[] args){
 		
 	}
+	
 	public void checkArgs(String[] args) {
 		if(args.length != 1){
 			printHelp();
@@ -44,9 +48,11 @@ public class TextBuddyUI {
 		fileName = checkFileName(fileName);
 		init(fileName);
 	}
+	
 	private void printHelp() {
 		printStatement(STRING_HELP);
 	}
+
 	public void init(String fileName){
 		logic = new TextBuddyLogic(fileName);
 		printWelcomeMsg(fileName);
@@ -98,6 +104,7 @@ public class TextBuddyUI {
 			}
 		}
 	}
+
 	public String search(String keyword) {
 		printStatement("=== Found line ===");
 		try {
@@ -106,6 +113,7 @@ public class TextBuddyUI {
 			return ERROR_UNKNOWN;
 		}
 	}
+
 	public String sort(){
 		try {
 			logic.sort();

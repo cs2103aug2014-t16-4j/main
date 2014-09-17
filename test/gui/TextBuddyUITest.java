@@ -21,7 +21,30 @@ public class TextBuddyUITest {
 
 	@Test
 	public void testSearch() {
-
+		System.out.println("=== Testing search function ===");
+		String expectedString = "1. to do something\n2. to do cs2103 project";
+		logic.clear();
+		logic.add("to sleep");
+		logic.add("to do something");
+		logic.add("to do cs2103 project");
+		logic.add("to eat");
+		String returnString = logic.search("do");
+		//System.out.println(returnString);
+		assertEquals(expectedString,returnString);
+	}
+	
+	@Test
+	public void testSearchNotFound(){
+		System.out.println("=== Testing search function ===");
+		String expectedString = "None was found";
+		logic.clear();
+		logic.add("to sleep");
+		logic.add("to do something");
+		logic.add("to do cs2103 project");
+		logic.add("to eat");
+		String returnString = logic.search("Anything not from text file");
+		//System.out.println(returnString);
+		assertEquals(expectedString,returnString);
 	}
 
 	@Test
@@ -35,38 +58,80 @@ public class TextBuddyUITest {
 		logic.add("FFFF");
 		logic.add("EEEE");
 		String returnString = logic.sort();
-		System.out.println(returnString);
+		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
-		
 	}
 
+	@Test
+	public void testSortwithSameFirstWord() throws Exception{
+		System.out.println("=== Testing sort function ===");
+		String expectedString = "1. to do A\n2. to do B\n3. to do C\n4. to do D\n5. to do E";
+		logic.clear();
+		logic.add("to do A");
+		logic.add("to do C");
+		logic.add("to do B");
+		logic.add("to do E");
+		logic.add("to do D");
+		String returnString = logic.sort();
+		//System.out.println(returnString);
+		assertEquals(expectedString,returnString);
+	}
 	@Test
 	public void testDelete() {
-	}
-
-	@Test
-	public void testClear() {
-		System.out.println("Testing clear function... ");
-		logic.add("first one");
-		logic.add("second one");
-		String expectedString = "All content deleted from "+ fileName;
-		String returnString = logic.clear();
-		System.out.println(returnString);
+		System.out.println("=== Testing delete function ===");
+		String expectedString = "deleted from " + fileName + ": \"Second line\"";
+		logic.clear();
+		logic.add("First line");
+		logic.add("Second line");
+		logic.add("Third line");
+		logic.add("Forth line");
+		String returnString = logic.delete("2");
+		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
 
 	@Test
-	public void testDisplay() {
-
+	public void testDeleteLineNotFound(){
+		System.out.println("=== Testing delete function ===");
+		String expectedString = "Line number not found! None was deleted.";
+		logic.clear();
+		logic.add("First line");
+		logic.add("Second line");
+		logic.add("Third line");
+		logic.add("Forth line");
+		String returnString = logic.delete("-1");
+		//System.out.println(returnString);
+		assertEquals(expectedString,returnString);
+	}
+	
+	@Test
+	public void testClear() {
+		System.out.println("=== Testing clear function ===");
+		String expectedString = "All content deleted from "+ fileName;
+		logic.add("first one");
+		logic.add("second one");
+		String returnString = logic.clear();
+		//System.out.println(returnString);
+		assertEquals(expectedString,returnString);
 	}
 
 	@Test
 	public void testAdd() {
-		System.out.println("Testing add function...");
-		logic.clear();
+		System.out.println("=== Testing add function ===");
 		String expectedString = "added to "+ fileName +": \"To eat\"";
+		logic.clear();
 		String returnString = logic.add("To eat");
-		System.out.println(returnString);
+		//System.out.println(returnString);
+		assertEquals(expectedString,returnString);
+	}
+	
+	@Test
+	public void testAddWithBlankTask(){
+		System.out.println("=== Testing add function with blank todo ===");
+		String expectedString = "Task cannot be blank.";
+		logic.clear();
+		String returnString = logic.add("");
+		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
 
