@@ -29,7 +29,9 @@ public class TextBuddyUI {
 	public enum Commands{
 		ADD,DISPLAY,DELETE,CLEAR,SORT,SEARCH,EXIT
 	};
-	
+	public TextBuddyUI(String fileName){
+		logic = new TextBuddyLogic(fileName);
+	}
 	public TextBuddyUI(String[] args){
 		
 	}
