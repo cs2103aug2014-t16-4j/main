@@ -1,7 +1,6 @@
 package gui;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.Before;
@@ -43,11 +42,17 @@ public class TextBuddyUITest {
 
 	@Test
 	public void testDelete() {
-		fail("Not yet implemented"); 
 	}
 
 	@Test
 	public void testClear() {
+		System.out.println("Testing clear function... ");
+		logic.add("first one");
+		logic.add("second one");
+		String expectedString = "All content deleted from "+ fileName;
+		String returnString = logic.clear();
+		System.out.println(returnString);
+		assertEquals(expectedString,returnString);
 	}
 
 	@Test
@@ -57,7 +62,7 @@ public class TextBuddyUITest {
 
 	@Test
 	public void testAdd() {
-		System.out.println("Testing adding function...");
+		System.out.println("Testing add function...");
 		logic.clear();
 		String expectedString = "added to "+ fileName +": \"To eat\"";
 		String returnString = logic.add("To eat");
