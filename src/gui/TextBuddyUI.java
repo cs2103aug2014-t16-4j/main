@@ -51,7 +51,7 @@ public class TextBuddyUI {
 		start(fileName);
 	}
 
-	private void start(String fileName) {
+	public void start(String fileName) {
 		scanner = new Scanner(System.in);
 		String userInput = "";
 		String[] splittedString;
@@ -96,7 +96,7 @@ public class TextBuddyUI {
 			}
 		}
 	}
-	private String search(String keyword) {
+	public String search(String keyword) {
 		printStatement("=== Found line ===");
 		try {
 			return logic.search(keyword);
@@ -104,7 +104,7 @@ public class TextBuddyUI {
 			return ERROR_UNKNOWN;
 		}
 	}
-	private String sort(){
+	public String sort(){
 		try {
 			logic.sort();
 		} catch (Exception e) {
@@ -113,7 +113,7 @@ public class TextBuddyUI {
 		return display();
 	}
 
-	private String delete(String lineNo) {
+	public String delete(String lineNo) {
 		if(lineNo != null && !lineNo.isEmpty()){
 			int lineNumber;
 			try{
@@ -127,7 +127,7 @@ public class TextBuddyUI {
 		}
 	}
 
-	private String clear() {
+	public String clear() {
 		boolean isCleared = logic.clear();
 		if(isCleared){
 			return String.format(STRING_CLEAR, logic.getFileName());
@@ -136,7 +136,7 @@ public class TextBuddyUI {
 		}
 	}
 
-	private String display() {
+	public String display() {
 		try {
 			return logic.display();
 		} catch (IOException e) {
@@ -144,7 +144,7 @@ public class TextBuddyUI {
 		}
 	}
 
-	private String add(String task) {
+	public String add(String task) {
 		Task tsk = new Task(task);
 		if(tsk != null && !tsk.isEmpty()){
 			boolean isSuccess = logic.add(tsk);
