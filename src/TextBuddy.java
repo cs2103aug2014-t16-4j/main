@@ -1,6 +1,5 @@
 import gui.TextBuddyUI;
 
-
 public class TextBuddy {
 
 	/**
