@@ -12,6 +12,7 @@ import org.eclipse.swt.widgets.*;
 
 import logic.TextBuddyLogic;
 import model.Task;
+import org.eclipse.swt.custom.ScrolledComposite;
 
 public class TextBuddyUI {
 
@@ -58,7 +59,31 @@ public class TextBuddyUI {
 	/**
 	 * @wbp.parser.entryPoint
 	 */
-	public void init(){
+
+	public TextBuddyUI(String fileName) {
+		logic = new TextBuddyLogic(fileName);
+	}
+
+	public TextBuddyUI(String[] args) {
+	}
+
+	public void checkArgs(String[] args) {
+		/*
+		if (args.length != INPUT_REQUIREMENT) {
+			printHelp();
+			systemExit();
+		}*/
+		String fileName = args.length>0?args[0]:"mytext.txt";
+		fileName = checkFileName(fileName);
+		init(fileName);
+	}
+
+	private void printHelp() {
+		printStatement(STRING_HELP);
+	}
+
+	public void init(String fileName) {
+		
 		display = new Display ();
 		shell = new Shell (display, SWT.NO_TRIM | SWT.ON_TOP);
 		shell.setSize(300, 600);
@@ -80,6 +105,16 @@ public class TextBuddyUI {
 		int y = bounds.y + (bounds.height - rect.height) / 2;
 
 		shell.setLocation(x, y);
+		
+		ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite.setBounds(10, 35, 280, 405);
+		scrolledComposite.setExpandHorizontal(true);
+		scrolledComposite.setExpandVertical(true);
+		
+		ScrolledComposite scrolledComposite_1 = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		scrolledComposite_1.setBounds(10, 446, 280, 144);
+		scrolledComposite_1.setExpandHorizontal(true);
+		scrolledComposite_1.setExpandVertical(true);
 
 		shell.open();
 
@@ -122,31 +157,7 @@ public class TextBuddyUI {
 		}
 		display.dispose ();
 
-	}
-
-	/*public TextBuddyUI(String fileName) {
-		logic = new TextBuddyLogic(fileName);
-	}*/
-
-	public TextBuddyUI(String[] args) {
-		init();
-	}
-
-	public void checkArgs(String[] args) {
-		if (args.length != INPUT_REQUIREMENT) {
-			printHelp();
-			systemExit();
-		}
-		String fileName = args[0];
-		fileName = checkFileName(fileName);
-		init(fileName);
-	}
-
-	private void printHelp() {
-		printStatement(STRING_HELP);
-	}
-
-	public void init(String fileName) {
+		
 		logic = new TextBuddyLogic(fileName);
 		printWelcomeMsg(fileName);
 		start(fileName);
