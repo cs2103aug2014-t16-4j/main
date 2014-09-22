@@ -7,15 +7,17 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.*;
-
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 
 import logic.TextBuddyLogic;
 import model.Task;
+
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class TextBuddyUI {
@@ -95,6 +97,8 @@ public class TextBuddyUI {
 		shell = new Shell (display, SWT.NO_TRIM | SWT.ON_TOP);
 		shell.setSize(300, 620);
 		shell.setLayout(null);
+		
+		createTrayIcon();
 
 		input = new Text(shell, SWT.BORDER);
 		input.addKeyListener(new KeyAdapter() {
@@ -144,6 +148,66 @@ public class TextBuddyUI {
 //		logic = new TextBuddyLogic(fileName);
 //		printWelcomeMsg(fileName);
 //		start(fileName);
+	}
+
+	private void createTrayIcon() {
+		Image image = new Image (display, 16, 16);
+		Image image2 = new Image (display, 16, 16);
+		GC gc = new GC(image2);
+		gc.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
+		gc.fillRectangle(image2.getBounds());
+		gc.dispose();
+		final Tray tray = display.getSystemTray ();
+		if (tray == null) {
+			System.out.println ("The system tray is not available");
+		} else {
+			final TrayItem item = new TrayItem (tray, SWT.NONE);
+			item.setToolTipText("SWT TrayItem");
+			item.addListener (SWT.Show, new Listener () {
+				@Override
+				public void handleEvent (Event event) {
+					System.out.println("show");
+				}
+			});
+			item.addListener (SWT.Hide, new Listener () {
+				@Override
+				public void handleEvent (Event event) {
+					System.out.println("hide");
+				}
+			});
+			item.addListener (SWT.Selection, new Listener () {
+				@Override
+				public void handleEvent (Event event) {
+					System.out.println("selection");
+				}
+			});
+			item.addListener (SWT.DefaultSelection, new Listener () {
+				@Override
+				public void handleEvent (Event event) {
+					System.out.println("default selection");
+				}
+			});
+			final Menu menu = new Menu (shell, SWT.POP_UP);
+			for (int i = 0; i < 8; i++) {
+				MenuItem mi = new MenuItem (menu, SWT.PUSH);
+				mi.setText ("Item" + i);
+				mi.addListener (SWT.Selection, new Listener () {
+					@Override
+					public void handleEvent (Event event) {
+						System.out.println("selection " + event.widget);
+					}
+				});
+				if (i == 0) menu.setDefaultItem(mi);
+			}
+			item.addListener (SWT.MenuDetect, new Listener () {
+				@Override
+				public void handleEvent (Event event) {
+					menu.setVisible (true);
+				}
+			});
+			item.setImage (image2);
+			item.setHighlightImage (image);
+		}
 	}
 
 	private void disposeDisplay() {
