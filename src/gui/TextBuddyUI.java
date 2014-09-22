@@ -8,11 +8,14 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 
 import logic.TextBuddyLogic;
 import model.Task;
+
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.layout.GridData;
 
 public class TextBuddyUI {
 
@@ -22,7 +25,8 @@ public class TextBuddyUI {
 	private Display display;
 	private Shell shell;
 	private Text input;
-
+	private Label statusInd;
+	private Composite statusComposite;
 
 	// FEEDBACK STRINGS
 	private static final String STRING_WELCOME = "Welcome to TextBuddy. %1$s is ready for use.\n";
@@ -56,14 +60,10 @@ public class TextBuddyUI {
 		ADD, DISPLAY, DELETE, CLEAR, SORT, SEARCH, EXIT
 	};
 
-	/**
-	 * @wbp.parser.entryPoint
-	 */
-
 	public TextBuddyUI(String fileName) {
 		logic = new TextBuddyLogic(fileName);
 	}
-
+	
 	public TextBuddyUI(String[] args) {
 	}
 
@@ -83,11 +83,14 @@ public class TextBuddyUI {
 		printStatement(STRING_HELP);
 	}
 
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	public void init(String fileName) {
 		
 		display = new Display ();
 		shell = new Shell (display, SWT.NO_TRIM | SWT.ON_TOP);
-		shell.setSize(300, 600);
+		shell.setSize(300, 620);
 		shell.setLayout(null);
 
 		input = new Text(shell, SWT.BORDER);
@@ -107,22 +110,36 @@ public class TextBuddyUI {
 		scrolledComposite_1.setBounds(10, 446, 280, 144);
 		scrolledComposite_1.setExpandHorizontal(true);
 		scrolledComposite_1.setExpandVertical(true);
+		
+		statusComposite = new Composite(shell, SWT.NONE);
+		statusComposite.setBounds(10, 596, 280, 14);
+		
+		statusInd = new Label(statusComposite, SWT.NONE);
+		statusInd.setBounds(0, 0, 280, 14);
+		statusInd.setAlignment(SWT.CENTER);
 
 		positionWindow();
 		
 		shell.open();
+		
+		printWelcomeMsg(fileName);
 
 		enableDrag();
 
-		while (!shell.isDisposed ()) {
-			if (!display.readAndDispatch ()) display.sleep ();
-		}
-		display.dispose ();
+		disposeDisplay();
 
-		
 		logic = new TextBuddyLogic(fileName);
-		printWelcomeMsg(fileName);
+		//printWelcomeMsg(fileName);
 		start(fileName);
+	}
+
+	private void disposeDisplay() {
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) display.sleep();
+		}
+		display.dispose();
+		//alex-temp to make it exit after gui is closed
+		systemExit();
 	}
 
 	private void enableDrag() {
@@ -296,7 +313,10 @@ public class TextBuddyUI {
 	}
 
 	private void printWelcomeMsg(String fileName) {
-		System.out.printf(STRING_WELCOME, fileName);
+		//System.out.printf(STRING_WELCOME, fileName);
+
+		statusInd.setText("Welcome to TextBuddy.");
+		statusComposite.layout();
 	}
 
 	private Commands getCommandType(String command) {
@@ -311,6 +331,10 @@ public class TextBuddyUI {
 	}
 
 	private void printStatement(String str) {
+		if(!shell.isDisposed()){
+			statusInd.setText(str);
+			statusComposite.layout();
+		}
 		System.out.println(str);
 	}
 
