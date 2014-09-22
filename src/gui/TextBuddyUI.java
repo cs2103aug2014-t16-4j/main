@@ -8,16 +8,15 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 
 import logic.TextBuddyLogic;
 import model.Task;
-
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class TextBuddyUI {
 
@@ -29,6 +28,8 @@ public class TextBuddyUI {
 	private Text input;
 	private Label statusInd;
 	private Composite statusComposite;
+	ScrolledComposite dayComposite;
+	ScrolledComposite somedayComposite;
 
 	// FEEDBACK STRINGS
 	private static final String STRING_WELCOME = "Welcome to TextBuddy. %1$s is ready for use.\n";
@@ -70,11 +71,10 @@ public class TextBuddyUI {
 	}
 
 	public void checkArgs(String[] args) {
-		/*
-		if (args.length != INPUT_REQUIREMENT) {
-			printHelp();
-			systemExit();
-		}*/
+//		if (args.length != INPUT_REQUIREMENT) {
+//			printHelp();
+//			systemExit();
+//		}
 		//alex-added default file name so one can run on eclipse 
 		String fileName = args.length>0?args[0]:"mytext.txt"; 
 		fileName = checkFileName(fileName);
@@ -91,7 +91,7 @@ public class TextBuddyUI {
 	public void init(String fileName) {
 		logic = new TextBuddyLogic(fileName);
 		
-		display = new Display ();
+		display = new Display();
 		shell = new Shell (display, SWT.NO_TRIM | SWT.ON_TOP);
 		shell.setSize(300, 620);
 		shell.setLayout(null);
@@ -113,20 +113,21 @@ public class TextBuddyUI {
 		help.setBounds(261, 8, 35, 25);
 		help.setText("?");
 		
-		ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		scrolledComposite.setBounds(10, 35, 280, 405);
-		scrolledComposite.setExpandHorizontal(true);
-		scrolledComposite.setExpandVertical(true);
+		dayComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		dayComposite.setBounds(10, 35, 280, 405);
+		dayComposite.setExpandHorizontal(true);
+		dayComposite.setExpandVertical(true);
 		
-		ScrolledComposite scrolledComposite_1 = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		scrolledComposite_1.setBounds(10, 446, 280, 144);
-		scrolledComposite_1.setExpandHorizontal(true);
-		scrolledComposite_1.setExpandVertical(true);
+		somedayComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		somedayComposite.setBounds(10, 446, 280, 144);
+		somedayComposite.setExpandHorizontal(true);
+		somedayComposite.setExpandVertical(true);
 		
 		statusComposite = new Composite(shell, SWT.NONE);
 		statusComposite.setBounds(10, 596, 280, 14);
 		
 		statusInd = new Label(statusComposite, SWT.NONE);
+		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande", 10, SWT.NORMAL));
 		statusInd.setBounds(0, 0, 280, 14);
 		statusInd.setAlignment(SWT.CENTER);
 
@@ -140,9 +141,9 @@ public class TextBuddyUI {
 
 		disposeDisplay();
 
-		logic = new TextBuddyLogic(fileName);
-		printWelcomeMsg(fileName);
-		start(fileName);
+//		logic = new TextBuddyLogic(fileName);
+//		printWelcomeMsg(fileName);
+//		start(fileName);
 	}
 
 	private void disposeDisplay() {
@@ -327,10 +328,8 @@ public class TextBuddyUI {
 	}
 
 	private void printWelcomeMsg(String fileName) {
-		//System.out.printf(STRING_WELCOME, fileName);
-
-		statusInd.setText("Welcome to TextBuddy.");
-		statusComposite.layout();
+		System.out.printf(STRING_WELCOME, fileName);
+		printStatement(String.format(STRING_WELCOME, fileName));
 	}
 
 	private Commands getCommandType(String command) {
