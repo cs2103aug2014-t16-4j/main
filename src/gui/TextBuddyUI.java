@@ -3,10 +3,25 @@ package gui;
 import java.io.IOException;
 import java.util.Scanner;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.*;
+
 import logic.TextBuddyLogic;
 import model.Task;
 
 public class TextBuddyUI {
+
+	private static Boolean blnMouseDown=false;
+	private static int xPos=0;
+	private static int yPos=0;
+	private Display display;
+	private Shell shell;
+	private Text input;
+
 
 	// FEEDBACK STRINGS
 	private static final String STRING_WELCOME = "Welcome to TextBuddy.%1$s is ready for use.\n";
@@ -40,12 +55,81 @@ public class TextBuddyUI {
 		ADD, DISPLAY, DELETE, CLEAR, SORT, SEARCH, EXIT
 	};
 
-	public TextBuddyUI(String fileName) {
-		logic = new TextBuddyLogic(fileName);
+	/**
+	 * @wbp.parser.entryPoint
+	 */
+	public void init(){
+		display = new Display ();
+		shell = new Shell (display, SWT.NO_TRIM | SWT.ON_TOP);
+		shell.setSize(300, 600);
+		shell.setLayout(null);
+
+		input = new Text(shell, SWT.BORDER);
+		input.setBounds(10, 10, 245, 19);
+		input.setFocus();
+
+		Button help = new Button(shell, SWT.NONE);
+		help.setBounds(261, 8, 35, 25);
+		help.setText("?");
+
+		Monitor primary = display.getPrimaryMonitor();
+		Rectangle bounds = primary.getBounds();
+		Rectangle rect = shell.getBounds();
+
+		int x = bounds.x + (bounds.width - rect.width) / 2;
+		int y = bounds.y + (bounds.height - rect.height) / 2;
+
+		shell.setLocation(x, y);
+
+		shell.open();
+
+		shell.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseUp(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				blnMouseDown=false;
+			}
+
+			@Override
+			public void mouseDown(MouseEvent e) {
+				// TODO Auto-generated method stub
+				blnMouseDown=true;
+				xPos=e.x;
+				yPos=e.y;
+			}
+
+			@Override
+			public void mouseDoubleClick(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+		shell.addMouseMoveListener(new MouseMoveListener() {
+
+			@Override
+			public void mouseMove(MouseEvent e) {
+				// TODO Auto-generated method stub
+				if(blnMouseDown){
+
+					shell.setLocation(shell.getLocation().x+(e.x-xPos),shell.getLocation().y+(e.y-yPos));
+				}
+			}
+		});
+
+		while (!shell.isDisposed ()) {
+			if (!display.readAndDispatch ()) display.sleep ();
+		}
+		display.dispose ();
+
 	}
 
-	public TextBuddyUI(String[] args) {
+	/*public TextBuddyUI(String fileName) {
+		logic = new TextBuddyLogic(fileName);
+	}*/
 
+	public TextBuddyUI(String[] args) {
+		init();
 	}
 
 	public void checkArgs(String[] args) {
