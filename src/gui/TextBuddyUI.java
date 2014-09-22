@@ -41,7 +41,7 @@ public class TextBuddyUI {
 	private static final String STRING_ADD = "added to %1$s: \"%2$s\"";
 	private static final String STRING_CLEAR = "All content deleted from %1$s";
 	private static final String STRING_FOUND_LINE = "=== Found line ===";
-	private static final String STRING_SORTED = "== Sorted list ==";
+	private static final String STRING_SORTED = "List Sorted";
 	private static final String STRING_EXIT = "Bye!";
 
 	// ERRORS
@@ -57,9 +57,14 @@ public class TextBuddyUI {
 	private static final int TASK_POSITION = 1;
 	private static final int FILE_TYPE_POSITION = 1;
 	private static final int FILE_VALID_LENGTH = 2;
+	private static final int RENDER_STATUS_INDICATOR = 0;
+	private static final int RENDER_DAY = 1;
+	private static final int RENDER_SOMEDAY = 2;
+	private static final int RENDER_BOTH = 3;
 	Scanner scanner;
 	TextBuddyLogic logic;
-	private List list;
+	private List somedayList;
+	private List dayList;
 
 	// possible commands
 	public enum Commands {
@@ -85,7 +90,8 @@ public class TextBuddyUI {
 	}
 
 	private void printHelp() {
-		printStatement(STRING_HELP);
+		//needs to change to pop up
+		printStatement(STRING_HELP, RENDER_STATUS_INDICATOR);
 	}
 
 	/**
@@ -93,15 +99,10 @@ public class TextBuddyUI {
 	 */
 	public void init(String fileName) {
 		logic = new TextBuddyLogic(fileName);
-		
 		display = new Display();
-		
 		renderShell();
-		
 		createTrayIcon();
-
 		renderInput();
-
 		renderHelpButton();
 		
 		dayComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -114,21 +115,17 @@ public class TextBuddyUI {
 		somedayComposite.setExpandHorizontal(true);
 		somedayComposite.setExpandVertical(true);
 		
-		list = new List(somedayComposite, SWT.BORDER);
-		list.setItems(new String[] {"test"});
-		somedayComposite.setContent(list);
-		somedayComposite.setMinSize(list.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		somedayList = new List(somedayComposite, SWT.BORDER);
+		somedayList.setItems(new String[] {});
+		somedayComposite.setContent(somedayList);
+		somedayComposite.setMinSize(somedayList.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		
 		renderStatusIndicator();
-
+		printStatement(display(), RENDER_BOTH);
 		printWelcomeMsg(fileName);
-		
 		positionWindow();
-		
 		shell.open();
-
 		enableDrag();
-
 		disposeDisplay();
 	}
 
@@ -305,36 +302,36 @@ public class TextBuddyUI {
 		if (command != null) {
 			switch (command) {
 			case ADD:
-				printStatement(add(task));
+				printStatement(add(task), RENDER_STATUS_INDICATOR);
 				break;
 			case DISPLAY:
-				printStatement(display());
+				printStatement(display(), RENDER_BOTH);
 				break;
 			case CLEAR:
-				printStatement(clear());
+				printStatement(clear(), RENDER_STATUS_INDICATOR);
 				break;
 			case DELETE:
-				printStatement(delete(task));
+				printStatement(delete(task), RENDER_STATUS_INDICATOR);
 				break;
 			case SORT:
-				printStatement(sort());
+				printStatement(sort(), RENDER_BOTH);
 				break;
 			case SEARCH:
-				printStatement(search(task));
-				break;
+				printStatement(search(task), RENDER_BOTH);
+				return;
 			case EXIT:
 				systemExit();
 			default:
-				printStatement(STRING_NOT_SUPPORTED_COMMAND);
+				printStatement(STRING_NOT_SUPPORTED_COMMAND, RENDER_STATUS_INDICATOR);
 				break;
 			}
 		} else {
-			printStatement(STRING_NOT_SUPPORTED_COMMAND);
+			printStatement(STRING_NOT_SUPPORTED_COMMAND, RENDER_STATUS_INDICATOR);
 		}
+		printStatement(display(), RENDER_BOTH);
 	}
 
 	public String search(String keyword) {
-		printStatement(STRING_FOUND_LINE);
 		try {
 			return logic.search(keyword);
 		} catch (IOException e) {
@@ -347,7 +344,7 @@ public class TextBuddyUI {
 			logic.sort();
 		} catch (Exception e) {
 		}
-		printStatement(STRING_SORTED);
+		printStatement(STRING_SORTED, RENDER_STATUS_INDICATOR);
 		return display();
 	}
 
@@ -412,7 +409,7 @@ public class TextBuddyUI {
 
 	private void printWelcomeMsg(String fileName) {
 		System.out.printf(STRING_WELCOME, fileName);
-		printStatement(String.format(STRING_WELCOME, fileName));
+		printStatement(String.format(STRING_WELCOME, fileName), RENDER_STATUS_INDICATOR);
 	}
 
 	private Commands getCommandType(String command) {
@@ -426,16 +423,32 @@ public class TextBuddyUI {
 		return null;
 	}
 
-	private void printStatement(String str) {
-		if(!shell.isDisposed()){
-			statusInd.setText(str);
-			statusComposite.layout();
+	private void printStatement(String str, int mode) {
+		if(!shell.isDisposed() && mode == RENDER_STATUS_INDICATOR){
+			updateStatusIndicator(str);
 		}
-		System.out.println(str);
+		if(mode == RENDER_BOTH){
+			somedayList.removeAll();
+			updateSomeday(str);
+		}
+		//System.out.println(str);
+	}
+
+	private void updateStatusIndicator(String str) {
+		statusInd.setText(str);
+		statusComposite.layout();
+	}
+
+	private void updateSomeday(String str) {
+		String[] splittedString = str.split("\n");
+		for(int i=0;i<splittedString.length;i++){
+			somedayList.add(splittedString[i]);
+			shell.layout();
+		}
 	}
 
 	private void systemExit() {
-		printStatement(STRING_EXIT);
+		printStatement(STRING_EXIT, RENDER_STATUS_INDICATOR);
 		System.exit(0);
 	}
 }
