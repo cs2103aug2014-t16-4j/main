@@ -192,47 +192,52 @@ public class TextBuddyUI {
 	public void start(String fileName) {
 		scanner = new Scanner(System.in);
 		String userInput = "";
-		String[] splittedString;
 		String task = "";
-		Commands command;
 		for (;;) {
 			System.out.print(STRING_ENTER_COMMAND);
 			userInput = scanner.nextLine();
-			splittedString = getSplittedString(userInput);
-			command = getCommandType(splittedString[0]);
-			if (splittedString.length > TASK_POSITION) {
-				task = splittedString[TASK_POSITION];
-			}
-			if (command != null) {
-				switch (command) {
-				case ADD:
-					printStatement(add(task));
-					break;
-				case DISPLAY:
-					printStatement(display());
-					break;
-				case CLEAR:
-					printStatement(clear());
-					break;
-				case DELETE:
-					printStatement(delete(task));
-					break;
-				case SORT:
-					printStatement(sort());
-					break;
-				case SEARCH:
-					printStatement(search(task));
-					break;
-				case EXIT:
-					systemExit();
-				default:
-					printStatement(STRING_NOT_SUPPORTED_COMMAND);
-					break;
-				}
-			} else {
-				printStatement(STRING_NOT_SUPPORTED_COMMAND);
-			}
+			task = delegateTask(userInput, task);
 		}
+	}
+
+	private String delegateTask(String userInput, String task) {
+		String[] splittedString;
+		Commands command;
+		splittedString = getSplittedString(userInput);
+		command = getCommandType(splittedString[0]);
+		if (splittedString.length > TASK_POSITION) {
+			task = splittedString[TASK_POSITION];
+		}
+		if (command != null) {
+			switch (command) {
+			case ADD:
+				printStatement(add(task));
+				break;
+			case DISPLAY:
+				printStatement(display());
+				break;
+			case CLEAR:
+				printStatement(clear());
+				break;
+			case DELETE:
+				printStatement(delete(task));
+				break;
+			case SORT:
+				printStatement(sort());
+				break;
+			case SEARCH:
+				printStatement(search(task));
+				break;
+			case EXIT:
+				systemExit();
+			default:
+				printStatement(STRING_NOT_SUPPORTED_COMMAND);
+				break;
+			}
+		} else {
+			printStatement(STRING_NOT_SUPPORTED_COMMAND);
+		}
+		return task;
 	}
 
 	public String search(String keyword) {
