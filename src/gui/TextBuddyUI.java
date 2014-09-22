@@ -73,7 +73,8 @@ public class TextBuddyUI {
 			printHelp();
 			systemExit();
 		}*/
-		String fileName = args.length>0?args[0]:"mytext.txt";
+		//alex-added default file name so one can run on eclipse 
+		String fileName = args.length>0?args[0]:"mytext.txt"; 
 		fileName = checkFileName(fileName);
 		init(fileName);
 	}
@@ -96,15 +97,6 @@ public class TextBuddyUI {
 		Button help = new Button(shell, SWT.NONE);
 		help.setBounds(261, 8, 35, 25);
 		help.setText("?");
-
-		Monitor primary = display.getPrimaryMonitor();
-		Rectangle bounds = primary.getBounds();
-		Rectangle rect = shell.getBounds();
-
-		int x = bounds.x + (bounds.width - rect.width) / 2;
-		int y = bounds.y + (bounds.height - rect.height) / 2;
-
-		shell.setLocation(x, y);
 		
 		ScrolledComposite scrolledComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		scrolledComposite.setBounds(10, 35, 280, 405);
@@ -116,8 +108,24 @@ public class TextBuddyUI {
 		scrolledComposite_1.setExpandHorizontal(true);
 		scrolledComposite_1.setExpandVertical(true);
 
+		positionWindow();
+		
 		shell.open();
 
+		enableDrag();
+
+		while (!shell.isDisposed ()) {
+			if (!display.readAndDispatch ()) display.sleep ();
+		}
+		display.dispose ();
+
+		
+		logic = new TextBuddyLogic(fileName);
+		printWelcomeMsg(fileName);
+		start(fileName);
+	}
+
+	private void enableDrag() {
 		shell.addMouseListener(new MouseListener() {
 
 			@Override
@@ -151,16 +159,17 @@ public class TextBuddyUI {
 				}
 			}
 		});
+	}
 
-		while (!shell.isDisposed ()) {
-			if (!display.readAndDispatch ()) display.sleep ();
-		}
-		display.dispose ();
+	private void positionWindow() {
+		Monitor primary = display.getPrimaryMonitor();
+		Rectangle bounds = primary.getBounds();
+		Rectangle rect = shell.getBounds();
 
-		
-		logic = new TextBuddyLogic(fileName);
-		printWelcomeMsg(fileName);
-		start(fileName);
+		int x = bounds.x + (bounds.width - rect.width) / 2;
+		int y = bounds.y + (bounds.height - rect.height) / 2;
+
+		shell.setLocation(x, y);
 	}
 
 	public void start(String fileName) {
