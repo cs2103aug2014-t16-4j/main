@@ -59,6 +59,7 @@ public class TextBuddyUI {
 	private static final int FILE_VALID_LENGTH = 2;
 	Scanner scanner;
 	TextBuddyLogic logic;
+	private List list;
 
 	// possible commands
 	public enum Commands {
@@ -94,12 +95,44 @@ public class TextBuddyUI {
 		logic = new TextBuddyLogic(fileName);
 		
 		display = new Display();
-		shell = new Shell (display, SWT.NO_TRIM | SWT.ON_TOP);
-		shell.setSize(300, 620);
-		shell.setLayout(null);
+		
+		renderShell();
 		
 		createTrayIcon();
 
+		renderInput();
+
+		renderHelpButton();
+		
+		dayComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		dayComposite.setBounds(10, 35, 280, 405);
+		dayComposite.setExpandHorizontal(true);
+		dayComposite.setExpandVertical(true);
+		
+		somedayComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		somedayComposite.setBounds(10, 446, 280, 144);
+		somedayComposite.setExpandHorizontal(true);
+		somedayComposite.setExpandVertical(true);
+		
+		list = new List(somedayComposite, SWT.BORDER);
+		list.setItems(new String[] {"test"});
+		somedayComposite.setContent(list);
+		somedayComposite.setMinSize(list.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		
+		renderStatusIndicator();
+
+		printWelcomeMsg(fileName);
+		
+		positionWindow();
+		
+		shell.open();
+
+		enableDrag();
+
+		disposeDisplay();
+	}
+
+	private void renderInput() {
 		input = new Text(shell, SWT.BORDER);
 		input.addKeyListener(new KeyAdapter() {
 			@Override
@@ -112,21 +145,9 @@ public class TextBuddyUI {
 		});
 		input.setBounds(10, 10, 245, 19);
 		input.setFocus();
+	}
 
-		Button help = new Button(shell, SWT.NONE);
-		help.setBounds(261, 8, 35, 25);
-		help.setText("?");
-		
-		dayComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		dayComposite.setBounds(10, 35, 280, 405);
-		dayComposite.setExpandHorizontal(true);
-		dayComposite.setExpandVertical(true);
-		
-		somedayComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		somedayComposite.setBounds(10, 446, 280, 144);
-		somedayComposite.setExpandHorizontal(true);
-		somedayComposite.setExpandVertical(true);
-		
+	private void renderStatusIndicator() {
 		statusComposite = new Composite(shell, SWT.NONE);
 		statusComposite.setBounds(10, 596, 280, 14);
 		
@@ -134,20 +155,18 @@ public class TextBuddyUI {
 		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande", 10, SWT.NORMAL));
 		statusInd.setBounds(0, 0, 280, 14);
 		statusInd.setAlignment(SWT.CENTER);
+	}
 
-		positionWindow();
-		
-		shell.open();
-		
-		printWelcomeMsg(fileName);
+	private void renderHelpButton() {
+		Button help = new Button(shell, SWT.NONE);
+		help.setBounds(261, 8, 35, 25);
+		help.setText("?");
+	}
 
-		enableDrag();
-
-		disposeDisplay();
-
-//		logic = new TextBuddyLogic(fileName);
-//		printWelcomeMsg(fileName);
-//		start(fileName);
+	private void renderShell() {
+		shell = new Shell (display, SWT.NO_TRIM | SWT.ON_TOP);
+		shell.setSize(300, 620);
+		shell.setLayout(null);
 	}
 
 	private void createTrayIcon() {
