@@ -16,6 +16,8 @@ import model.Task;
 
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 
 public class TextBuddyUI {
 
@@ -87,6 +89,7 @@ public class TextBuddyUI {
 	 * @wbp.parser.entryPoint
 	 */
 	public void init(String fileName) {
+		logic = new TextBuddyLogic(fileName);
 		
 		display = new Display ();
 		shell = new Shell (display, SWT.NO_TRIM | SWT.ON_TOP);
@@ -94,6 +97,15 @@ public class TextBuddyUI {
 		shell.setLayout(null);
 
 		input = new Text(shell, SWT.BORDER);
+		input.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.keyCode == SWT.CR){
+					delegateTask(input.getText());
+					input.setText("");
+				}
+			}
+		});
 		input.setBounds(10, 10, 245, 19);
 		input.setFocus();
 
@@ -129,7 +141,7 @@ public class TextBuddyUI {
 		disposeDisplay();
 
 		logic = new TextBuddyLogic(fileName);
-		//printWelcomeMsg(fileName);
+		printWelcomeMsg(fileName);
 		start(fileName);
 	}
 
@@ -191,17 +203,15 @@ public class TextBuddyUI {
 
 	public void start(String fileName) {
 		scanner = new Scanner(System.in);
-		String userInput = "";
-		String task = "";
 		for (;;) {
 			System.out.print(STRING_ENTER_COMMAND);
-			userInput = scanner.nextLine();
-			task = delegateTask(userInput, task);
+			delegateTask(scanner.nextLine());
 		}
 	}
 
-	private String delegateTask(String userInput, String task) {
+	private void delegateTask(String userInput) {
 		String[] splittedString;
+		String task = "";
 		Commands command;
 		splittedString = getSplittedString(userInput);
 		command = getCommandType(splittedString[0]);
@@ -237,7 +247,6 @@ public class TextBuddyUI {
 		} else {
 			printStatement(STRING_NOT_SUPPORTED_COMMAND);
 		}
-		return task;
 	}
 
 	public String search(String keyword) {
