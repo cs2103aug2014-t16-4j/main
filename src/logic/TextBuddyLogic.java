@@ -63,7 +63,7 @@ public class TextBuddyLogic {
 		} catch (FileNotFoundException e) {
 		}
 		// To escape the last next line character ('\n')
-		return todos.substring(0, todos.length() - 1);
+		return todos.isEmpty()?"":todos.substring(0, todos.length() - 1);
 	}
 
 	public String delete(int lineNo) throws IOException {
