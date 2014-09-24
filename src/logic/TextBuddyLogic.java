@@ -14,7 +14,7 @@ import model.Task;
 
 public class TextBuddyLogic {
 
-	private static final String STRING_DISPLAY = "%d. %s\n";
+	private static final String STRING_DISPLAY = "%d. %s";
 	private static final String STRING_DELETE = "deleted from %s: \"%s\"";
 	private static final String STRING_NOT_FOUND = "None was found\n";
 	private static final String STRING_DELETE_NOT_FOUND = "Line number not found! None was deleted.";
@@ -46,24 +46,23 @@ public class TextBuddyLogic {
 		return false;
 	}
 
-	public String display() throws IOException {
-		String todos = "";
+	public ArrayList<String> display() throws IOException {
+		ArrayList<String> todos = new ArrayList<String>();
 		String line;
 		int lineNo = 1;
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(fileName));
 			while ((line = in.readLine()) != null) {
-				todos += String.format(STRING_DISPLAY, lineNo, line);
+				todos.add(String.format(STRING_DISPLAY, lineNo, line));
 				lineNo++;
 			}
 			if (todos.isEmpty()) {
-				todos = String.format(STRING_FILE_EMPTY, fileName);
+				todos.add(String.format(STRING_FILE_EMPTY, fileName));
 			}
 			in.close();
 		} catch (FileNotFoundException e) {
 		}
-		// To escape the last next line character ('\n')
-		return todos.isEmpty()?"":todos.substring(0, todos.length() - 1);
+		return todos;
 	}
 
 	public String delete(int lineNo) throws IOException {
@@ -119,27 +118,26 @@ public class TextBuddyLogic {
 		}
 	}
 
-	public String search(String keyword) throws IOException {
+	public ArrayList<String> search(String keyword) throws IOException {
 		keyword = keyword.toLowerCase(); // case insensitive
-		String foundLine = "";
+		ArrayList<String> foundLine = new ArrayList<String>();
 		String line;
 		int lineNo = 1;
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(fileName));
 			while ((line = in.readLine()) != null) {
 				if (line.contains(keyword)) {
-					foundLine += String.format(STRING_DISPLAY, lineNo, line);
+					foundLine.add(String.format(STRING_DISPLAY, lineNo, line));
 					lineNo++;
 				}
 			}
 			if (foundLine.isEmpty()) {
-				foundLine = STRING_NOT_FOUND;
+				foundLine.add(STRING_NOT_FOUND);
 			}
 			in.close();
 		} catch (FileNotFoundException e) {
 		}
-		// To escape the last next line character ('\n')
-		return foundLine.substring(0, foundLine.length() - 1);
+		return foundLine;
 	}
 
 }

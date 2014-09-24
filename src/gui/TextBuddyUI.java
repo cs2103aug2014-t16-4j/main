@@ -1,23 +1,36 @@
 package gui;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
+import logic.TextBuddyLogic;
+import model.Task;
+
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.*;
-import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-
-import logic.TextBuddyLogic;
-import model.Task;
-
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tray;
+import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class TextBuddyUI {
@@ -91,7 +104,7 @@ public class TextBuddyUI {
 
 	private void printHelp() {
 		//needs to change to pop up
-		printStatement(STRING_HELP, RENDER_STATUS_INDICATOR);
+		printStatement(STRING_HELP);
 	}
 
 	/**
@@ -302,16 +315,16 @@ public class TextBuddyUI {
 		if (command != null) {
 			switch (command) {
 			case ADD:
-				printStatement(add(task), RENDER_STATUS_INDICATOR);
+				printStatement(add(task));
 				break;
 			case DISPLAY:
 				printStatement(display(), RENDER_BOTH);
 				break;
 			case CLEAR:
-				printStatement(clear(), RENDER_STATUS_INDICATOR);
+				printStatement(clear());
 				break;
 			case DELETE:
-				printStatement(delete(task), RENDER_STATUS_INDICATOR);
+				printStatement(delete(task));
 				break;
 			case SORT:
 				printStatement(sort(), RENDER_BOTH);
@@ -322,29 +335,29 @@ public class TextBuddyUI {
 			case EXIT:
 				systemExit();
 			default:
-				printStatement(STRING_NOT_SUPPORTED_COMMAND, RENDER_STATUS_INDICATOR);
+				printStatement(STRING_NOT_SUPPORTED_COMMAND);
 				break;
 			}
 		} else {
-			printStatement(STRING_NOT_SUPPORTED_COMMAND, RENDER_STATUS_INDICATOR);
+			printStatement(STRING_NOT_SUPPORTED_COMMAND);
 		}
 		printStatement(display(), RENDER_BOTH);
 	}
 
-	public String search(String keyword) {
+	public ArrayList<String> search(String keyword) {
 		try {
 			return logic.search(keyword);
 		} catch (IOException e) {
-			return ERROR_UNKNOWN;
 		}
+		return null;
 	}
 
-	public String sort() {
+	public ArrayList<String> sort() {
 		try {
 			logic.sort();
 		} catch (Exception e) {
 		}
-		printStatement(STRING_SORTED, RENDER_STATUS_INDICATOR);
+		printStatement(STRING_SORTED);
 		return display();
 	}
 
@@ -371,12 +384,12 @@ public class TextBuddyUI {
 		}
 	}
 
-	public String display() {
+	public ArrayList<String> display() {
 		try {
 			return logic.display();
 		} catch (IOException e) {
-			return ERROR_UNKNOWN;
 		}
+		return null;
 	}
 
 	public String add(String task) {
@@ -409,7 +422,7 @@ public class TextBuddyUI {
 
 	private void printWelcomeMsg(String fileName) {
 		System.out.printf(STRING_WELCOME, fileName);
-		printStatement(String.format(STRING_WELCOME, fileName), RENDER_STATUS_INDICATOR);
+		printStatement(String.format(STRING_WELCOME, fileName));
 	}
 
 	private Commands getCommandType(String command) {
@@ -423,10 +436,17 @@ public class TextBuddyUI {
 		return null;
 	}
 
-	private void printStatement(String str, int mode) {
-		if(!shell.isDisposed() && mode == RENDER_STATUS_INDICATOR){
+	private void printStatement(String str){
+		if(!shell.isDisposed()){
 			updateStatusIndicator(str);
 		}
+	}
+	private void printStatement(ArrayList<String> str, int mode) {
+		/*
+		if(!shell.isDisposed() && mode == RENDER_STATUS_INDICATOR){
+			updateStatusIndicator(str.get(0));
+		}
+		*/
 		if(mode == RENDER_BOTH){
 			somedayList.removeAll();
 			updateSomeday(str);
@@ -439,16 +459,15 @@ public class TextBuddyUI {
 		statusComposite.layout();
 	}
 
-	private void updateSomeday(String str) {
-		String[] splittedString = str.split("\n");
-		for(int i=0;i<splittedString.length;i++){
-			somedayList.add(splittedString[i]);
+	private void updateSomeday(ArrayList<String> str) {
+		for(int i=0;i<str.size();i++){
+			somedayList.add(str.get(i));
 			shell.layout();
 		}
 	}
 
 	private void systemExit() {
-		printStatement(STRING_EXIT, RENDER_STATUS_INDICATOR);
+		printStatement(STRING_EXIT);
 		System.exit(0);
 	}
 }

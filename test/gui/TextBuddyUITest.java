@@ -2,6 +2,8 @@ package gui;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.ArrayList;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +30,7 @@ public class TextBuddyUITest {
 		logic.add("to do something");
 		logic.add("to do cs2103 project");
 		logic.add("to eat");
-		String returnString = logic.search("do");
+		ArrayList<String> returnString = logic.search("do");
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
@@ -42,7 +44,7 @@ public class TextBuddyUITest {
 		logic.add("to do something");
 		logic.add("to do cs2103 project");
 		logic.add("to eat");
-		String returnString = logic.search("Anything not from text file");
+		ArrayList<String> returnString = logic.search("Anything not from text file");
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
@@ -57,7 +59,7 @@ public class TextBuddyUITest {
 		logic.add("CCCC");
 		logic.add("FFFF");
 		logic.add("EEEE");
-		String returnString = logic.sort();
+		ArrayList<String> returnString = logic.sort();
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
@@ -72,7 +74,7 @@ public class TextBuddyUITest {
 		logic.add("to do B");
 		logic.add("to do E");
 		logic.add("to do D");
-		String returnString = logic.sort();
+		ArrayList<String> returnString = logic.sort();
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
