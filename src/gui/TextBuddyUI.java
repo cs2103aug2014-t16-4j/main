@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import logic.Parser;
 import logic.TextBuddyLogic;
 import model.Task;
 
@@ -65,6 +66,7 @@ public class TextBuddyUI {
 	TextBuddyLogic logic;
 	private List somedayList;
 	private List dayList;
+	private Parser parser = new Parser();
 
 	// possible commands
 	public enum Commands {
@@ -380,7 +382,7 @@ public class TextBuddyUI {
 	}
 
 	public String add(String task) {
-		Task tsk = new Task(task);
+		Task tsk = parser.decompose(task);
 		if (tsk != null && !tsk.isEmpty()) {
 			boolean isSuccess = logic.add(tsk);
 			if (isSuccess) {
