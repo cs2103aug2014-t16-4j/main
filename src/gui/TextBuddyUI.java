@@ -360,7 +360,7 @@ public class TextBuddyUI {
 			logic.sort();
 		} catch (Exception e) {
 		}
-		printStatement(STRING_SORTED);
+		//printStatement(STRING_SORTED);
 		return display();
 	}
 
@@ -445,16 +445,14 @@ public class TextBuddyUI {
 		}
 	}
 	private void printStatement(ArrayList<JSONObject> str, int mode) {
-		/*
-		if(!shell.isDisposed() && mode == RENDER_STATUS_INDICATOR){
-			updateStatusIndicator(str.get(0));
-		}
-		*/
+		/*if(!shell.isDisposed() && mode == RENDER_STATUS_INDICATOR){
+			updateStatusIndicator(str.get(0).toJSONString());
+		}*/
 		if(mode == RENDER_BOTH){
 			somedayList.removeAll();
 			updateSomeday(str);
 		}
-		//System.out.println(str);
+		//System.out.println(str.get(0).toJSONString());
 	}
 
 	private void updateStatusIndicator(String str) {
@@ -464,8 +462,7 @@ public class TextBuddyUI {
 
 	private void updateSomeday(ArrayList<JSONObject> str) {
 		for(int i=0;i<str.size();i++){
-			//System.out.println(str.get(i));
-			somedayList.add(str.get(i).toJSONString());
+			somedayList.add(str.get(i).get("Name").toString());
 			shell.layout();
 		}
 	}
