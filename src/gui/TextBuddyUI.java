@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import logic.Parser;
-import logic.TextBuddyLogic;
+import logic.Logic;
 import model.Task;
 
 import org.eclipse.swt.SWT;
@@ -63,7 +63,7 @@ public class TextBuddyUI {
 	private static final int RENDER_SOMEDAY = 2;
 	private static final int RENDER_BOTH = 3;
 	Scanner scanner;
-	TextBuddyLogic logic;
+	Logic logic;
 	private List somedayList;
 	private List dayList;
 	private Parser parser = new Parser();
@@ -74,7 +74,7 @@ public class TextBuddyUI {
 	};
 
 	public TextBuddyUI(String fileName) {
-		logic = new TextBuddyLogic(fileName);
+		logic = new Logic(fileName);
 	}
 	
 	public TextBuddyUI(String[] args) {
@@ -100,7 +100,7 @@ public class TextBuddyUI {
 	 * @wbp.parser.entryPoint
 	 */
 	public void init(String fileName) {
-		logic = new TextBuddyLogic(fileName);
+		logic = new Logic(fileName);
 		display = new Display();
 		renderShell();
 		createTrayIcon();
