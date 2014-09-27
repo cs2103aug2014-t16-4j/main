@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import logic.Parser;
 import logic.Logic;
+import logic.Parser;
 import model.Task;
 
 import org.eclipse.swt.SWT;
@@ -18,8 +18,22 @@ import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tray;
+import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.json.simple.JSONObject;
 
 public class TextBuddyUI {
 
@@ -333,7 +347,7 @@ public class TextBuddyUI {
 		printStatement(display(), RENDER_BOTH);
 	}
 
-	public ArrayList<String> search(String keyword) {
+	public ArrayList<JSONObject> search(String keyword) {
 		try {
 			return logic.search(keyword);
 		} catch (IOException e) {
@@ -341,7 +355,7 @@ public class TextBuddyUI {
 		return null;
 	}
 
-	public ArrayList<String> sort() {
+	public ArrayList<JSONObject> sort() {
 		try {
 			logic.sort();
 		} catch (Exception e) {
@@ -373,7 +387,7 @@ public class TextBuddyUI {
 		}
 	}
 
-	public ArrayList<String> display() {
+	public ArrayList<JSONObject> display() {
 		try {
 			return logic.display();
 		} catch (IOException e) {
@@ -430,7 +444,7 @@ public class TextBuddyUI {
 			updateStatusIndicator(str);
 		}
 	}
-	private void printStatement(ArrayList<String> str, int mode) {
+	private void printStatement(ArrayList<JSONObject> str, int mode) {
 		/*
 		if(!shell.isDisposed() && mode == RENDER_STATUS_INDICATOR){
 			updateStatusIndicator(str.get(0));
@@ -448,9 +462,10 @@ public class TextBuddyUI {
 		statusComposite.layout();
 	}
 
-	private void updateSomeday(ArrayList<String> str) {
+	private void updateSomeday(ArrayList<JSONObject> str) {
 		for(int i=0;i<str.size();i++){
-			somedayList.add(str.get(i));
+			//System.out.println(str.get(i));
+			somedayList.add(str.get(i).toJSONString());
 			shell.layout();
 		}
 	}

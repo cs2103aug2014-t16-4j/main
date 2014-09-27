@@ -13,6 +13,8 @@ import java.util.TreeMap;
 import model.Task;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class Logic {
 	//Json key strings
@@ -54,8 +56,7 @@ public class Logic {
 			JTask.put(DATE, task.getDate());
 			JTask.put(PRIORITY, task.getPriority());
 			JTask.put(FREQUENCY, task.getFrequency());
-			bufferedWriter.write(JTask.toString());
-			//bufferedWriter.write(task.getName() + "\r\n");
+			bufferedWriter.write(JTask.toString()+"\r\n");
 			bufferedWriter.close();
 			return true;
 		} catch (IOException e) {
@@ -63,23 +64,20 @@ public class Logic {
 		return false;
 	}
 
-	public ArrayList<String> display() throws IOException {
-		ArrayList<String> todos = new ArrayList<String>();
+	public ArrayList<JSONObject> display() throws IOException {
+		ArrayList<JSONObject> tasks = new ArrayList<JSONObject>();
+		JSONParser jsonParser = new JSONParser();
 		String line;
-		int lineNo = 1;
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(fileName));
 			while ((line = in.readLine()) != null) {
-				todos.add(String.format(STRING_DISPLAY, lineNo, line));
-				lineNo++;
-			}
-			if (todos.isEmpty()) {
-				todos.add(String.format(STRING_FILE_EMPTY, fileName));
+				JSONObject obj = (JSONObject) jsonParser.parse(line);
+				tasks.add(obj);
 			}
 			in.close();
-		} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException | ParseException e) {
 		}
-		return todos;
+		return tasks;
 	}
 
 	public String delete(int lineNo) throws IOException {
@@ -135,24 +133,21 @@ public class Logic {
 		}
 	}
 
-	public ArrayList<String> search(String keyword) throws IOException {
+	public ArrayList<JSONObject> search(String keyword) throws IOException {
 		keyword = keyword.toLowerCase(); // case insensitive
-		ArrayList<String> foundLine = new ArrayList<String>();
+		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
+		JSONParser jsonParser = new JSONParser();
 		String line;
-		int lineNo = 1;
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(fileName));
 			while ((line = in.readLine()) != null) {
 				if (line.contains(keyword)) {
-					foundLine.add(String.format(STRING_DISPLAY, lineNo, line));
-					lineNo++;
+					JSONObject obj = (JSONObject) jsonParser.parse(line);
+					foundLine.add(obj);
 				}
 			}
-			if (foundLine.isEmpty()) {
-				foundLine.add(STRING_NOT_FOUND);
-			}
 			in.close();
-		} catch (FileNotFoundException e) {
+		} catch (FileNotFoundException | ParseException e) {
 		}
 		return foundLine;
 	}

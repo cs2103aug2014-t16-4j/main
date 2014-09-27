@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 
+import org.json.simple.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class TextBuddyUITest {
 		logic.add("to do something");
 		logic.add("to do cs2103 project");
 		logic.add("to eat");
-		ArrayList<String> returnString = logic.search("do");
+		ArrayList<JSONObject> returnString = logic.search("do");
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
@@ -44,7 +45,7 @@ public class TextBuddyUITest {
 		logic.add("to do something");
 		logic.add("to do cs2103 project");
 		logic.add("to eat");
-		ArrayList<String> returnString = logic.search("Anything not from text file");
+		ArrayList<JSONObject> returnString = logic.search("Anything not from text file");
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
@@ -59,7 +60,7 @@ public class TextBuddyUITest {
 		logic.add("CCCC");
 		logic.add("FFFF");
 		logic.add("EEEE");
-		ArrayList<String> returnString = logic.sort();
+		ArrayList<JSONObject> returnString = logic.sort();
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
@@ -74,7 +75,7 @@ public class TextBuddyUITest {
 		logic.add("to do B");
 		logic.add("to do E");
 		logic.add("to do D");
-		ArrayList<String> returnString = logic.sort();
+		ArrayList<JSONObject> returnString = logic.sort();
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
