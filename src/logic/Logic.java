@@ -12,8 +12,17 @@ import java.util.TreeMap;
 
 import model.Task;
 
-public class Logic {
+import org.json.simple.JSONObject;
 
+public class Logic {
+	//Json key strings
+	private static final String NAME = "Name";
+	private static final String DESCRIPTION = "Description";
+	private static final String DATE = "Date";
+	private static final String PRIORITY = "Priority";
+	private static final String FREQUENCY = "Frequency";
+	
+	//Feedback strings
 	private static final String STRING_DISPLAY = "%d. %s";
 	private static final String STRING_DELETE = "deleted from %s: \"%s\"";
 	private static final String STRING_NOT_FOUND = "None was found\n";
@@ -34,11 +43,19 @@ public class Logic {
 		this.fileName = fileName;
 	}
 
+	@SuppressWarnings("unchecked")
 	public boolean add(Task task) {
 		try {
 			FileWriter fstream = new FileWriter(fileName, true);
 			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
-			bufferedWriter.write(task.getName() + "\r\n");
+			JSONObject JTask=new JSONObject();
+			JTask.put(NAME, task.getName());
+			JTask.put(DESCRIPTION, task.getDescription());
+			JTask.put(DATE, task.getDate());
+			JTask.put(PRIORITY, task.getPriority());
+			JTask.put(FREQUENCY, task.getFrequency());
+			bufferedWriter.write(JTask.toString());
+			//bufferedWriter.write(task.getName() + "\r\n");
 			bufferedWriter.close();
 			return true;
 		} catch (IOException e) {
