@@ -50,13 +50,13 @@ public class Logic {
 		try {
 			FileWriter fstream = new FileWriter(fileName, true);
 			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
-			JSONObject JTask=new JSONObject();
-			JTask.put(NAME, task.getName());
-			JTask.put(DESCRIPTION, task.getDescription());
-			JTask.put(DATE, task.getDate());
-			JTask.put(PRIORITY, task.getPriority());
-			JTask.put(FREQUENCY, task.getFrequency());
-			bufferedWriter.write(JTask.toString()+"\r\n");
+			JSONObject jTask=new JSONObject();
+			jTask.put(NAME, task.getName());
+			jTask.put(DESCRIPTION, task.getDescription());
+			jTask.put(DATE, task.getDate());
+			jTask.put(PRIORITY, task.getPriority());
+			jTask.put(FREQUENCY, task.getFrequency());
+			bufferedWriter.write(jTask.toString()+"\r\n");
 			bufferedWriter.close();
 			return true;
 		} catch (IOException e) {
