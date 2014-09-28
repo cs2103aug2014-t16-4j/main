@@ -17,6 +17,7 @@ import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
@@ -31,11 +32,14 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.json.simple.JSONObject;
+import org.eclipse.swt.widgets.Table;
 
 public class TextBuddyUI {
 
@@ -80,9 +84,9 @@ public class TextBuddyUI {
 	private static final int RENDER_BOTH = 3;
 	Scanner scanner;
 	Logic logic;
-	private List somedayList;
 	private List dayList;
 	private Parser parser = new Parser();
+	private Table somedayTable;
 
 	// possible commands
 	public enum Commands {
@@ -133,10 +137,13 @@ public class TextBuddyUI {
 		somedayComposite.setExpandHorizontal(true);
 		somedayComposite.setExpandVertical(true);
 		
-		somedayList = new List(somedayComposite, SWT.BORDER);
-		somedayList.setItems(new String[] {});
-		somedayComposite.setContent(somedayList);
-		somedayComposite.setMinSize(somedayList.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		somedayTable = new Table(somedayComposite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		somedayTable.setHeaderVisible(false);
+		somedayTable.setLinesVisible(true);
+		somedayComposite.setContent(somedayTable);
+		somedayComposite.setMinSize(somedayTable.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		TableColumn names = new TableColumn(somedayTable, SWT.LEFT);
+		names.setWidth(276);
 		
 		renderStatusIndicator();
 		printStatement(display(), RENDER_BOTH);
@@ -166,8 +173,6 @@ public class TextBuddyUI {
 				input.setFocus();
 			}
 			public void focusLost(FocusEvent event) {
-				shell.setMinimized(true);
-				shell.setVisible(false);
 			}
 		};
 		input.addFocusListener(listener);
@@ -190,9 +195,20 @@ public class TextBuddyUI {
 	}
 
 	private void renderShell() {
-		shell = new Shell (display, SWT.ON_TOP);
+		shell = new Shell (display, SWT.ON_TOP | SWT.MODELESS);
 		shell.setSize(300, 620);
 		shell.setLayout(null);
+		
+		FocusListener listener = new FocusListener() {
+			public void focusGained(FocusEvent event) {
+				shell.setFocus();
+			}
+			public void focusLost(FocusEvent event) {
+				shell.setMinimized(true);
+				shell.setVisible(false);
+			}
+		};
+		shell.addFocusListener(listener);
 	}
 
 	private void createTrayIcon() {
@@ -223,11 +239,18 @@ public class TextBuddyUI {
 			item.addListener (SWT.Selection, new Listener () {
 				@Override
 				public void handleEvent (Event event) {
-					System.out.println("showing window");
-					shell.setVisible(true);
-					shell.setMinimized(false); 
-					input.setFocus();
-					shell.forceActive();
+					if(!shell.isVisible()){
+						System.out.println("showing window");
+						shell.setVisible(true);
+						shell.setMinimized(false); 
+						input.setFocus();
+						shell.forceActive();
+					}
+					else{
+						System.out.println("hiding window");
+						shell.setMinimized(true);
+						shell.setVisible(false);
+					}
 				}
 			});
 			item.addListener (SWT.DefaultSelection, new Listener () {
@@ -468,7 +491,7 @@ public class TextBuddyUI {
 			updateStatusIndicator(str.get(0).toJSONString());
 		}*/
 		if(mode == RENDER_BOTH){
-			somedayList.removeAll();
+			somedayTable.removeAll();
 			updateSomeday(str);
 		}
 		//System.out.println(str.get(0).toJSONString());
@@ -481,11 +504,30 @@ public class TextBuddyUI {
 
 	private void updateSomeday(ArrayList<JSONObject> str) {
 		for(int i=0;i<str.size();i++){
-			somedayList.add((i+1)+". "+str.get(i).get("Name").toString());
-			shell.layout();
+			TableItem item = new TableItem(somedayTable, 0);
+            item.setText((i+1)+". "+str.get(i).get("Name").toString());
+            String test = str.get(i).get("Priority").toString();
+            if(str.get(i).get("Priority").toString().isEmpty()){
+            	item.setForeground(new Color(display, 204,204,204));
+            }
+            else {
+            	item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get("Priority").toString())));
+            }
 		}
 	}
-
+	
+	private Color getColorWithPriority(int p){
+		if(p==1){
+			return display.getSystemColor(SWT.COLOR_RED);
+		}
+		else if(p==2){
+			return display.getSystemColor(SWT.COLOR_BLACK);
+		}
+		else{
+			return new Color(display, 204,204,204);
+		}
+	}
+	
 	private void systemExit() {
 		printStatement(STRING_EXIT);
 		System.exit(0);
