@@ -10,6 +10,8 @@ import model.Task;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
@@ -147,6 +149,8 @@ public class TextBuddyUI {
 
 	private void renderInput() {
 		input = new Text(shell, SWT.BORDER);
+		input.setFocus();
+		input.setBounds(10, 10, 245, 19);
 		input.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -156,8 +160,17 @@ public class TextBuddyUI {
 				}
 			}
 		});
-		input.setBounds(10, 10, 245, 19);
-		input.setFocus();
+
+		FocusListener listener = new FocusListener() {
+			public void focusGained(FocusEvent event) {
+				input.setFocus();
+			}
+			public void focusLost(FocusEvent event) {
+				shell.setMinimized(true);
+				shell.setVisible(false);
+			}
+		};
+		input.addFocusListener(listener);
 	}
 
 	private void renderStatusIndicator() {
@@ -177,7 +190,7 @@ public class TextBuddyUI {
 	}
 
 	private void renderShell() {
-		shell = new Shell (display, SWT.NO_TRIM | SWT.ON_TOP);
+		shell = new Shell (display, SWT.ON_TOP);
 		shell.setSize(300, 620);
 		shell.setLayout(null);
 	}
@@ -210,7 +223,11 @@ public class TextBuddyUI {
 			item.addListener (SWT.Selection, new Listener () {
 				@Override
 				public void handleEvent (Event event) {
-					System.out.println("selection");
+					System.out.println("showing window");
+					shell.setVisible(true);
+					shell.setMinimized(false); 
+					input.setFocus();
+					shell.forceActive();
 				}
 			});
 			item.addListener (SWT.DefaultSelection, new Listener () {
@@ -244,7 +261,9 @@ public class TextBuddyUI {
 
 	private void disposeDisplay() {
 		while (!shell.isDisposed()) {
-			if (!display.readAndDispatch()) display.sleep();
+			if (!display.readAndDispatch()) {
+				display.sleep();
+			}
 		}
 		display.dispose();
 		//alex-temp to make it exit after gui is closed
@@ -462,7 +481,7 @@ public class TextBuddyUI {
 
 	private void updateSomeday(ArrayList<JSONObject> str) {
 		for(int i=0;i<str.size();i++){
-			somedayList.add(str.get(i).get("Name").toString());
+			somedayList.add((i+1)+". "+str.get(i).get("Name").toString());
 			shell.layout();
 		}
 	}
