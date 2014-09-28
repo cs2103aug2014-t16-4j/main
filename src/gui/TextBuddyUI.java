@@ -204,8 +204,8 @@ public class TextBuddyUI {
 				shell.setFocus();
 			}
 			public void focusLost(FocusEvent event) {
-				shell.setMinimized(true);
-				shell.setVisible(false);
+				//shell.setMinimized(true);
+				//shell.setVisible(false);
 			}
 		};
 		shell.addFocusListener(listener);
