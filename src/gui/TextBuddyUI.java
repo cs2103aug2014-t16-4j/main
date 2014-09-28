@@ -506,13 +506,7 @@ public class TextBuddyUI {
 		for(int i=0;i<str.size();i++){
 			TableItem item = new TableItem(somedayTable, 0);
             item.setText((i+1)+". "+str.get(i).get("Name").toString());
-            String test = str.get(i).get("Priority").toString();
-            if(str.get(i).get("Priority").toString().isEmpty()){
-            	item.setForeground(new Color(display, 204,204,204));
-            }
-            else {
-            	item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get("Priority").toString())));
-            }
+            item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get("Priority").toString())));
 		}
 	}
 	
