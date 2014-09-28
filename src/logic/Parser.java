@@ -1,7 +1,10 @@
 package logic;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 import model.Task;
 
@@ -100,6 +103,21 @@ public class Parser {
 		return "";
 	}
 	
+	public Date decomposeDate(ArrayList<String> words) {
+		Date date = new Date();
+		for (int i = 0; i < words.size(); i++) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");
+			try {
+				//if not valid, it will throw ParseException
+				date = sdf.parse(words.get(i));	 
+				nameSeparate = Math.min(nameSeparate, i - 1);
+			} catch (ParseException e) {
+			} finally {
+			}
+		}
+		return date;	
+	}
+
 	public String decomposeName(ArrayList<String> words, int nameSeparate) {
 		String result = "";
 		for (int i = 0; i <= nameSeparate; i++) {
@@ -116,6 +134,7 @@ public class Parser {
 		resultTask.setDescription(decomposeDescription(words));
 		resultTask.setPriority(decomposePriority(words));
 		resultTask.setFrequency(decomposeFrequency(words));
+		resultTask.setDate(decomposeDate(words));
 		resultTask.setName(decomposeName(words, nameSeparate));
 		return resultTask;
 	}
