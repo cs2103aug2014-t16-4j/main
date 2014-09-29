@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -125,6 +126,7 @@ public class Logic {
 			BufferedWriter bw = new BufferedWriter(fstream);
 			bw.write("");
 			bw.close();
+			tasksBuffer.clear();
 			return true;
 		} catch (IOException e) {
 		}
@@ -132,7 +134,8 @@ public class Logic {
 	}
 
 	public void sort() throws Exception {
-		Map<String, String> map = new TreeMap<String, String>();
+		Map<String, JSONObject> map = new TreeMap<String, JSONObject>();
+		/*
 		String line = "";
 		BufferedReader in = new BufferedReader(new FileReader(fileName));
 		while ((line = in.readLine()) != null) {
@@ -142,6 +145,19 @@ public class Logic {
 		clear();
 		for (String s : map.values()) {
 			add(new Task(s));
+		}
+		*/
+		String sortKey = "";
+		for(int i=0;i<tasksBuffer.size();i++){
+			JSONObject obj = tasksBuffer.get(i);
+			sortKey = obj.get(NAME).toString() + obj.get(DATE).toString();
+			map.put(sortKey, obj);
+		}
+		clear();
+		tasksBuffer.clear();
+		for(JSONObject task : map.values()){
+			Task tempTask = jsonToTask(task);
+			add(tempTask);
 		}
 	}
 
@@ -162,6 +178,16 @@ public class Logic {
 		} catch (FileNotFoundException | ParseException e) {
 		}
 		return foundLine;
+	}
+	
+	private Task jsonToTask(JSONObject obj){
+		Task task = new Task();
+		task.setName(obj.get(NAME).toString());
+		task.setDescription(obj.get(DESCRIPTION).toString());
+		task.setDate((Date) obj.get(DATE));
+		task.setFrequency((int) obj.get(FREQUENCY));
+		task.setPriority((int) obj.get(PRIORITY));
+		return task;	
 	}
 
 }
