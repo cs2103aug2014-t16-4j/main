@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -83,12 +82,14 @@ public class Logic {
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(fileName));
 			while ((line = in.readLine()) != null) {
+				//System.out.println(line);
 				JSONObject obj = (JSONObject) jsonParser.parse(line);
 				tasks.add(obj);
 			}
 			in.close();
 			setTasksBuffer(tasks);
 		} catch (FileNotFoundException | ParseException e) {
+			e.printStackTrace();
 		}
 		return tasks;
 	}
@@ -135,28 +136,17 @@ public class Logic {
 
 	public void sort() throws Exception {
 		Map<String, JSONObject> map = new TreeMap<String, JSONObject>();
-		/*
-		String line = "";
-		BufferedReader in = new BufferedReader(new FileReader(fileName));
-		while ((line = in.readLine()) != null) {
-			map.put(line, line);
-		}
-		in.close();
-		clear();
-		for (String s : map.values()) {
-			add(new Task(s));
-		}
-		*/
 		String sortKey = "";
 		for(int i=0;i<tasksBuffer.size();i++){
 			JSONObject obj = tasksBuffer.get(i);
-			sortKey = obj.get(NAME).toString() + obj.get(DATE).toString();
+			sortKey = obj.get(NAME).toString() + " " + obj.get(DATE).toString();
 			map.put(sortKey, obj);
 		}
 		clear();
 		tasksBuffer.clear();
-		for(JSONObject task : map.values()){
-			Task tempTask = jsonToTask(task);
+		Task tempTask;
+		for(JSONObject taskObj : map.values()){
+			tempTask = jsonToTask(taskObj);
 			add(tempTask);
 		}
 	}
@@ -181,13 +171,18 @@ public class Logic {
 	}
 	
 	private Task jsonToTask(JSONObject obj){
-		Task task = new Task();
-		task.setName(obj.get(NAME).toString());
-		task.setDescription(obj.get(DESCRIPTION).toString());
-		task.setDate((Date) obj.get(DATE));
-		task.setFrequency((int) obj.get(FREQUENCY));
-		task.setPriority((int) obj.get(PRIORITY));
-		return task;	
+		Task temp = null;
+		try{
+			temp = new Task(obj.get(NAME).toString());
+			temp.setDescription(obj.get(DESCRIPTION).toString());
+			temp.setDate(obj.get(DATE).toString());
+			System.out.println(obj.get(FREQUENCY));
+			temp.setFrequency((int) obj.get(FREQUENCY));
+			temp.setPriority((int) obj.get(PRIORITY));
+		}catch(Exception e){
+			//e.printStackTrace();
+		}
+		return temp;	
 	}
 
 }
