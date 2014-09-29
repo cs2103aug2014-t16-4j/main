@@ -32,13 +32,23 @@ public class Logic {
 	private static final String STRING_FILE_EMPTY = "%s is empty\n";
 
 	String fileName;
+	ArrayList <JSONObject> tasksBuffer;
 
 	public Logic(String fileName) {
 		this.fileName = fileName;
+		tasksBuffer = new ArrayList<JSONObject>();
 	}
 
 	public String getFileName() {
 		return fileName;
+	}
+
+	public ArrayList<JSONObject> getTasksBuffer() {
+		return tasksBuffer;
+	}
+
+	public void setTasksBuffer(ArrayList<JSONObject> tasksBuffer) {
+		this.tasksBuffer = tasksBuffer;
 	}
 
 	public void setFileName(String fileName) {
@@ -58,6 +68,7 @@ public class Logic {
 			jTask.put(FREQUENCY, task.getFrequency());
 			bufferedWriter.write(jTask.toString()+"\r\n");
 			bufferedWriter.close();
+			tasksBuffer.add(jTask);
 			return true;
 		} catch (IOException e) {
 		}
@@ -75,6 +86,7 @@ public class Logic {
 				tasks.add(obj);
 			}
 			in.close();
+			setTasksBuffer(tasks);
 		} catch (FileNotFoundException | ParseException e) {
 		}
 		return tasks;
