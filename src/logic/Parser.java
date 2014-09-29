@@ -103,7 +103,7 @@ public class Parser {
 		return "";
 	}
 	
-	public Date decomposeDate(ArrayList<String> words) {
+	public String decomposeDate(ArrayList<String> words) {
 		Date date = new Date();
 		for (int i = 0; i < words.size(); i++) {
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");
@@ -115,7 +115,7 @@ public class Parser {
 			} finally {
 			}
 		}
-		return date;	
+		return date.toString();	
 	}
 
 	public String decomposeName(ArrayList<String> words, int nameSeparate) {
