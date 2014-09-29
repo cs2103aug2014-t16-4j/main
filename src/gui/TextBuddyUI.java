@@ -53,6 +53,13 @@ public class TextBuddyUI {
 	private Composite statusComposite;
 	ScrolledComposite dayComposite;
 	ScrolledComposite somedayComposite;
+	
+	//Json key strings
+	private static final String NAME = "Name";
+	private static final String DESCRIPTION = "Description";
+	private static final String DATE = "Date";
+	private static final String PRIORITY = "Priority";
+	private static final String FREQUENCY = "Frequency";
 
 	// FEEDBACK STRINGS
 	private static final String STRING_WELCOME = "Welcome to TextBuddy. %1$s is ready for use.\n";
@@ -431,6 +438,7 @@ public class TextBuddyUI {
 
 	public ArrayList<JSONObject> display() {
 		try {
+			//System.out.println(logic.display().toString());
 			return logic.display();
 		} catch (IOException e) {
 		}
@@ -494,7 +502,7 @@ public class TextBuddyUI {
 			somedayTable.removeAll();
 			updateSomeday(str);
 		}
-		//System.out.println(str.get(0).toJSONString());
+		//System.out.println(str.toString());
 	}
 
 	private void updateStatusIndicator(String str) {
@@ -505,8 +513,8 @@ public class TextBuddyUI {
 	private void updateSomeday(ArrayList<JSONObject> str) {
 		for(int i=0;i<str.size();i++){
 			TableItem item = new TableItem(somedayTable, 0);
-            item.setText((i+1)+". "+str.get(i).get("Name").toString());
-            item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get("Priority").toString())));
+            item.setText((i+1)+". "+str.get(i).get(NAME).toString());
+            item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get(PRIORITY).toString())));
 		}
 	}
 	
