@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 
 import model.Task;
@@ -103,19 +104,23 @@ public class Parser {
 		return "";
 	}
 	
-	public String decomposeDate(ArrayList<String> words) {
-		Date date = new Date();
+	public Date[] decomposeDate(ArrayList<String> words) {
+		Date[] date = new Date[2];
+		date[0] = new Date();
+		date[1] = new Date();
+		int count = 0;
 		for (int i = 0; i < words.size(); i++) {
 			SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");
 			try {
 				//if not valid, it will throw ParseException
-				date = sdf.parse(words.get(i));	 
+				Date temp = sdf.parse(words.get(i));
+				date[count++] = temp;
 				nameSeparate = Math.min(nameSeparate, i - 1);
 			} catch (ParseException e) {
 			} finally {
 			}
 		}
-		return date.toString();	
+		return date;	
 	}
 
 	public String decomposeName(ArrayList<String> words, int nameSeparate) {
@@ -134,7 +139,15 @@ public class Parser {
 		resultTask.setDescription(decomposeDescription(words));
 		resultTask.setPriority(decomposePriority(words));
 		resultTask.setFrequency(decomposeFrequency(words));
-		resultTask.setDate(decomposeDate(words));
+		Date[] date = decomposeDate(words);
+		if (date[0].compareTo(date[1]) > 0)
+		{
+			Date temp = date[0];
+			date[0] = date[1];
+			date[1] = temp;
+		}
+		resultTask.setStartDate(date[0]);
+		resultTask.setEndDate(date[1]);
 		resultTask.setName(decomposeName(words, nameSeparate));
 		return resultTask;
 	}

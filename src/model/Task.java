@@ -5,16 +5,25 @@ import java.util.Date;
 public class Task {
 	private String name;
 	private String description;
-	private String date;
+	private Date startDate;
+	private Date endDate;
 	private int priority;
 	private int frequency;
 
-	public String getDate() {
-		return date;
+	public Date getStartDate() {
+		return startDate;
 	}
 	
-	public void setDate(String date) {
-		this.date = date;
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+	
+	public Date getEndDate() {
+		return endDate;
+	}
+	
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
 	}
 	
 	public int getPriority() {

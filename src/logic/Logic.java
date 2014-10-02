@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
@@ -63,7 +65,7 @@ public class Logic {
 			JSONObject jTask=new JSONObject();
 			jTask.put(NAME, task.getName());
 			jTask.put(DESCRIPTION, task.getDescription());
-			jTask.put(DATE, task.getDate());
+			jTask.put(DATE, task.getStartDate().toString());
 			jTask.put(PRIORITY, task.getPriority());
 			jTask.put(FREQUENCY, task.getFrequency());
 			bufferedWriter.write(jTask.toString()+"\r\n");
@@ -175,7 +177,8 @@ public class Logic {
 		try{
 			temp = new Task(obj.get(NAME).toString());
 			temp.setDescription(obj.get(DESCRIPTION).toString());
-			temp.setDate(obj.get(DATE).toString());
+			DateFormat formatter = new SimpleDateFormat("dd/M/yyyy");
+			temp.setStartDate(formatter.parse(obj.get(DATE).toString()));
 			System.out.println(obj.get(FREQUENCY));
 			temp.setFrequency((int) obj.get(FREQUENCY));
 			temp.setPriority((int) obj.get(PRIORITY));
