@@ -107,7 +107,7 @@ public class TextBuddyUI {
 	public TextBuddyUI(String[] args) {
 	}
 
-	public void checkArgs(String[] args) {
+	public void checkArgs(String[] args) throws IOException {
 //		if (args.length != INPUT_REQUIREMENT) {
 //			printHelp();
 //			systemExit();
@@ -124,10 +124,12 @@ public class TextBuddyUI {
 	}
 
 	/**
+	 * @throws IOException 
 	 * @wbp.parser.entryPoint
 	 */
-	public void init(String fileName) {
+	public void init(String fileName) throws IOException {
 		logic = new Logic(fileName);
+		logic.init();
 		display = new Display();
 		renderShell();
 		createTrayIcon();

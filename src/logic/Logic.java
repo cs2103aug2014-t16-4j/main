@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -35,10 +36,30 @@ public class Logic {
 
 	String fileName;
 	ArrayList <JSONObject> tasksBuffer;
-
+	
 	public Logic(String fileName) {
 		this.fileName = fileName;
 		tasksBuffer = new ArrayList<JSONObject>();
+	}
+	
+	//Fetch all tasks from file in the beginning.
+	public void init() throws IOException
+	{
+		ArrayList<JSONObject> tasks = new ArrayList<JSONObject>();
+		JSONParser jsonParser = new JSONParser();
+		String line;
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(fileName));
+			while ((line = in.readLine()) != null) {
+				//System.out.println(line);
+				JSONObject obj = (JSONObject) jsonParser.parse(line);
+				tasks.add(obj);
+			}
+			in.close();
+			setTasksBuffer(tasks);
+		} catch (FileNotFoundException | ParseException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public String getFileName() {
@@ -56,18 +77,15 @@ public class Logic {
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
+	
+	//public Task toTask(JSONObject jTask);
 
-	@SuppressWarnings("unchecked")
+	//@SuppressWarnings("unchecked")
 	public boolean add(Task task) {
 		try {
 			FileWriter fstream = new FileWriter(fileName, true);
 			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
-			JSONObject jTask=new JSONObject();
-			jTask.put(NAME, task.getName());
-			jTask.put(DESCRIPTION, task.getDescription());
-			jTask.put(DATE, task.getStartDate().toString());
-			jTask.put(PRIORITY, task.getPriority());
-			jTask.put(FREQUENCY, task.getFrequency());
+			JSONObject jTask = taskToJSON(task);
 			bufferedWriter.write(jTask.toString()+"\r\n");
 			bufferedWriter.close();
 			tasksBuffer.add(jTask);
@@ -78,22 +96,7 @@ public class Logic {
 	}
 
 	public ArrayList<JSONObject> display() throws IOException {
-		ArrayList<JSONObject> tasks = new ArrayList<JSONObject>();
-		JSONParser jsonParser = new JSONParser();
-		String line;
-		try {
-			BufferedReader in = new BufferedReader(new FileReader(fileName));
-			while ((line = in.readLine()) != null) {
-				//System.out.println(line);
-				JSONObject obj = (JSONObject) jsonParser.parse(line);
-				tasks.add(obj);
-			}
-			in.close();
-			setTasksBuffer(tasks);
-		} catch (FileNotFoundException | ParseException e) {
-			e.printStackTrace();
-		}
-		return tasks;
+		return tasksBuffer;
 	}
 
 	public String delete(int lineNo) throws IOException {
@@ -154,7 +157,7 @@ public class Logic {
 	}
 
 	public ArrayList<JSONObject> search(String keyword) throws IOException {
-		keyword = keyword.toLowerCase(); // case insensitive
+		/*keyword = keyword.toLowerCase(); // case insensitive
 		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
 		JSONParser jsonParser = new JSONParser();
 		String line;
@@ -168,6 +171,17 @@ public class Logic {
 			}
 			in.close();
 		} catch (FileNotFoundException | ParseException e) {
+		}
+		return foundLine;*/
+		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
+		for (int i = 0; i < tasksBuffer.size(); i++) {
+			Task temp = jsonToTask(tasksBuffer.get(i));
+			if (temp.getName().contains(keyword)) {
+				foundLine.add(tasksBuffer.get(i));
+			}
+			if (temp.getDescription().contains(keyword)) {
+				foundLine.add(tasksBuffer.get(i));
+			}
 		}
 		return foundLine;
 	}
@@ -188,4 +202,15 @@ public class Logic {
 		return temp;	
 	}
 
+	@SuppressWarnings("unchecked")
+	public JSONObject taskToJSON(Task task)
+	{
+		JSONObject jTask=new JSONObject();
+		jTask.put(NAME, task.getName());
+		jTask.put(DESCRIPTION, task.getDescription());
+		jTask.put(DATE, task.getStartDate().toString());
+		jTask.put(PRIORITY, task.getPriority());
+		jTask.put(FREQUENCY, task.getFrequency());
+		return jTask;
+	}
 }
