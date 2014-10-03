@@ -33,6 +33,8 @@ public class Logic {
 	private static final String STRING_NOT_FOUND = "None was found\n";
 	private static final String STRING_DELETE_NOT_FOUND = "Line number not found! None was deleted.";
 	private static final String STRING_FILE_EMPTY = "%s is empty\n";
+	private static final DateFormat formatter = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
+
 
 	String fileName;
 	ArrayList <JSONObject> tasksBuffer;
@@ -191,7 +193,6 @@ public class Logic {
 		try{
 			temp = new Task(obj.get(NAME).toString());
 			temp.setDescription(obj.get(DESCRIPTION).toString());
-			DateFormat formatter = new SimpleDateFormat("dd/M/yyyy");
 			temp.setStartDate(formatter.parse(obj.get(DATE).toString()));
 			System.out.println(obj.get(FREQUENCY));
 			temp.setFrequency((int) obj.get(FREQUENCY));
@@ -208,7 +209,7 @@ public class Logic {
 		JSONObject jTask=new JSONObject();
 		jTask.put(NAME, task.getName());
 		jTask.put(DESCRIPTION, task.getDescription());
-		jTask.put(DATE, task.getStartDate().toString());
+		jTask.put(DATE, formatter.format(task.getStartDate()));
 		jTask.put(PRIORITY, task.getPriority());
 		jTask.put(FREQUENCY, task.getFrequency());
 		return jTask;
