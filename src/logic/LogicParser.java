@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.time.DateUtils;
+
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
 
@@ -31,26 +33,26 @@ public class LogicParser {
 	private static final int FREQUENCY_MONTHLY_VALUE = 3;
 	private static final String FREQUENCY_CUSTOM = "frequency";
 	
-	int nameSeparate;
+	int nameSeparator;
 	Parser dateParser = new Parser();
 	
 	public int decomposePriority(ArrayList<String> words) {
 		for (int i = 0; i < words.size(); i++) {
 			if (words.get(i).compareTo(PRIORITY_IMPORTANT) == 0) {
 				words.remove(i);
-				nameSeparate = Math.min(nameSeparate, i - 1);
+				nameSeparator = Math.min(nameSeparator, i - 1);
 				return PRIORITY_IMPORTANT_VALUE;
 			}
 			if (words.get(i).compareTo(PRIORITY_NORMAL) == 0) {
 				words.remove(i);
-				nameSeparate = Math.min(nameSeparate, i - 1);
+				nameSeparator = Math.min(nameSeparator, i - 1);
 				return PRIORITY_IMPORTANT_VALUE;
 			}
 			if (words.get(i).compareTo(PRIORITY_CUSTOM) == 0) {
 				if (i + 1 < words.size())
 				{
 					//check valid integer
-					nameSeparate = Math.min(nameSeparate, i - 1);
+					nameSeparator = Math.min(nameSeparator, i - 1);
 					return Integer.parseInt(words.get(i + 1));
 				}
 			}
@@ -62,24 +64,24 @@ public class LogicParser {
 		for (int i = 0; i < words.size(); i++) {
 			if (words.get(i).compareTo(FREQUENCY_DAILY) == 0) {
 				words.remove(i);
-				nameSeparate = Math.min(nameSeparate, i - 1);
+				nameSeparator = Math.min(nameSeparator, i - 1);
 				return FREQUENCY_DAILY_VALUE;
 			}
 			if (words.get(i).compareTo(FREQUENCY_WEEKLY) == 0) {
 				words.remove(i);
-				nameSeparate = Math.min(nameSeparate, i - 1);
+				nameSeparator = Math.min(nameSeparator, i - 1);
 				return FREQUENCY_WEEKLY_VALUE;
 			}
 			if (words.get(i).compareTo(FREQUENCY_MONTHLY) == 0) {
 				words.remove(i);
-				nameSeparate = Math.min(nameSeparate, i - 1);
+				nameSeparator = Math.min(nameSeparator, i - 1);
 				return FREQUENCY_MONTHLY_VALUE;
 			}
 			if (words.get(i).compareTo(FREQUENCY_CUSTOM) == 0) {
 				if (i + 1 < words.size())
 				{
 					//check valid integer
-					nameSeparate = Math.min(nameSeparate, i - 1);
+					nameSeparator = Math.min(nameSeparator, i - 1);
 					return Integer.parseInt(words.get(i + 1));
 				}
 			}
@@ -101,7 +103,7 @@ public class LogicParser {
 					for (int k = i; k <= j; k++) {
 						words.remove(i);						
 					}
-					nameSeparate = Math.min(nameSeparate, i - 1);
+					nameSeparator = Math.min(nameSeparator, i - 1);
 					return tempString.trim();
 				}
 			}
@@ -113,7 +115,14 @@ public class LogicParser {
 		Date[] date = new Date[2];
 		date[0] = new Date();
 		date[1] = new Date();
-		int numberOfDate = 0;
+		
+		String fullString = "";
+		for (String s : words) {
+			fullString = fullString + " " + s;
+		}
+		List<Date> fullDate = dateParser.parse(fullString).get(0).getDates();
+
+		//determine nameSeparator
 		if (!words.isEmpty()) {
 			String tempString = "";
 			for (int i = (int)words.size() - 1; i >= 0; i--) {
@@ -125,53 +134,37 @@ public class LogicParser {
 				List<DateGroup> dateGroup = dateParser.parse(tempString);
 				if (dateGroup.size() != 0) {
 					List<Date> tempDate = dateGroup.get(0).getDates();
-					if (tempDate.size() == 1 && numberOfDate == 0)
+					if (tempDate.size() == fullDate.size())
 					{
-						numberOfDate = 1;
-						nameSeparate = Math.min(nameSeparate, i - 1);
-						date[0] = tempDate.get(0);
-						date[1] = date[0];
-					}
-					if (tempDate.size() == 2 && numberOfDate == 1)
-					{
-						numberOfDate = 2;
-						nameSeparate = Math.min(nameSeparate, i - 1);
-						date[0] = tempDate.get(0);
-						date[1] = tempDate.get(1);
-						break;
+						Boolean ok = true;
+						for (int j = 0; j < tempDate.size(); j++) {
+							if (!DateUtils.isSameDay(tempDate.get(j),fullDate.get(j))) {
+								ok = false;
+								break;
+							}
+						}
+						if (ok) {
+							nameSeparator = Math.min(nameSeparator, i - 1);
+							break;
+						}
 					}
 				}	
 			}
+			if (fullDate.size() == 0) {
+			} else if (fullDate.size() == 1) {
+				date[0] = fullDate.get(0);
+				date[1] = fullDate.get(0);
+			} else if (fullDate.size() == 2) {
+				date[0] = fullDate.get(0);
+				date[1] = fullDate.get(1);				
+			}
 		}
-		/*int count = 0;
-		for (int i = 0; i < words.size(); i++) {
-			String tempString = "";
-			for (int j = i; j < words.size(); j++) {
-				if (i == j)
-					tempString = words.get(j);
-				else
-					tempString = tempString + " " + words.get(j);
-				if (dateParser.parse(tempString).size() == 1) {
-					date[count++] = dateParser.parse(tempString).get(0).getDates().get(0);
-					nameSeparate = Math.min(nameSeparate, i - 1);
-				}
-			}
-			/*SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");
-			try {
-				//if not valid, it will throw ParseException
-				Date temp = sdf.parse(words.get(i));
-				date[count++] = temp;
-				nameSeparate = Math.min(nameSeparate, i - 1);
-			} catch (ParseException e) {
-			} finally {
-			}
-		}*/
 		return date;	
 	}
 
-	public String decomposeName(ArrayList<String> words, int nameSeparate) {
+	public String decomposeName(ArrayList<String> words, int nameSeparator) {
 		String result = "";
-		for (int i = 0; i <= nameSeparate; i++) {
+		for (int i = 0; i <= nameSeparator; i++) {
 			result = result + words.get(i) + " ";
 		}
 		return result.trim();
@@ -181,7 +174,7 @@ public class LogicParser {
 	{		
 		Task resultTask = new Task();
 		ArrayList<String> words = new ArrayList<String>(Arrays.asList(task.split(" ")));
-		nameSeparate = words.size() - 1;
+		nameSeparator = words.size() - 1;
 		resultTask.setDescription(decomposeDescription(words));
 		resultTask.setPriority(decomposePriority(words));
 		resultTask.setFrequency(decomposeFrequency(words));
@@ -194,7 +187,7 @@ public class LogicParser {
 		}
 		resultTask.setStartDate(date[0]);
 		resultTask.setEndDate(date[1]);
-		resultTask.setName(decomposeName(words, nameSeparate));
+		resultTask.setName(decomposeName(words, nameSeparator));
 		return resultTask;
 	}
 
