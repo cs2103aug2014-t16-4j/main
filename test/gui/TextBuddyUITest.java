@@ -31,7 +31,8 @@ public class TextBuddyUITest {
 		logic.add("to do something");
 		logic.add("to do cs2103 project");
 		logic.add("to eat");
-		ArrayList<JSONObject> returnString = logic.search("do");
+		logic.search("do");
+		ArrayList<JSONObject> returnString = logic.getDisplayList();
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
@@ -45,7 +46,8 @@ public class TextBuddyUITest {
 		logic.add("to do something");
 		logic.add("to do cs2103 project");
 		logic.add("to eat");
-		ArrayList<JSONObject> returnString = logic.search("Anything not from text file");
+		logic.search("Anything not from text file");
+		ArrayList<JSONObject> returnString = logic.getDisplayList();
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
@@ -60,6 +62,7 @@ public class TextBuddyUITest {
 		logic.add("CCCC");
 		logic.add("FFFF");
 		logic.add("EEEE");
+		logic.sort();
 		ArrayList<JSONObject> returnString = logic.getDisplayList();
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
@@ -75,6 +78,7 @@ public class TextBuddyUITest {
 		logic.add("to do B");
 		logic.add("to do E");
 		logic.add("to do D");
+		logic.sort();
 		ArrayList<JSONObject> returnString = logic.getDisplayList();
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);

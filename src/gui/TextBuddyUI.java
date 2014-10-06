@@ -112,10 +112,6 @@ public class TextBuddyUI {
 	}
 
 	public void checkArgs(String[] args) throws IOException {
-//		if (args.length != INPUT_REQUIREMENT) {
-//			printHelp();
-//			systemExit();
-//		}
 		//alex-added default file name so one can run on eclipse 
 		String fileName = args.length>0?args[0]:"mytext.txt"; 
 		fileName = checkFileName(fileName);
@@ -124,7 +120,7 @@ public class TextBuddyUI {
 
 	private void printHelp() {
 		//needs to change to pop up
-		printStatement(STRING_HELP);
+		updateStatusIndicator(STRING_HELP);
 	}
 
 	/**
@@ -376,6 +372,7 @@ public class TextBuddyUI {
 	private void delegateTask(String userInput) {
 		String[] splittedString;
 		String task = "";
+		String statusString = "";
 		Commands command;
 		splittedString = getSplittedString(userInput);
 		command = getCommandType(splittedString[0]);
@@ -385,32 +382,35 @@ public class TextBuddyUI {
 		if (command != null) {
 			switch (command) {
 			case ADD:
-				add(task);
+				statusString = add(task);
 				break;
 			case DISPLAY:
 				getTaskList();
 				break;
 			case CLEAR:
-				clear();
+				statusString = clear();
 				break;
 			case DELETE:
-				delete(task);
+				statusString = delete(task);
 				break;
 			case SORT:
 				sort();
 				break;
 			case SEARCH:
 				search(task);
-				return;
+				break;
 			case EXIT:
 				systemExit();
 			default:
-				printStatement(STRING_NOT_SUPPORTED_COMMAND);
+				updateStatusIndicator(STRING_NOT_SUPPORTED_COMMAND);
 				break;
+			}
+			if(!statusString.isEmpty()){
+				updateStatusIndicator(statusString);
 			}
 			printStatement(RENDER_BOTH);
 		} else {
-			printStatement(STRING_NOT_SUPPORTED_COMMAND);
+			updateStatusIndicator(STRING_NOT_SUPPORTED_COMMAND);
 		}
 	}
 
@@ -418,12 +418,11 @@ public class TextBuddyUI {
 		return taskList;
 	}
 	
-	public ArrayList<JSONObject> search(String keyword) {
+	public void search(String keyword) {
 		try {
-			return logic.search(keyword);
+			taskList = logic.search(keyword);
 		} catch (IOException e) {
 		}
-		return null;
 	}
 
 	public void sort() {
@@ -493,7 +492,7 @@ public class TextBuddyUI {
 
 	private void printWelcomeMsg(String fileName) {
 		System.out.printf(STRING_WELCOME, fileName);
-		printStatement(String.format(STRING_WELCOME, fileName));
+		updateStatusIndicator(String.format(STRING_WELCOME, fileName));
 	}
 
 	private Commands getCommandType(String command) {
@@ -507,11 +506,6 @@ public class TextBuddyUI {
 		return null;
 	}
 
-	private void printStatement(String str){
-		if(!shell.isDisposed()){
-			updateStatusIndicator(str);
-		}
-	}
 	private void printStatement(int mode) {
 		/*if(!shell.isDisposed() && mode == RENDER_STATUS_INDICATOR){
 			updateStatusIndicator(str.get(0).toJSONString());
@@ -524,8 +518,10 @@ public class TextBuddyUI {
 	}
 
 	private void updateStatusIndicator(String str) {
-		statusInd.setText(str);
-		statusComposite.layout();
+		if(!shell.isDisposed()){
+			statusInd.setText(str);
+			statusComposite.layout();
+		}
 	}
 
 	private void updateSomeday(ArrayList<JSONObject> str) {
@@ -549,7 +545,7 @@ public class TextBuddyUI {
 	}
 	
 	private void systemExit() {
-		printStatement(STRING_EXIT);
+		updateStatusIndicator(STRING_EXIT);
 		System.exit(0);
 	}
 }
