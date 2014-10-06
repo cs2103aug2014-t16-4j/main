@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Table;
 
 public class TextBuddyUI {
 
-	public static Boolean ISMAC = false;
+	public static Boolean isMac = false;
 	private static Boolean blnMouseDown=false;
 	private static int xPos=0;
 	private static int yPos=0;
@@ -130,7 +130,7 @@ public class TextBuddyUI {
 	 * @wbp.parser.entryPoint
 	 */
 	public void init(String fileName) throws IOException {
-		ISMAC = SystemUtils.IS_OS_MAC;
+		isMac = SystemUtils.IS_OS_MAC;
 		logic = new Logic(fileName);
 		logic.init();
 		display = new Display();
@@ -193,16 +193,20 @@ public class TextBuddyUI {
 	private void renderStatusIndicator() {
 		statusComposite = new Composite(shell, SWT.NONE);
 		statusComposite.setBounds(10, 596, 280, 14);
+		int fontSize = 10;
+		if(!isMac) {
+			fontSize = 8;
+		}
 		
 		statusInd = new Label(statusComposite, SWT.NONE);
-		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande", 8, SWT.NORMAL));
+		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande", fontSize, SWT.NORMAL));
 		statusInd.setBounds(0, 0, 280, 14);
 		statusInd.setAlignment(SWT.CENTER);
 	}
 
 	private void renderHelpButton() {
 		Button help = new Button(shell, SWT.NONE);
-		if(ISMAC) {
+		if(isMac) {
 			help.setBounds(261, 8, 35, 25);
 		}
 		else {
