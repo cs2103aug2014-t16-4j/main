@@ -44,6 +44,8 @@ import org.eclipse.swt.widgets.Table;
 
 public class TextBuddyUI {
 
+	public ArrayList<JSONObject> taskList;
+	
 	public static Boolean isMac = false;
 	private static Boolean blnMouseDown=false;
 	private static int xPos=0;
@@ -157,8 +159,9 @@ public class TextBuddyUI {
 		TableColumn names = new TableColumn(somedayTable, SWT.LEFT);
 		names.setWidth(276);
 		
+		getTaskList();
 		renderStatusIndicator();
-		printStatement(display(), RENDER_BOTH);
+		printStatement(RENDER_BOTH);
 		printWelcomeMsg(fileName);
 		positionWindow();
 		shell.open();
@@ -193,6 +196,7 @@ public class TextBuddyUI {
 	private void renderStatusIndicator() {
 		statusComposite = new Composite(shell, SWT.NONE);
 		statusComposite.setBounds(10, 596, 280, 14);
+		
 		int fontSize = 10;
 		if(!isMac) {
 			fontSize = 8;
@@ -381,22 +385,22 @@ public class TextBuddyUI {
 		if (command != null) {
 			switch (command) {
 			case ADD:
-				printStatement(add(task));
+				add(task);
 				break;
 			case DISPLAY:
-				printStatement(display(), RENDER_BOTH);
+				getTaskList();
 				break;
 			case CLEAR:
-				printStatement(clear());
+				clear();
 				break;
 			case DELETE:
-				printStatement(delete(task));
+				delete(task);
 				break;
 			case SORT:
-				printStatement(sort(), RENDER_BOTH);
+				sort();
 				break;
 			case SEARCH:
-				printStatement(search(task), RENDER_BOTH);
+				search(task);
 				return;
 			case EXIT:
 				systemExit();
@@ -404,12 +408,16 @@ public class TextBuddyUI {
 				printStatement(STRING_NOT_SUPPORTED_COMMAND);
 				break;
 			}
+			printStatement(RENDER_BOTH);
 		} else {
 			printStatement(STRING_NOT_SUPPORTED_COMMAND);
 		}
-		printStatement(display(), RENDER_BOTH);
 	}
 
+	public ArrayList<JSONObject> getDisplayList() {
+		return taskList;
+	}
+	
 	public ArrayList<JSONObject> search(String keyword) {
 		try {
 			return logic.search(keyword);
@@ -418,13 +426,11 @@ public class TextBuddyUI {
 		return null;
 	}
 
-	public ArrayList<JSONObject> sort() {
+	public void sort() {
 		try {
 			logic.sort();
 		} catch (Exception e) {
 		}
-		//printStatement(STRING_SORTED);
-		return display();
 	}
 
 	public String delete(String lineNo) {
@@ -450,13 +456,11 @@ public class TextBuddyUI {
 		}
 	}
 
-	public ArrayList<JSONObject> display() {
+	public void getTaskList() {
 		try {
-			//System.out.println(logic.display().toString());
-			return logic.display();
+			taskList = logic.display();
 		} catch (IOException e) {
 		}
-		return null;
 	}
 
 	public String add(String task) {
@@ -508,13 +512,13 @@ public class TextBuddyUI {
 			updateStatusIndicator(str);
 		}
 	}
-	private void printStatement(ArrayList<JSONObject> str, int mode) {
+	private void printStatement(int mode) {
 		/*if(!shell.isDisposed() && mode == RENDER_STATUS_INDICATOR){
 			updateStatusIndicator(str.get(0).toJSONString());
 		}*/
 		if(mode == RENDER_BOTH){
 			somedayTable.removeAll();
-			updateSomeday(str);
+			updateSomeday(taskList);
 		}
 		//System.out.println(str.toString());
 	}

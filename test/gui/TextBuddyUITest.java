@@ -60,7 +60,7 @@ public class TextBuddyUITest {
 		logic.add("CCCC");
 		logic.add("FFFF");
 		logic.add("EEEE");
-		ArrayList<JSONObject> returnString = logic.sort();
+		ArrayList<JSONObject> returnString = logic.getDisplayList();
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
@@ -75,7 +75,7 @@ public class TextBuddyUITest {
 		logic.add("to do B");
 		logic.add("to do E");
 		logic.add("to do D");
-		ArrayList<JSONObject> returnString = logic.sort();
+		ArrayList<JSONObject> returnString = logic.getDisplayList();
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
