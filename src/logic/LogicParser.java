@@ -6,10 +6,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+
+import com.joestelmach.natty.DateGroup;
+import com.joestelmach.natty.Parser;
 
 import model.Task;
 
-public class Parser {
+public class LogicParser {
 
 	// PRIORITY CONSTANT
 	private static final String PRIORITY_IMPORTANT = "important";
@@ -28,6 +32,7 @@ public class Parser {
 	private static final String FREQUENCY_CUSTOM = "frequency";
 	
 	int nameSeparate;
+	Parser dateParser = new Parser();
 	
 	public int decomposePriority(ArrayList<String> words) {
 		for (int i = 0; i < words.size(); i++) {
@@ -108,9 +113,50 @@ public class Parser {
 		Date[] date = new Date[2];
 		date[0] = new Date();
 		date[1] = new Date();
-		int count = 0;
+		int numberOfDate = 0;
+		if (!words.isEmpty()) {
+			String tempString = "";
+			for (int i = (int)words.size() - 1; i >= 0; i--) {
+				if (i == words.size() - 1) {
+					tempString = words.get(i);
+				} else {
+					tempString = words.get(i) + " " + tempString;
+				}
+				List<DateGroup> dateGroup = dateParser.parse(tempString);
+				if (dateGroup.size() != 0) {
+					List<Date> tempDate = dateGroup.get(0).getDates();
+					if (tempDate.size() == 1 && numberOfDate == 0)
+					{
+						numberOfDate = 1;
+						nameSeparate = Math.min(nameSeparate, i - 1);
+						date[0] = tempDate.get(0);
+						date[1] = date[0];
+					}
+					if (tempDate.size() == 2 && numberOfDate == 1)
+					{
+						numberOfDate = 2;
+						nameSeparate = Math.min(nameSeparate, i - 1);
+						date[0] = tempDate.get(0);
+						date[1] = tempDate.get(1);
+						break;
+					}
+				}	
+			}
+		}
+		/*int count = 0;
 		for (int i = 0; i < words.size(); i++) {
-			SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");
+			String tempString = "";
+			for (int j = i; j < words.size(); j++) {
+				if (i == j)
+					tempString = words.get(j);
+				else
+					tempString = tempString + " " + words.get(j);
+				if (dateParser.parse(tempString).size() == 1) {
+					date[count++] = dateParser.parse(tempString).get(0).getDates().get(0);
+					nameSeparate = Math.min(nameSeparate, i - 1);
+				}
+			}
+			/*SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");
 			try {
 				//if not valid, it will throw ParseException
 				Date temp = sdf.parse(words.get(i));
@@ -119,7 +165,7 @@ public class Parser {
 			} catch (ParseException e) {
 			} finally {
 			}
-		}
+		}*/
 		return date;	
 	}
 
@@ -152,7 +198,7 @@ public class Parser {
 		return resultTask;
 	}
 
-	public Parser()
+	public LogicParser()
 	{
 		
 	}

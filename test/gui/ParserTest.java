@@ -17,8 +17,13 @@ public class ParserTest {
 	@Test
 	public void test() {
 		Parser parser = new Parser();
-		List<Date> dates = parser.parse("the day before next thursday").get(0).getDates();
-		System.out.println(dates.get(0).toString());
+		String sTest = "abc january to february";
+		System.out.println(parser.parse(sTest).get(0).getDates().size());
+		if (parser.parse(sTest).isEmpty() == false) {
+			List<Date> dates = parser.parse(sTest).get(0).getDates();
+			System.out.println(dates.get(0).toString());
+			System.out.println(dates.get(1).toString());
+		}
 	}
 
 }

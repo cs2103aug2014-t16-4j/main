@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 import logic.Logic;
-import logic.Parser;
+import logic.LogicParser;
 import model.Task;
 
 import org.eclipse.swt.SWT;
@@ -92,7 +92,7 @@ public class TextBuddyUI {
 	Scanner scanner;
 	Logic logic;
 	private List dayList;
-	private Parser parser = new Parser();
+	private LogicParser parser = new LogicParser();
 	private Table somedayTable;
 
 	// possible commands
