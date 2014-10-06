@@ -192,7 +192,7 @@ public class TextBuddyUI {
 		statusComposite.setBounds(10, 596, 280, 14);
 		
 		statusInd = new Label(statusComposite, SWT.NONE);
-		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande", 10, SWT.NORMAL));
+		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande", 8, SWT.NORMAL));
 		statusInd.setBounds(0, 0, 280, 14);
 		statusInd.setAlignment(SWT.CENTER);
 	}
