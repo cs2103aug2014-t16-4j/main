@@ -439,7 +439,7 @@ public class TextBuddyUI {
 			int lineNumber;
 			try {
 				lineNumber = Integer.parseInt(lineNo);
-				return logic.delete(lineNumber);
+				return logic.delete(taskList.get(lineNumber-1));
 			} catch (NumberFormatException | IOException e) {
 				return USAGE_DELETE;
 			}
