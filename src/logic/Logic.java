@@ -10,6 +10,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -18,6 +19,8 @@ import model.Task;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import com.joestelmach.natty.Parser;
 
 public class Logic {
 	//Json key strings
@@ -38,6 +41,7 @@ public class Logic {
 
 	String fileName;
 	ArrayList <JSONObject> tasksBuffer;
+	Parser dateParser = new Parser();
 	
 	public Logic(String fileName) {
 		this.fileName = fileName;
@@ -175,13 +179,17 @@ public class Logic {
 		} catch (FileNotFoundException | ParseException e) {
 		}
 		return foundLine;*/
+		Date date = dateParser.parse(keyword).get(0).getDates().get(0);
 		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
 		for (int i = 0; i < tasksBuffer.size(); i++) {
-			Task temp = jsonToTask(tasksBuffer.get(i));
-			if (temp.getName().contains(keyword)) {
+			Task task = jsonToTask(tasksBuffer.get(i));
+			if (task.getName().contains(keyword)) {
 				foundLine.add(tasksBuffer.get(i));
-			}
-			if (temp.getDescription().contains(keyword)) {
+			} else
+			if (task.getDescription().contains(keyword)) {
+				foundLine.add(tasksBuffer.get(i));
+			} else
+			if (date.compareTo(task.getStartDate()) >= 0 && date.compareTo(task.getEndDate()) <= 0) {
 				foundLine.add(tasksBuffer.get(i));
 			}
 		}
@@ -194,7 +202,6 @@ public class Logic {
 			temp = new Task(obj.get(NAME).toString());
 			temp.setDescription(obj.get(DESCRIPTION).toString());
 			temp.setStartDate(formatter.parse(obj.get(DATE).toString()));
-			System.out.println(obj.get(FREQUENCY));
 			temp.setFrequency((int) obj.get(FREQUENCY));
 			temp.setPriority((int) obj.get(PRIORITY));
 		}catch(Exception e){
