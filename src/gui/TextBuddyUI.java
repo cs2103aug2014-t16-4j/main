@@ -8,6 +8,7 @@ import logic.Logic;
 import logic.LogicParser;
 import model.Task;
 
+import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusEvent;
@@ -43,6 +44,7 @@ import org.eclipse.swt.widgets.Table;
 
 public class TextBuddyUI {
 
+	public static Boolean ISMAC = false;
 	private static Boolean blnMouseDown=false;
 	private static int xPos=0;
 	private static int yPos=0;
@@ -128,6 +130,7 @@ public class TextBuddyUI {
 	 * @wbp.parser.entryPoint
 	 */
 	public void init(String fileName) throws IOException {
+		ISMAC = SystemUtils.IS_OS_MAC;
 		logic = new Logic(fileName);
 		logic.init();
 		display = new Display();
@@ -199,7 +202,12 @@ public class TextBuddyUI {
 
 	private void renderHelpButton() {
 		Button help = new Button(shell, SWT.NONE);
-		help.setBounds(261, 8, 35, 25);
+		if(ISMAC) {
+			help.setBounds(261, 8, 35, 25);
+		}
+		else {
+			help.setBounds(261, 8, 30, 20);
+		}
 		help.setText("?");
 	}
 
