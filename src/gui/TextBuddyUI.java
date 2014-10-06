@@ -206,7 +206,7 @@ public class TextBuddyUI {
 			help.setBounds(261, 8, 35, 25);
 		}
 		else {
-			help.setBounds(261, 8, 30, 20);
+			help.setBounds(261, 9, 30, 21);
 		}
 		help.setText("?");
 	}
