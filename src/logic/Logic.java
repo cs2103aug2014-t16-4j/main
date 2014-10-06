@@ -26,7 +26,8 @@ public class Logic {
 	//Json key strings
 	private static final String NAME = "Name";
 	private static final String DESCRIPTION = "Description";
-	private static final String DATE = "Date";
+	private static final String STARTDATE = "StartDate";
+	private static final String ENDDATE = "EndDate";
 	private static final String PRIORITY = "Priority";
 	private static final String FREQUENCY = "Frequency";
 	
@@ -150,7 +151,7 @@ public class Logic {
 		String sortKey = "";
 		for(int i=0;i<tasksBuffer.size();i++){
 			JSONObject obj = tasksBuffer.get(i);
-			sortKey = obj.get(NAME).toString() + " " + obj.get(DATE).toString();
+			sortKey = obj.get(NAME).toString() + " " + obj.get(STARTDATE).toString();
 			map.put(sortKey, obj);
 		}
 		clear();
@@ -201,7 +202,8 @@ public class Logic {
 		try{
 			temp = new Task(obj.get(NAME).toString());
 			temp.setDescription(obj.get(DESCRIPTION).toString());
-			temp.setStartDate(formatter.parse(obj.get(DATE).toString()));
+			temp.setStartDate(formatter.parse(obj.get(STARTDATE).toString()));
+			temp.setEndDate(formatter.parse(obj.get(ENDDATE).toString()));
 			temp.setFrequency((int) obj.get(FREQUENCY));
 			temp.setPriority((int) obj.get(PRIORITY));
 		}catch(Exception e){
@@ -216,7 +218,8 @@ public class Logic {
 		JSONObject jTask=new JSONObject();
 		jTask.put(NAME, task.getName());
 		jTask.put(DESCRIPTION, task.getDescription());
-		jTask.put(DATE, formatter.format(task.getStartDate()));
+		jTask.put(STARTDATE, formatter.format(task.getStartDate()));
+		jTask.put(ENDDATE, formatter.format(task.getEndDate()));
 		jTask.put(PRIORITY, task.getPriority());
 		jTask.put(FREQUENCY, task.getFrequency());
 		return jTask;
