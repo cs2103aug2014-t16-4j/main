@@ -38,6 +38,7 @@ public class Logic {
 	private static final String STRING_DELETE_NOT_FOUND = "Line number not found! None was deleted.";
 	private static final String STRING_FILE_EMPTY = "%s is empty\n";
 	private static final DateFormat formatter = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
+	SimpleDateFormat cmpFormatter = new SimpleDateFormat("yyyyMMdd");
 
 
 	String fileName;
@@ -163,6 +164,11 @@ public class Logic {
 		}
 	}
 
+	public Boolean dateBefore(Date x, Date y)
+	{
+		return cmpFormatter.format(x).compareTo(cmpFormatter.format(y)) <= 0;
+	}
+	
 	public ArrayList<JSONObject> search(String keyword) throws IOException {
 		/*keyword = keyword.toLowerCase(); // case insensitive
 		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
@@ -190,7 +196,7 @@ public class Logic {
 			if (task.getDescription().contains(keyword)) {
 				foundLine.add(tasksBuffer.get(i));
 			} else
-			if (date.compareTo(task.getStartDate()) >= 0 && date.compareTo(task.getEndDate()) <= 0) {
+			if (dateBefore(task.getStartDate(), date) && dateBefore(date, task.getEndDate())) {
 				foundLine.add(tasksBuffer.get(i));
 			}
 		}
