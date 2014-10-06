@@ -394,7 +394,7 @@ public class TextBuddyUI {
 				statusString = delete(task);
 				break;
 			case SORT:
-				sort();
+				statusString = sort();
 				break;
 			case SEARCH:
 				search(task);
@@ -425,11 +425,13 @@ public class TextBuddyUI {
 		}
 	}
 
-	public void sort() {
+	public String sort() {
 		try {
 			logic.sort();
+			return STRING_SORTED;
 		} catch (Exception e) {
 		}
+		return null;
 	}
 
 	public String delete(String lineNo) {
