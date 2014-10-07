@@ -120,7 +120,11 @@ public class LogicParser {
 		for (String s : words) {
 			fullString = fullString + " " + s;
 		}
-		List<Date> fullDate = dateParser.parse(fullString).get(0).getDates();
+		List<DateGroup> dateGroupFull = dateParser.parse(fullString);
+		if (dateGroupFull.isEmpty()) {
+			return date;
+		}
+		List<Date> fullDate = dateGroupFull.get(0).getDates();
 
 		//determine nameSeparator
 		if (!words.isEmpty()) {

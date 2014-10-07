@@ -38,7 +38,7 @@ public class Logic {
 	private static final String STRING_DELETE_NOT_FOUND = "Line number not found! None was deleted.";
 	private static final String STRING_FILE_EMPTY = "%s is empty\n";
 	private static final DateFormat formatter = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
-	SimpleDateFormat cmpFormatter = new SimpleDateFormat("yyyyMMdd");
+	private static final SimpleDateFormat cmpFormatter = new SimpleDateFormat("yyyyMMdd");
 
 
 	String fileName;
@@ -107,7 +107,24 @@ public class Logic {
 		return tasksBuffer;
 	}
 
-	public String delete(int lineNo) throws IOException {
+	public String delete(JSONObject task) throws IOException {
+
+		FileWriter fstream = new FileWriter(fileName);
+		BufferedWriter bufferedWriter = new BufferedWriter(fstream);
+		tasksBuffer.remove(task);
+		//write back tasksBuffer to file
+		
+
+		for (JSONObject jTask: tasksBuffer) {
+			bufferedWriter.write(jTask.toString()+"\r\n");
+		}
+		
+		bufferedWriter.close();						
+		return String.format(STRING_DELETE, fileName,
+				task);
+	}
+
+	/*public String delete(int lineNo) throws IOException {
 		String deletedLine = "";
 		String line;
 		ArrayList<String> existingToDos = new ArrayList<String>();
@@ -132,7 +149,7 @@ public class Logic {
 		}
 		in.close();
 		return deletedLine;
-	}
+	}*/
 
 	public boolean clear() {
 		try {
