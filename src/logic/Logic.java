@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -20,6 +21,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
 
 public class Logic {
@@ -165,6 +167,7 @@ public class Logic {
 	}
 
 	public void sort() throws Exception {
+		
 		Map<String, JSONObject> map = new TreeMap<String, JSONObject>();
 		String sortKey = "";
 		for(int i=0;i<tasksBuffer.size();i++){
@@ -203,18 +206,23 @@ public class Logic {
 		} catch (FileNotFoundException | ParseException e) {
 		}
 		return foundLine;*/
-		Date date = dateParser.parse(keyword).get(0).getDates().get(0);
+		List<DateGroup> dateGrp = dateParser.parse((keyword));
+		Date date = null;
+		if(!dateGrp.isEmpty()){
+			date = dateParser.parse(keyword).get(0).getDates().get(0);
+		}
 		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
 		for (int i = 0; i < tasksBuffer.size(); i++) {
 			Task task = jsonToTask(tasksBuffer.get(i));
 			if (task.getName().contains(keyword)) {
 				foundLine.add(tasksBuffer.get(i));
-			} else
-			if (task.getDescription().contains(keyword)) {
+			} else if (task.getDescription().contains(keyword)) {
 				foundLine.add(tasksBuffer.get(i));
-			} else
-			if (dateBefore(task.getStartDate(), date) && dateBefore(date, task.getEndDate())) {
-				foundLine.add(tasksBuffer.get(i));
+			}
+			if(date != null){
+				if(dateBefore(task.getStartDate(),date) && dateBefore(date,task.getEndDate())){
+					foundLine.add(tasksBuffer.get(i));
+				}
 			}
 		}
 		return foundLine;
