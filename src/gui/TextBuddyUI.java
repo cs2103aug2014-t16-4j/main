@@ -401,7 +401,7 @@ public class TextBuddyUI {
 				search(task);
 				break;
 			case BLOCK:
-				System.out.println("block entered");
+				System.out.println("block entered "+splittedString[1]);
 				break;
 			case EXIT:
 				systemExit();
