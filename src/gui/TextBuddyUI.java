@@ -101,7 +101,7 @@ public class TextBuddyUI {
 
 	// possible commands
 	public enum Commands {
-		ADD, DISPLAY, DELETE, CLEAR, SORT, SEARCH, EXIT
+		ADD, DISPLAY, DELETE, CLEAR, SORT, SEARCH, EXIT, BLOCK
 	};
 
 	public TextBuddyUI(String fileName) {
@@ -398,6 +398,9 @@ public class TextBuddyUI {
 				break;
 			case SEARCH:
 				search(task);
+				break;
+			case BLOCK:
+				System.out.println("block entered");
 				break;
 			case EXIT:
 				systemExit();
