@@ -389,6 +389,7 @@ public class TextBuddyUI {
 				break;
 			case CLEAR:
 				statusString = clear();
+				getTaskList();
 				break;
 			case DELETE:
 				statusString = delete(task);
