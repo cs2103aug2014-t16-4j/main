@@ -470,6 +470,7 @@ public class TextBuddyUI {
 		if (tsk != null && !tsk.isEmpty()) {
 			boolean isSuccess = logic.add(tsk);
 			if (isSuccess) {
+				getTaskList();
 				return String.format(STRING_ADD, logic.getFileName(), task);
 			} else {
 				return USAGE_ADD;
