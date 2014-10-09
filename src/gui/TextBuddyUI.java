@@ -569,10 +569,11 @@ public class TextBuddyUI {
 			return display.getSystemColor(SWT.COLOR_RED);
 		}
 		else if(p==2){
-			return display.getSystemColor(SWT.COLOR_BLACK);
+			return new Color(display, 255,165,0);
 		}
 		else{
-			return new Color(display, 204,204,204);
+			//return new Color(display, 204,204,204);
+			return display.getSystemColor(SWT.COLOR_BLACK);
 		}
 	}
 	
