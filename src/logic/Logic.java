@@ -37,8 +37,10 @@ public class Logic {
 	private static final String STRING_DISPLAY = "%d. %s";
 	private static final String STRING_DELETE = "deleted from %s: \"%s\"";
 	private static final String STRING_NOT_FOUND = "None was found\n";
+	private static final String STRING_UPDATE = "%s is updated.\n";
+	private static final String STRING_NOT_UPDATE = "%s is not updated.\n";
 	private static final String STRING_DELETE_NOT_FOUND = "Line number not found! None was deleted.";
-	private static final String STRING_FILE_EMPTY = "%s is empty\n";
+	private static final String STRING_FILE_EMPTY = "%s is empty.\n";
 	private static final DateFormat formatter = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
 	private static final SimpleDateFormat cmpFormatter = new SimpleDateFormat("yyyyMMdd");
 
@@ -108,6 +110,17 @@ public class Logic {
 	public ArrayList<JSONObject> display() throws IOException {
 		return tasksBuffer;
 	}
+	
+	public String update(JSONObject oldTask,Task newTask){
+		try {
+			delete(oldTask);
+			add(newTask);
+			return STRING_UPDATE;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return STRING_NOT_UPDATE;
+	}
 
 	public String delete(JSONObject task) throws IOException {
 
@@ -115,7 +128,6 @@ public class Logic {
 		BufferedWriter bufferedWriter = new BufferedWriter(fstream);
 		tasksBuffer.remove(task);
 		//write back tasksBuffer to file
-		
 
 		for (JSONObject jTask: tasksBuffer) {
 			bufferedWriter.write(jTask.toString()+"\r\n");

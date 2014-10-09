@@ -67,7 +67,7 @@ public class TextBuddyUI {
 
 	// FEEDBACK STRINGS
 	private static final String STRING_WELCOME = "Welcome to TextBuddy. %1$s is ready for use.\n";
-	private static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , clear , sort , search , exit";
+	private static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , exit";
 	private static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
 	private static final String STRING_ENTER_COMMAND = "Command: ";
 	private static final String STRING_ADD = "added to %1$s: \"%2$s\"";
@@ -83,10 +83,12 @@ public class TextBuddyUI {
 	// USAGE
 	private static final String USAGE_ADD = "Usage: add <todo>";
 	private static final String USAGE_DELETE = "Usage: delete <lineno>";
+	private static final String USAGE_UPDATE = "Usage: update <lineno> <updated string>";
 
 	// NUMBER CONSTANT
 	private static final int INPUT_REQUIREMENT = 1;
 	private static final int TASK_POSITION = 1;
+	private static final int NO_ARGS_UPDATE = 2;
 	private static final int FILE_TYPE_POSITION = 1;
 	private static final int FILE_VALID_LENGTH = 2;
 	private static final int RENDER_STATUS_INDICATOR = 0;
@@ -101,7 +103,7 @@ public class TextBuddyUI {
 
 	// possible commands
 	public enum Commands {
-		ADD, DISPLAY, DELETE, CLEAR, SORT, SEARCH, EXIT, BLOCK
+		ADD, DISPLAY, DELETE, UPDATE, CLEAR, SORT, SEARCH, BLOCK, EXIT
 	};
 
 	public TextBuddyUI(String fileName) {
@@ -400,6 +402,8 @@ public class TextBuddyUI {
 			case SEARCH:
 				search(task);
 				break;
+			case UPDATE:
+				statusString = update(task);
 			case BLOCK:
 				System.out.println("block entered "+splittedString[1]);
 				break;
@@ -426,6 +430,25 @@ public class TextBuddyUI {
 		try {
 			taskList = logic.search(keyword);
 		} catch (IOException e) {
+		}
+	}
+	
+	public String update(String userInput){
+		if(userInput != null && !userInput.isEmpty()){
+			String[] splittedString = getSplittedString(userInput);
+			if(splittedString.length != NO_ARGS_UPDATE){
+				return USAGE_UPDATE;
+			}
+			int lineNumber;
+			try{
+				lineNumber = Integer.parseInt(splittedString[0]);
+				Task newTask = parser.decompose(splittedString[1]);
+				return logic.update(taskList.get(lineNumber-1),newTask);
+			}catch(NumberFormatException e){
+				return USAGE_UPDATE;
+			}
+		}else{
+			return USAGE_UPDATE;
 		}
 	}
 
