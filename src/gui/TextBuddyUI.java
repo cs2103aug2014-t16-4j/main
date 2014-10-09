@@ -67,7 +67,7 @@ public class TextBuddyUI {
 
 	// FEEDBACK STRINGS
 	private static final String STRING_WELCOME = "Welcome to TextBuddy. %1$s is ready for use.\n";
-	private static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , exit";
+	private static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, exit";
 	private static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
 	private static final String STRING_ENTER_COMMAND = "Command: ";
 	private static final String STRING_ADD = "added to %1$s: \"%2$s\"";
