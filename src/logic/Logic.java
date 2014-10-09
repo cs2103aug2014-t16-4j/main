@@ -115,7 +115,7 @@ public class Logic {
 		try {
 			delete(oldTask);
 			add(newTask);
-			return STRING_UPDATE;
+			return String.format(STRING_UPDATE,oldTask.get(NAME));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -135,7 +135,7 @@ public class Logic {
 		
 		bufferedWriter.close();						
 		return String.format(STRING_DELETE, fileName,
-				task);
+				task.get(NAME));
 	}
 
 	/*public String delete(int lineNo) throws IOException {
