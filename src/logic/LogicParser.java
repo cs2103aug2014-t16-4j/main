@@ -33,6 +33,7 @@ public class LogicParser {
 	private static final int FREQUENCY_MONTHLY_VALUE = 3;
 	private static final String FREQUENCY_CUSTOM = "frequency";
 	
+	private static final String datePreposition = "at in on from to";
 	int nameSeparator;
 	Parser dateParser = new Parser();
 	
@@ -153,6 +154,10 @@ public class LogicParser {
 						}
 					}
 				}	
+			}
+			if (datePreposition.contains(words.get(nameSeparator)))
+			{
+				nameSeparator--;
 			}
 			if (fullDate.size() == 0) {
 			} else if (fullDate.size() == 1) {
