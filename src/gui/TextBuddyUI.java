@@ -404,6 +404,7 @@ public class TextBuddyUI {
 				break;
 			case UPDATE:
 				statusString = update(task);
+				break;
 			case BLOCK:
 				System.out.println("block entered "+splittedString[1]);
 				break;
