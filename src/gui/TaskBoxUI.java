@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import logic.Command;
 import logic.Logic;
 import logic.LogicParser;
 import model.Task;
@@ -33,6 +34,7 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -40,7 +42,6 @@ import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.json.simple.JSONObject;
-import org.eclipse.swt.widgets.Table;
 
 public class TaskBoxUI {
 
@@ -100,11 +101,7 @@ public class TaskBoxUI {
 	private List dayList;
 	private LogicParser parser = new LogicParser();
 	private Table somedayTable;
-
-	// possible commands
-	public enum Commands {
-		ADD, DISPLAY, DELETE, UPDATE, CLEAR, SORT, SEARCH, BLOCK, EXIT
-	};
+	private Command selectedCommand = Command.INVALID;
 	
 	public TaskBoxUI(String[] args) {
 		String fileName = args.length>0?args[0]:"mytext.txt"; 
@@ -366,9 +363,8 @@ public class TaskBoxUI {
 		String[] splittedString;
 		String task = "";
 		String statusString = "";
-		Commands command;
 		splittedString = getSplittedString(userInput);
-		command = getCommandType(splittedString[0]);
+		selectedCommand = getCommandType(splittedString[0]);
 		if (splittedString.length > TASK_POSITION) {
 			task = splittedString[TASK_POSITION];
 		}
