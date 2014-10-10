@@ -7,6 +7,7 @@ import java.util.Scanner;
 import logic.CommandEnum;
 import logic.Consts;
 import logic.Logic;
+import logic.LogicController;
 import logic.LogicParser;
 import model.Task;
 
@@ -46,7 +47,7 @@ import org.json.simple.JSONObject;
 
 public class TaskBoxUI {
 
-	public ArrayList<JSONObject> taskList;
+	//public ArrayList<JSONObject> taskList;
 	
 	private static Boolean ISMAC = false;
 	private static Boolean BLNMOUSEDOWN=false;
@@ -101,7 +102,7 @@ public class TaskBoxUI {
 	*/
 	
 	Scanner scanner;
-	Logic logic;
+	LogicController logic;
 	private List dayList;
 	private LogicParser parser = new LogicParser();
 	private Table somedayTable;
@@ -128,7 +129,7 @@ public class TaskBoxUI {
 	 */
 	public void init(String fileName) throws IOException {
 		ISMAC = SystemUtils.IS_OS_MAC;
-		logic = new Logic(fileName);
+		logic = new LogicController(fileName);
 		logic.init();
 		display = new Display();
 		renderShell();
@@ -142,7 +143,7 @@ public class TaskBoxUI {
 		dayComposite.setExpandVertical(true);
 		
 		renderSomeday();
-		getTaskList();
+		//getTaskList();
 		renderStatusIndicator();
 		printStatement(Consts.RENDER_BOTH);
 		printWelcomeMsg(fileName);
@@ -378,11 +379,11 @@ public class TaskBoxUI {
 				statusString = add(task);
 				break;
 			case DISPLAY:
-				getTaskList();
+				//getTaskList();
 				break;
 			case CLEAR:
 				statusString = clear();
-				getTaskList();
+				//getTaskList();
 				break;
 			case DELETE:
 				statusString = delete(task);
@@ -416,12 +417,12 @@ public class TaskBoxUI {
 	}
 
 	public ArrayList<JSONObject> getDisplayList() {
-		return taskList;
+		return LogicController.tasksBuffer;
 	}
 	
 	public void search(String keyword) {
 		try {
-			taskList = logic.search(keyword);
+			LogicController.tasksBuffer = logic.search(keyword);
 		} catch (IOException e) {
 		}
 	}
@@ -436,7 +437,7 @@ public class TaskBoxUI {
 			try{
 				lineNumber = Integer.parseInt(splittedString[0]);
 				Task newTask = parser.decompose(splittedString[1]);
-				return logic.update(taskList.get(lineNumber-1),newTask);
+				return logic.update(LogicController.tasksBuffer.get(lineNumber-1),newTask);
 			}catch(NumberFormatException e){
 				return Consts.USAGE_UPDATE;
 			}
@@ -461,9 +462,9 @@ public class TaskBoxUI {
 				lineNumber = Integer.parseInt(lineNo);
 				//return logic.delete(lineNumber);
 				//maybe see if we can remove from tasklist
-				taskList.remove(lineNumber-1);
-				return logic.delete(taskList.get(lineNumber-1));
-			} catch (NumberFormatException | IOException e) {
+				//LogicController.tasksBuffer.remove(lineNumber-1);
+				return logic.delete(LogicController.tasksBuffer.get(lineNumber-1));
+			} catch (NumberFormatException e) {
 				return Consts.USAGE_DELETE;
 			}
 		} else {
@@ -480,19 +481,21 @@ public class TaskBoxUI {
 		}
 	}
 
+	/*
 	public void getTaskList() {
 		try {
-			taskList = logic.display();
+			logic.display();
 		} catch (IOException e) {
 		}
 	}
+	*/
 
 	public String add(String task) {
 		Task tsk = parser.decompose(task);
 		if (tsk != null && !tsk.isEmpty()) {
 			boolean isSuccess = logic.add(tsk);
 			if (isSuccess) {
-				getTaskList();
+				//getTaskList();
 				return String.format(Consts.STRING_ADD, logic.getFileName(), task);
 			} else {
 				return Consts.USAGE_ADD;
@@ -538,7 +541,7 @@ public class TaskBoxUI {
 		}*/
 		if(mode == Consts.RENDER_BOTH){
 			somedayTable.removeAll();
-			updateSomeday(taskList);
+			updateSomeday(LogicController.tasksBuffer);
 		}
 		//System.out.println(str.toString());
 	}
