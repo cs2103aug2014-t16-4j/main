@@ -46,10 +46,10 @@ public class TextBuddyUI {
 
 	public ArrayList<JSONObject> taskList;
 	
-	public static Boolean isMac = false;
-	private static Boolean blnMouseDown=false;
-	private static int xPos=0;
-	private static int yPos=0;
+	private static Boolean ISMAC = false;
+	private static Boolean BLNMOUSEDOWN=false;
+	private static int XPOS=0;
+	private static int YPOS=0;
 	private Display display;
 	private Shell shell;
 	private Text input;
@@ -130,7 +130,7 @@ public class TextBuddyUI {
 	 * @wbp.parser.entryPoint
 	 */
 	public void init(String fileName) throws IOException {
-		isMac = SystemUtils.IS_OS_MAC;
+		ISMAC = SystemUtils.IS_OS_MAC;
 		logic = new Logic(fileName);
 		logic.init();
 		display = new Display();
@@ -196,7 +196,7 @@ public class TextBuddyUI {
 		statusComposite.setBounds(10, 596, 280, 14);
 		
 		int fontSize = 10;
-		if(!isMac) {
+		if(!ISMAC) {
 			fontSize = 8;
 		}
 		
@@ -208,7 +208,7 @@ public class TextBuddyUI {
 
 	private void renderHelpButton() {
 		Button help = new Button(shell, SWT.NONE);
-		if(isMac) {
+		if(ISMAC) {
 			help.setBounds(261, 8, 35, 25);
 		}
 		else {
@@ -322,15 +322,15 @@ public class TextBuddyUI {
 			@Override
 			public void mouseUp(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				blnMouseDown=false;
+				BLNMOUSEDOWN=false;
 			}
 
 			@Override
 			public void mouseDown(MouseEvent e) {
 				// TODO Auto-generated method stub
-				blnMouseDown=true;
-				xPos=e.x;
-				yPos=e.y;
+				BLNMOUSEDOWN=true;
+				XPOS=e.x;
+				YPOS=e.y;
 			}
 
 			@Override
@@ -344,9 +344,9 @@ public class TextBuddyUI {
 			@Override
 			public void mouseMove(MouseEvent e) {
 				// TODO Auto-generated method stub
-				if(blnMouseDown){
+				if(BLNMOUSEDOWN){
 
-					shell.setLocation(shell.getLocation().x+(e.x-xPos),shell.getLocation().y+(e.y-yPos));
+					shell.setLocation(shell.getLocation().x+(e.x-XPOS),shell.getLocation().y+(e.y-YPOS));
 				}
 			}
 		});
@@ -395,7 +395,7 @@ public class TextBuddyUI {
 				break;
 			case DELETE:
 				statusString = delete(task);
-				getTaskList();
+				//getTaskList();
 				break;
 			case SORT:
 				statusString = sort();
@@ -469,6 +469,7 @@ public class TextBuddyUI {
 			try {
 				lineNumber = Integer.parseInt(lineNo);
 				//return logic.delete(lineNumber);
+				//maybe see if we can remove from tasklist
 				return logic.delete(taskList.get(lineNumber-1));
 			} catch (NumberFormatException | IOException e) {
 				return USAGE_DELETE;
