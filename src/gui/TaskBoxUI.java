@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import logic.Command;
+import logic.CommandEnum;
+import logic.Consts;
 import logic.Logic;
 import logic.LogicParser;
 import model.Task;
@@ -59,6 +60,7 @@ public class TaskBoxUI {
 	ScrolledComposite dayComposite;
 	ScrolledComposite somedayComposite;
 	
+	/*
 	//Json key strings
 	private static final String NAME = "Name";
 	private static final String DESCRIPTION = "Description";
@@ -96,12 +98,14 @@ public class TaskBoxUI {
 	private static final int RENDER_DAY = 1;
 	private static final int RENDER_SOMEDAY = 2;
 	private static final int RENDER_BOTH = 3;
+	*/
+	
 	Scanner scanner;
 	Logic logic;
 	private List dayList;
 	private LogicParser parser = new LogicParser();
 	private Table somedayTable;
-	private Command selectedCommand = Command.INVALID;
+	private CommandEnum selectedCommand = CommandEnum.INVALID;
 	
 	public TaskBoxUI(String[] args) {
 		String fileName = args.length>0?args[0]:"mytext.txt"; 
@@ -115,7 +119,7 @@ public class TaskBoxUI {
 
 	private void printHelp() {
 		//needs to change to pop up
-		updateStatusIndicator(STRING_HELP);
+		updateStatusIndicator(Consts.STRING_HELP);
 	}
 
 	/**
@@ -140,7 +144,7 @@ public class TaskBoxUI {
 		renderSomeday();
 		getTaskList();
 		renderStatusIndicator();
-		printStatement(RENDER_BOTH);
+		printStatement(Consts.RENDER_BOTH);
 		printWelcomeMsg(fileName);
 		positionWindow();
 		shell.open();
@@ -365,10 +369,10 @@ public class TaskBoxUI {
 		String statusString = "";
 		splittedString = getSplittedString(userInput);
 		selectedCommand = getCommandType(splittedString[0]);
-		if (splittedString.length > TASK_POSITION) {
-			task = splittedString[TASK_POSITION];
+		if (splittedString.length > Consts.TASK_POSITION) {
+			task = splittedString[Consts.TASK_POSITION];
 		}
-		if (selectedCommand != Command.INVALID) {
+		if (selectedCommand != CommandEnum.INVALID) {
 			switch (selectedCommand) {
 			case ADD:
 				statusString = add(task);
@@ -399,15 +403,15 @@ public class TaskBoxUI {
 			case EXIT:
 				systemExit();
 			default:
-				updateStatusIndicator(STRING_NOT_SUPPORTED_COMMAND);
+				updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
 				break;
 			}
 			if(!statusString.isEmpty()){
 				updateStatusIndicator(statusString);
 			}
-			printStatement(RENDER_BOTH);
+			printStatement(Consts.RENDER_BOTH);
 		} else {
-			updateStatusIndicator(STRING_NOT_SUPPORTED_COMMAND);
+			updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
 		}
 	}
 
@@ -425,8 +429,8 @@ public class TaskBoxUI {
 	public String update(String userInput){
 		if(userInput != null && !userInput.isEmpty()){
 			String[] splittedString = getSplittedString(userInput);
-			if(splittedString.length != NO_ARGS_UPDATE){
-				return USAGE_UPDATE;
+			if(splittedString.length != Consts.NO_ARGS_UPDATE){
+				return Consts.USAGE_UPDATE;
 			}
 			int lineNumber;
 			try{
@@ -434,17 +438,17 @@ public class TaskBoxUI {
 				Task newTask = parser.decompose(splittedString[1]);
 				return logic.update(taskList.get(lineNumber-1),newTask);
 			}catch(NumberFormatException e){
-				return USAGE_UPDATE;
+				return Consts.USAGE_UPDATE;
 			}
 		}else{
-			return USAGE_UPDATE;
+			return Consts.USAGE_UPDATE;
 		}
 	}
 
 	public String sort() {
 		try {
 			logic.sort();
-			return STRING_SORTED;
+			return Consts.STRING_SORTED;
 		} catch (Exception e) {
 		}
 		return null;
@@ -460,19 +464,19 @@ public class TaskBoxUI {
 				taskList.remove(lineNumber-1);
 				return logic.delete(taskList.get(lineNumber-1));
 			} catch (NumberFormatException | IOException e) {
-				return USAGE_DELETE;
+				return Consts.USAGE_DELETE;
 			}
 		} else {
-			return USAGE_DELETE;
+			return Consts.USAGE_DELETE;
 		}
 	}
 
 	public String clear() {
 		boolean isCleared = logic.clear();
 		if (isCleared) {
-			return String.format(STRING_CLEAR, logic.getFileName());
+			return String.format(Consts.STRING_CLEAR, logic.getFileName());
 		} else {
-			return ERROR_UNKNOWN;
+			return Consts.ERROR_UNKNOWN;
 		}
 	}
 
@@ -489,12 +493,12 @@ public class TaskBoxUI {
 			boolean isSuccess = logic.add(tsk);
 			if (isSuccess) {
 				getTaskList();
-				return String.format(STRING_ADD, logic.getFileName(), task);
+				return String.format(Consts.STRING_ADD, logic.getFileName(), task);
 			} else {
-				return USAGE_ADD;
+				return Consts.USAGE_ADD;
 			}
 		} else {
-			return ERROR_ADD;
+			return Consts.ERROR_ADD;
 		}
 	}
 
@@ -505,34 +509,34 @@ public class TaskBoxUI {
 
 	private static String checkFileName(String fileName) {
 		String[] parts = fileName.split("\\.(?=[^\\.]+$)");
-		if (parts.length != FILE_VALID_LENGTH
-				|| !parts[FILE_TYPE_POSITION].equalsIgnoreCase("txt")) {
+		if (parts.length != Consts.FILE_VALID_LENGTH
+				|| !parts[Consts.FILE_TYPE_POSITION].equalsIgnoreCase("txt")) {
 			fileName = fileName + ".txt";
 		}
 		return fileName;
 	}
 
 	private void printWelcomeMsg(String fileName) {
-		System.out.printf(STRING_WELCOME, fileName);
-		updateStatusIndicator(String.format(STRING_WELCOME, fileName));
+		System.out.printf(Consts.STRING_WELCOME, fileName);
+		updateStatusIndicator(String.format(Consts.STRING_WELCOME, fileName));
 	}
 
-	private Command getCommandType(String firstWord) {
+	private CommandEnum getCommandType(String firstWord) {
 		if (firstWord != null) {
-			for (Command cmd : Command.values()) {
+			for (CommandEnum cmd : CommandEnum.values()) {
 				if (firstWord.equalsIgnoreCase(cmd.toString())) {
 					return cmd;
 				}
 			}
 		}
-		return Command.INVALID;
+		return CommandEnum.INVALID;
 	}
 
 	private void printStatement(int mode) {
 		/*if(!shell.isDisposed() && mode == RENDER_STATUS_INDICATOR){
 			updateStatusIndicator(str.get(0).toJSONString());
 		}*/
-		if(mode == RENDER_BOTH){
+		if(mode == Consts.RENDER_BOTH){
 			somedayTable.removeAll();
 			updateSomeday(taskList);
 		}
@@ -549,8 +553,8 @@ public class TaskBoxUI {
 	private void updateSomeday(ArrayList<JSONObject> str) {
 		for(int i=0;i<str.size();i++){
 			TableItem item = new TableItem(somedayTable, 0);
-            item.setText((i+1)+". "+str.get(i).get(NAME).toString());
-            item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get(PRIORITY).toString())));
+            item.setText((i+1)+". "+str.get(i).get(Consts.NAME).toString());
+            item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get(Consts.PRIORITY).toString())));
 		}
 	}
 	
@@ -568,7 +572,7 @@ public class TaskBoxUI {
 	}
 	
 	private void systemExit() {
-		updateStatusIndicator(STRING_EXIT);
+		updateStatusIndicator(Consts.STRING_EXIT);
 		System.exit(0);
 	}
 }
