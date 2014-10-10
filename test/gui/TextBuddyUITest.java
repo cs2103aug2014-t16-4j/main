@@ -12,10 +12,10 @@ import org.junit.Test;
 public class TextBuddyUITest {
 
 	String[] fileName = {"kaunghtet.txt"};
-	TextBuddyUI logic;
+	TaskBoxUI logic;
 	@Before
 	public void setUp() throws Exception {
-		logic = new TextBuddyUI(fileName);
+		logic = new TaskBoxUI(fileName);
 	}
 
 	@After
