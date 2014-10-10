@@ -105,19 +105,15 @@ public class TextBuddyUI {
 	public enum Commands {
 		ADD, DISPLAY, DELETE, UPDATE, CLEAR, SORT, SEARCH, BLOCK, EXIT
 	};
-
-	public TextBuddyUI(String fileName) {
-		logic = new Logic(fileName);
-	}
 	
 	public TextBuddyUI(String[] args) {
-	}
-
-	public void checkArgs(String[] args) throws IOException {
-		//alex-added default file name so one can run on eclipse 
 		String fileName = args.length>0?args[0]:"mytext.txt"; 
 		fileName = checkFileName(fileName);
-		init(fileName);
+		try {
+			init(fileName);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void printHelp() {
@@ -144,6 +140,18 @@ public class TextBuddyUI {
 		dayComposite.setExpandHorizontal(true);
 		dayComposite.setExpandVertical(true);
 		
+		renderSomeday();
+		getTaskList();
+		renderStatusIndicator();
+		printStatement(RENDER_BOTH);
+		printWelcomeMsg(fileName);
+		positionWindow();
+		shell.open();
+		enableDrag();
+		disposeDisplay();
+	}
+
+	private void renderSomeday() {
 		somedayComposite = new ScrolledComposite(shell, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		somedayComposite.setBounds(10, 446, 280, 144);
 		somedayComposite.setExpandHorizontal(true);
@@ -156,15 +164,6 @@ public class TextBuddyUI {
 		somedayComposite.setMinSize(somedayTable.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		TableColumn names = new TableColumn(somedayTable, SWT.LEFT);
 		names.setWidth(276);
-		
-		getTaskList();
-		renderStatusIndicator();
-		printStatement(RENDER_BOTH);
-		printWelcomeMsg(fileName);
-		positionWindow();
-		shell.open();
-		enableDrag();
-		disposeDisplay();
 	}
 
 	private void renderInput() {
@@ -363,14 +362,6 @@ public class TextBuddyUI {
 		shell.setLocation(x, y);
 	}
 
-	public void start(String fileName) {
-		scanner = new Scanner(System.in);
-		for (;;) {
-			System.out.print(STRING_ENTER_COMMAND);
-			delegateTask(scanner.nextLine());
-		}
-	}
-
 	private void delegateTask(String userInput) {
 		String[] splittedString;
 		String task = "";
@@ -470,6 +461,7 @@ public class TextBuddyUI {
 				lineNumber = Integer.parseInt(lineNo);
 				//return logic.delete(lineNumber);
 				//maybe see if we can remove from tasklist
+				taskList.remove(lineNumber-1);
 				return logic.delete(taskList.get(lineNumber-1));
 			} catch (NumberFormatException | IOException e) {
 				return USAGE_DELETE;
