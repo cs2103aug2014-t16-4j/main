@@ -22,6 +22,7 @@ public final class Consts {
     public static final String STRING_FOUND_LINE = "=== Found line ===";
     public static final String STRING_SORTED = "List Sorted";
     public static final String STRING_EXIT = "Bye!";
+    public static final String STRING_DELETE = "deleted from %s: \"%s\"";
     public static final DateFormat formatter = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
 	public static final SimpleDateFormat cmpFormatter = new SimpleDateFormat("yyyyMMdd");
     
