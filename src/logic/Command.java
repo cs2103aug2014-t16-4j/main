@@ -1,5 +1,7 @@
 package logic;
 
-public enum Command {
-	ADD, DISPLAY, DELETE, UPDATE, CLEAR, SORT, SEARCH, BLOCK, EXIT, INVALID
+public abstract class Command {
+
+	public abstract boolean executeCommand();
+	public abstract boolean undo();
 }
