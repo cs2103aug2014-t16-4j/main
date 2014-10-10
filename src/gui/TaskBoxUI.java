@@ -368,8 +368,8 @@ public class TaskBoxUI {
 		if (splittedString.length > TASK_POSITION) {
 			task = splittedString[TASK_POSITION];
 		}
-		if (command != null) {
-			switch (command) {
+		if (selectedCommand != Command.INVALID) {
+			switch (selectedCommand) {
 			case ADD:
 				statusString = add(task);
 				break;
@@ -517,15 +517,15 @@ public class TaskBoxUI {
 		updateStatusIndicator(String.format(STRING_WELCOME, fileName));
 	}
 
-	private Commands getCommandType(String command) {
-		if (command != null) {
-			for (Commands cmd : Commands.values()) {
-				if (command.equalsIgnoreCase(cmd.toString())) {
+	private Command getCommandType(String firstWord) {
+		if (firstWord != null) {
+			for (Command cmd : Command.values()) {
+				if (firstWord.equalsIgnoreCase(cmd.toString())) {
 					return cmd;
 				}
 			}
 		}
-		return null;
+		return Command.INVALID;
 	}
 
 	private void printStatement(int mode) {
