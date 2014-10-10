@@ -449,7 +449,6 @@ public class TaskBoxUI {
 	public String sort() {
 		try {
 			logic.sort();
-			return Consts.STRING_SORTED;
 		} catch (Exception e) {
 		}
 		return null;

@@ -5,6 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import model.Task;
 
@@ -12,7 +16,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.joestelmach.natty.DateGroup;
+import com.joestelmach.natty.Parser;
+
 public class LogicController {
+	Parser dateParser = new Parser();
 	public static ArrayList <JSONObject> tasksBuffer;
 	String fileName;
 	Add logicAdd;
@@ -62,6 +70,22 @@ public class LogicController {
 		return logicClear.executeCommand();
 	}
 	
+	public void sort(){
+		Map<String, JSONObject> map = new TreeMap<String, JSONObject>();
+		String sortKey = "";
+		for(int i=0;i<tasksBuffer.size();i++){
+			JSONObject obj = tasksBuffer.get(i);
+			sortKey = obj.get(Consts.NAME).toString();
+			map.put(sortKey, obj);
+		}
+		clear();
+		Task tempTask;
+		for(JSONObject taskObj : map.values()){
+			tempTask = jsonToTask(taskObj);
+			add(tempTask);
+		}
+	}
+	
 	public String delete(JSONObject task){
 		logicDelete = new Delete();
 		logicDelete.setFileName(fileName);
@@ -71,6 +95,33 @@ public class LogicController {
 		}else{
 			return Consts.USAGE_DELETE;
 		}
+	}
+
+	public ArrayList<JSONObject> search(String keyword) throws IOException {
+		List<DateGroup> dateGrp = dateParser.parse((keyword));
+		Date date = null;
+		if(!dateGrp.isEmpty()){
+			date = dateParser.parse(keyword).get(0).getDates().get(0);
+		}
+		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
+		for (int i = 0; i < tasksBuffer.size(); i++) {
+			Task task = jsonToTask(tasksBuffer.get(i));
+			if (task.getName().contains(keyword)) {
+				foundLine.add(tasksBuffer.get(i));
+			} else if (task.getDescription().contains(keyword)) {
+				foundLine.add(tasksBuffer.get(i));
+			}
+			if(date != null){
+				if(dateBefore(task.getStartDate(),date) && dateBefore(date,task.getEndDate())){
+					foundLine.add(tasksBuffer.get(i));
+				}
+			}
+		}
+		return foundLine;
+	}
+	
+	public Boolean dateBefore(Date x, Date y){
+		return Consts.cmpFormatter.format(x).compareTo(Consts.cmpFormatter.format(y)) <= 0;
 	}
 
 	public Task jsonToTask(JSONObject obj){
