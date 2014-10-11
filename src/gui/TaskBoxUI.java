@@ -339,15 +339,15 @@ public class TaskBoxUI {
 				statusString = add(task);
 				break;
 			case DISPLAY:
-				//getTaskList();
+				getTaskList();
 				break;
 			case CLEAR:
 				statusString = clear();
-				//getTaskList();
+				getTaskList();
 				break;
 			case DELETE:
 				statusString = delete(task);
-				//getTaskList();
+				getTaskList();
 				break;
 			case SORT:
 				statusString = sort();
@@ -414,6 +414,7 @@ public class TaskBoxUI {
 	public String sort() {
 		try {
 			logic.sort();
+			return Consts.STRING_SORTED;
 		} catch (Exception e) {
 		}
 		return null;
