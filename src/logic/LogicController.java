@@ -23,6 +23,7 @@ import com.joestelmach.natty.Parser;
 public class LogicController {
 	Parser dateParser = new Parser();
 	public static ArrayList <JSONObject> tasksBuffer;
+	ArrayList <Task> blockBuffer;
 	String fileName;
 	Add logicAdd;
 	Clear logicClear;
@@ -32,6 +33,7 @@ public class LogicController {
    
 	private static LogicController singleton = null;
    /* Static 'instance' method */
+	
 	public static LogicController getInstance( ) {
 		if (singleton == null)
 		{
@@ -69,8 +71,34 @@ public class LogicController {
 			e.printStackTrace();
 		}
 	}
+	
+	//TasksBuffer without Block task
+	public ArrayList<JSONObject> getDisplayTasksBuffer() {
+		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
+		for (JSONObject jTask: tasksBuffer) {
+			if (!jTask.containsValue("BLOCK")) {
+				displayTasksBuffer.add(jTask);
+			}
+		}
+		return displayTasksBuffer;
+	}
+	
+	private boolean intersectTime(Task taskA, Task taskB) {
+		return Math.max(taskA.getStartDate().getTime(), taskB.getStartDate().getTime()) < Math.min(taskA.getStartDate().getTime(), taskB.getEndDate().getTime());
+	}
 		
 	public boolean add(Task task){
+		for (JSONObject jtask: tasksBuffer) {
+			if (jtask.containsValue("BLOCK")) {
+				Task temp = Converter.jsonToTask(jtask);
+				//intersect
+				if (intersectTime(temp, task)) {
+					System.out.println("Added to a block");
+					return false;
+				}
+			}
+		}
+		
 		logicAdd = new Add();
 		logicAdd.setFileName(fileName);
 		logicAdd.setTask(task);
@@ -125,6 +153,12 @@ public class LogicController {
 		}else{
 			return Consts.USAGE_DELETE;
 		}
+	}
+	
+	public String block(Date startDate, Date endDate) {
+		Task task = new Task("", "BLOCK", startDate, endDate, 0, 0);
+		add(task);
+		return "BLOCK";
 	}
 	
 	public void undo(){

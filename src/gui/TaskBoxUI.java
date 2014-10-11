@@ -46,7 +46,7 @@ import org.json.simple.JSONObject;
 
 public class TaskBoxUI {
 
-	public ArrayList<JSONObject> taskList;
+	//public ArrayList<JSONObject> taskList;
 	
 	private static Boolean ISMAC = false;
 	private static Boolean BLNMOUSEDOWN=false;
@@ -59,6 +59,46 @@ public class TaskBoxUI {
 	private Composite statusComposite;
 	ScrolledComposite dayComposite;
 	ScrolledComposite somedayComposite;
+	
+	/*
+	//Json key strings
+	private static final String NAME = "Name";
+	private static final String DESCRIPTION = "Description";
+	private static final String DATE = "Date";
+	private static final String PRIORITY = "Priority";
+	private static final String FREQUENCY = "Frequency";
+
+	// FEEDBACK STRINGS
+	private static final String STRING_WELCOME = "Welcome to TextBuddy. %1$s is ready for use.\n";
+	private static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, exit";
+	private static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
+	private static final String STRING_ENTER_COMMAND = "Command: ";
+	private static final String STRING_ADD = "added to %1$s: \"%2$s\"";
+	private static final String STRING_CLEAR = "All content deleted from %1$s";
+	private static final String STRING_FOUND_LINE = "=== Found line ===";
+	private static final String STRING_SORTED = "List Sorted";
+	private static final String STRING_EXIT = "Bye!";
+
+	// ERRORS
+	private static final String ERROR_ADD = "Task cannot be blank.";
+	private static final String ERROR_UNKNOWN = "Unknown error occured!";
+
+	// USAGE
+	private static final String USAGE_ADD = "Usage: add <todo>";
+	private static final String USAGE_DELETE = "Usage: delete <lineno>";
+	private static final String USAGE_UPDATE = "Usage: update <lineno> <updated string>";
+
+	// NUMBER CONSTANT
+	private static final int INPUT_REQUIREMENT = 1;
+	private static final int TASK_POSITION = 1;
+	private static final int NO_ARGS_UPDATE = 2;
+	private static final int FILE_TYPE_POSITION = 1;
+	private static final int FILE_VALID_LENGTH = 2;
+	private static final int RENDER_STATUS_INDICATOR = 0;
+	private static final int RENDER_DAY = 1;
+	private static final int RENDER_SOMEDAY = 2;
+	private static final int RENDER_BOTH = 3;
+	*/
 	
 	Scanner scanner;
 	LogicController logic;
@@ -90,7 +130,6 @@ public class TaskBoxUI {
 		ISMAC = SystemUtils.IS_OS_MAC;
 		logic = LogicController.getInstance();
 		logic.init(fileName);
-		taskList = LogicController.tasksBuffer;
 		display = new Display();
 		renderShell();
 		createTrayIcon();
@@ -339,15 +378,15 @@ public class TaskBoxUI {
 				statusString = add(task);
 				break;
 			case DISPLAY:
-				getTaskList();
+				//getTaskList();
 				break;
 			case CLEAR:
 				statusString = clear();
-				getTaskList();
+				//getTaskList();
 				break;
 			case DELETE:
 				statusString = delete(task);
-				getTaskList();
+				//getTaskList();
 				break;
 			case SORT:
 				statusString = sort();
@@ -377,17 +416,13 @@ public class TaskBoxUI {
 	}
 
 	public ArrayList<JSONObject> getDisplayList() {
-		return taskList;
+		//return LogicController.tasksBuffer;
+		return LogicController.getInstance().getDisplayTasksBuffer();
 	}
 	
 	public void search(String keyword) {
 		try {
-			taskList = logic.search(keyword);
-			if(taskList.isEmpty()){
-				updateStatusIndicator(Consts.STRING_NOT_FOUND);
-			}else{
-				updateStatusIndicator(String.format(Consts.STRING_FOUND,taskList.size()));
-			}
+			LogicController.tasksBuffer = logic.search(keyword);
 		} catch (IOException e) {
 		}
 	}
@@ -414,7 +449,6 @@ public class TaskBoxUI {
 	public String sort() {
 		try {
 			logic.sort();
-			return Consts.STRING_SORTED;
 		} catch (Exception e) {
 		}
 		return null;
@@ -443,16 +477,21 @@ public class TaskBoxUI {
 		}
 	}
 
+	/*
 	public void getTaskList() {
-		taskList = LogicController.tasksBuffer;
+		try {
+			logic.display();
+		} catch (IOException e) {
+		}
 	}
+	*/
 
 	public String add(String task) {
 		Task tsk = parser.decompose(task);
 		if (tsk != null && !tsk.isEmpty()) {
 			boolean isSuccess = logic.add(tsk);
 			if (isSuccess) {
-				getTaskList();
+				//getTaskList();
 				return String.format(Consts.STRING_ADD, logic.getFileName(), task);
 			} else {
 				return Consts.USAGE_ADD;
@@ -498,7 +537,7 @@ public class TaskBoxUI {
 		}*/
 		if(mode == Consts.RENDER_BOTH){
 			somedayTable.removeAll();
-			updateSomeday(taskList);
+			updateSomeday(LogicController.tasksBuffer);
 		}
 		//System.out.println(str.toString());
 	}
