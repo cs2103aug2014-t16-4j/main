@@ -81,6 +81,8 @@ public class LogicController {
 	public boolean clear(){
 		logicClear = new Clear();
 		logicClear.setFileName(fileName);
+		logicClear.setOldTaskBuffer(tasksBuffer);
+		opStack.add(logicClear);
 		return logicClear.executeCommand();
 	}
 	

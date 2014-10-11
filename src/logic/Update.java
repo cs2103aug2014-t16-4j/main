@@ -55,7 +55,9 @@ public class Update extends Command{
 	}
 
 	public boolean undo() {
-		return false;
+		LogicController.tasksBuffer.remove(taskToJSON(newTask));
+		LogicController.tasksBuffer.add(oldObj);
+		return true;
 	}
 	
 	@SuppressWarnings("unchecked")

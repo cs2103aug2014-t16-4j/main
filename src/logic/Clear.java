@@ -3,9 +3,17 @@ package logic;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+
+import org.json.simple.JSONObject;
 
 public class Clear extends Command{
 	String fileName;
+	public static ArrayList <JSONObject> oldTaskBuffer;	
+
+	public static void setOldTaskBuffer(ArrayList<JSONObject> oldTaskBuffer) {
+		Clear.oldTaskBuffer = new ArrayList<JSONObject>(LogicController.tasksBuffer);
+	}
 
 	public String getFileName() {
 		return fileName;
@@ -29,7 +37,8 @@ public class Clear extends Command{
 	}
 
 	public boolean undo() {
-		return false;
+		LogicController.tasksBuffer = Clear.oldTaskBuffer;
+		return true;
 	}
 
 }
