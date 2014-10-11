@@ -8,8 +8,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.TreeMap;
 
+import model.Operation;
 import model.Task;
 
 import org.json.simple.JSONObject;
@@ -27,6 +29,7 @@ public class LogicController {
 	Clear logicClear;
 	Delete logicDelete;
 	Update logicUpdate;
+	Stack<Operation> opStack = new Stack<Operation>();
 	
 	public String getFileName() {
 		return fileName;
@@ -62,6 +65,7 @@ public class LogicController {
 		logicAdd = new Add();
 		logicAdd.setFileName(fileName);
 		logicAdd.setTask(task);
+		opStack.add(new Operation(task,CommandEnum.ADD));
 		return logicAdd.executeCommand();
 	}
 	
@@ -103,10 +107,22 @@ public class LogicController {
 		logicDelete = new Delete();
 		logicDelete.setFileName(fileName);
 		logicDelete.setTask(task);
+		opStack.add(new Operation(task,CommandEnum.DELETE));
 		if(logicDelete.executeCommand()){
 			return String.format(Consts.STRING_DELETE, fileName,task.get(Consts.NAME));
 		}else{
 			return Consts.USAGE_DELETE;
+		}
+	}
+	
+	public void undo(){
+		if (!opStack.isEmpty()) {
+			Operation op = opStack.pop();
+			if (op.getCommandType() == CommandEnum.ADD) {
+				delete(taskToJSON(op.getTask()));
+			} else if (op.getCommandType() == CommandEnum.DELETE) {
+				add(jsonToTask(op.getjTask()));
+			}	
 		}
 	}
 
@@ -151,5 +167,16 @@ public class LogicController {
 		return temp;	
 	}
 
-	
+	@SuppressWarnings("unchecked")
+	public JSONObject taskToJSON(Task task)
+	{
+		JSONObject jTask=new JSONObject();
+		jTask.put(Consts.NAME, task.getName());
+		jTask.put(Consts.DESCRIPTION, task.getDescription());
+		jTask.put(Consts.STARTDATE, Consts.formatter.format(task.getStartDate()));
+		jTask.put(Consts.ENDDATE, Consts.formatter.format(task.getEndDate()));
+		jTask.put(Consts.PRIORITY, task.getPriority());
+		jTask.put(Consts.FREQUENCY, task.getFrequency());
+		return jTask;
+	}	
 }
