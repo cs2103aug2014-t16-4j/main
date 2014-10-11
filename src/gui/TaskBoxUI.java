@@ -6,7 +6,6 @@ import java.util.Scanner;
 
 import logic.CommandEnum;
 import logic.Consts;
-import logic.Logic;
 import logic.LogicController;
 import logic.LogicParser;
 import model.Task;
@@ -459,9 +458,6 @@ public class TaskBoxUI {
 			int lineNumber;
 			try {
 				lineNumber = Integer.parseInt(lineNo);
-				//return logic.delete(lineNumber);
-				//maybe see if we can remove from tasklist
-				//LogicController.tasksBuffer.remove(lineNumber-1);
 				return logic.delete(LogicController.tasksBuffer.get(lineNumber-1));
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_DELETE;

@@ -23,6 +23,8 @@ public final class Consts {
     public static final String STRING_SORTED = "List Sorted";
     public static final String STRING_EXIT = "Bye!";
     public static final String STRING_DELETE = "deleted from %s: \"%s\"";
+    public static final String STRING_UPDATE = "%s is updated.\n";
+	public static final String STRING_NOT_UPDATE = "%s is not updated.\n";
     public static final DateFormat formatter = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
 	public static final SimpleDateFormat cmpFormatter = new SimpleDateFormat("yyyyMMdd");
     

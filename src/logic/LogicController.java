@@ -26,6 +26,7 @@ public class LogicController {
 	Add logicAdd;
 	Clear logicClear;
 	Delete logicDelete;
+	Update logicUpdate;
 	
 	public String getFileName() {
 		return fileName;
@@ -68,6 +69,18 @@ public class LogicController {
 		logicClear = new Clear();
 		logicClear.setFileName(fileName);
 		return logicClear.executeCommand();
+	}
+	
+	public String update(JSONObject oldTask,Task newTask){
+		logicUpdate = new Update();
+		logicUpdate.setFileName(fileName);
+		logicUpdate.setOldObj(oldTask);
+		logicUpdate.setNewTask(newTask);
+		if(logicUpdate.executeCommand()){
+			return String.format(Consts.STRING_UPDATE,oldTask.get(Consts.NAME));
+		}else{
+			return Consts.STRING_NOT_UPDATE;
+		}
 	}
 	
 	public void sort(){
