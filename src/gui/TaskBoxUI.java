@@ -46,7 +46,7 @@ import org.json.simple.JSONObject;
 
 public class TaskBoxUI {
 
-	//public ArrayList<JSONObject> taskList;
+	public ArrayList<JSONObject> taskList;
 	
 	private static Boolean ISMAC = false;
 	private static Boolean BLNMOUSEDOWN=false;
@@ -90,6 +90,7 @@ public class TaskBoxUI {
 		ISMAC = SystemUtils.IS_OS_MAC;
 		logic = LogicController.getInstance();
 		logic.init(fileName);
+		taskList = LogicController.tasksBuffer;
 		display = new Display();
 		renderShell();
 		createTrayIcon();
@@ -376,12 +377,17 @@ public class TaskBoxUI {
 	}
 
 	public ArrayList<JSONObject> getDisplayList() {
-		return LogicController.tasksBuffer;
+		return taskList;
 	}
 	
 	public void search(String keyword) {
 		try {
-			LogicController.tasksBuffer = logic.search(keyword);
+			taskList = logic.search(keyword);
+			if(taskList.isEmpty()){
+				updateStatusIndicator(Consts.STRING_NOT_FOUND);
+			}else{
+				updateStatusIndicator(String.format(Consts.STRING_FOUND,taskList.size()));
+			}
 		} catch (IOException e) {
 		}
 	}
@@ -436,21 +442,16 @@ public class TaskBoxUI {
 		}
 	}
 
-	/*
 	public void getTaskList() {
-		try {
-			logic.display();
-		} catch (IOException e) {
-		}
+		taskList = LogicController.tasksBuffer;
 	}
-	*/
 
 	public String add(String task) {
 		Task tsk = parser.decompose(task);
 		if (tsk != null && !tsk.isEmpty()) {
 			boolean isSuccess = logic.add(tsk);
 			if (isSuccess) {
-				//getTaskList();
+				getTaskList();
 				return String.format(Consts.STRING_ADD, logic.getFileName(), task);
 			} else {
 				return Consts.USAGE_ADD;
@@ -496,7 +497,7 @@ public class TaskBoxUI {
 		}*/
 		if(mode == Consts.RENDER_BOTH){
 			somedayTable.removeAll();
-			updateSomeday(LogicController.tasksBuffer);
+			updateSomeday(taskList);
 		}
 		//System.out.println(str.toString());
 	}

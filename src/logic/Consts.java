@@ -20,6 +20,8 @@ public final class Consts {
     public static final String STRING_ADD = "added to %1$s: \"%2$s\"";
     public static final String STRING_CLEAR = "All content deleted from %1$s";
     public static final String STRING_FOUND_LINE = "=== Found line ===";
+    public static final String STRING_NOT_FOUND = "No item found.";
+    public static final String STRING_FOUND = "%d item(s) found.";
     public static final String STRING_SORTED = "List Sorted";
     public static final String STRING_EXIT = "Bye!";
     public static final String STRING_DELETE = "deleted from %s: \"%s\"";
