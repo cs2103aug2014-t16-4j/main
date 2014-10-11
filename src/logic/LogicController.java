@@ -155,10 +155,17 @@ public class LogicController {
 		}
 	}
 	
-	public String block(Date startDate, Date endDate) {
-		Task task = new Task("", "BLOCK", startDate, endDate, 0, 0);
-		add(task);
-		return "BLOCK";
+	public String block(String dateString) {
+		List<DateGroup> dateGrp = dateParser.parse(dateString);
+		if(!dateGrp.isEmpty() && dateGrp.get(0).getDates().size() == 2) {
+			Date startDate = dateGrp.get(0).getDates().get(0);
+			Date endDate = dateGrp.get(0).getDates().get(1);			
+			Task task = new Task("", "BLOCK", startDate, endDate, 0, 0);
+			add(task);
+			return "BLOCK " + startDate.toString() + " -> " + endDate.toString();
+		} else {
+			return "BLOCK FAIL";
+		}
 	}
 	
 	public void undo(){
@@ -168,10 +175,10 @@ public class LogicController {
 	}
 	
 	public ArrayList<JSONObject> search(String keyword) throws IOException {
-		List<DateGroup> dateGrp = dateParser.parse((keyword));
+		List<DateGroup> dateGrp = dateParser.parse(keyword);
 		Date date = null;
 		if(!dateGrp.isEmpty()){
-			date = dateParser.parse(keyword).get(0).getDates().get(0);
+			date = dateGrp.get(0).getDates().get(0);
 		}
 		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
 		for (int i = 0; i < tasksBuffer.size(); i++) {
