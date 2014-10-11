@@ -32,7 +32,7 @@ public class Add extends Command{
 		try {
 			FileWriter fstream = new FileWriter(fileName, true);
 			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
-			JSONObject jTask = taskToJSON(task);
+			JSONObject jTask = Converter.taskToJSON(task);
 			bufferedWriter.write(jTask.toString()+"\r\n");
 			bufferedWriter.close();
 			LogicController.tasksBuffer.add(jTask);
@@ -43,21 +43,7 @@ public class Add extends Command{
 	}
 
 	public boolean undo() {
-		LogicController.getInstance().delete(taskToJSON(task));
+		LogicController.getInstance().delete(Converter.taskToJSON(task));
 		return true;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public JSONObject taskToJSON(Task task)
-	{
-		JSONObject jTask=new JSONObject();
-		jTask.put(Consts.NAME, task.getName());
-		jTask.put(Consts.DESCRIPTION, task.getDescription());
-		jTask.put(Consts.STARTDATE, Consts.formatter.format(task.getStartDate()));
-		jTask.put(Consts.ENDDATE, Consts.formatter.format(task.getEndDate()));
-		jTask.put(Consts.PRIORITY, task.getPriority());
-		jTask.put(Consts.FREQUENCY, task.getFrequency());
-		return jTask;
-	}
-
 }
