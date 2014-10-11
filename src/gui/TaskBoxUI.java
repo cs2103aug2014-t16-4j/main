@@ -128,8 +128,8 @@ public class TaskBoxUI {
 	 */
 	public void init(String fileName) throws IOException {
 		ISMAC = SystemUtils.IS_OS_MAC;
-		logic = new LogicController(fileName);
-		logic.init();
+		logic = LogicController.getInstance();
+		logic.init(fileName);
 		display = new Display();
 		renderShell();
 		createTrayIcon();

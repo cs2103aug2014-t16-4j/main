@@ -4,6 +4,8 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import model.Task;
+
 import org.json.simple.JSONObject;
 
 public class Delete extends Command{
@@ -45,7 +47,22 @@ public class Delete extends Command{
 	}
 
 	public boolean undo() {
-		return false;
+		LogicController.getInstance().add(jsonToTask(task));
+		return true;
 	}
 
+	private static Task jsonToTask(JSONObject obj){
+		Task temp = null;
+		try{
+			temp = new Task(obj.get(Consts.NAME).toString());
+			temp.setDescription(obj.get(Consts.DESCRIPTION).toString());
+			temp.setStartDate(Consts.formatter.parse(obj.get(Consts.STARTDATE).toString()));
+			temp.setEndDate(Consts.formatter.parse(obj.get(Consts.ENDDATE).toString()));
+			temp.setFrequency((int) obj.get(Consts.FREQUENCY));
+			temp.setPriority((int) obj.get(Consts.PRIORITY));
+		}catch(Exception e){
+			//e.printStackTrace();
+		}
+		return temp;	
+	}
 }

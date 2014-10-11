@@ -43,7 +43,8 @@ public class Add extends Command{
 	}
 
 	public boolean undo() {
-		return false;
+		LogicController.getInstance().delete(taskToJSON(task));
+		return true;
 	}
 	
 	@SuppressWarnings("unchecked")

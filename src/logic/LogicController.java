@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.TreeMap;
 
-import model.Operation;
 import model.Task;
 
 import org.json.simple.JSONObject;
@@ -29,24 +28,34 @@ public class LogicController {
 	Clear logicClear;
 	Delete logicDelete;
 	Update logicUpdate;
-	Stack<Operation> opStack = new Stack<Operation>();
+	Stack<Command> opStack = new Stack<Command>();
+   
+	private static LogicController singleton = null;
+   /* Static 'instance' method */
+	public static LogicController getInstance( ) {
+		if (singleton == null)
+		{
+			singleton = new LogicController();
+		}
+		return singleton;
+	}
+	
+	public LogicController() {
+		tasksBuffer = new ArrayList<JSONObject>();
+	}
+	
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 	
 	public String getFileName() {
 		return fileName;
 	}
-
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
-
-	public LogicController(String fileName) {
-		this.fileName = fileName;
-		tasksBuffer = new ArrayList<JSONObject>();
-	}
 	
 	//Fetch all tasks from file in the beginning.	
-	public void init() throws IOException
+	public void init(String fileName) throws IOException
 	{
+		this.fileName = fileName;
 		JSONParser jsonParser = new JSONParser();
 		String line;
 		try {
@@ -65,7 +74,7 @@ public class LogicController {
 		logicAdd = new Add();
 		logicAdd.setFileName(fileName);
 		logicAdd.setTask(task);
-		opStack.add(new Operation(task,CommandEnum.ADD));
+		opStack.add(logicAdd);
 		return logicAdd.executeCommand();
 	}
 	
@@ -80,6 +89,7 @@ public class LogicController {
 		logicUpdate.setFileName(fileName);
 		logicUpdate.setOldObj(oldTask);
 		logicUpdate.setNewTask(newTask);
+		opStack.add(logicUpdate);
 		if(logicUpdate.executeCommand()){
 			return String.format(Consts.STRING_UPDATE,oldTask.get(Consts.NAME));
 		}else{
@@ -107,7 +117,7 @@ public class LogicController {
 		logicDelete = new Delete();
 		logicDelete.setFileName(fileName);
 		logicDelete.setTask(task);
-		opStack.add(new Operation(task,CommandEnum.DELETE));
+		opStack.add(logicDelete);
 		if(logicDelete.executeCommand()){
 			return String.format(Consts.STRING_DELETE, fileName,task.get(Consts.NAME));
 		}else{
@@ -117,15 +127,10 @@ public class LogicController {
 	
 	public void undo(){
 		if (!opStack.isEmpty()) {
-			Operation op = opStack.pop();
-			if (op.getCommandType() == CommandEnum.ADD) {
-				delete(taskToJSON(op.getTask()));
-			} else if (op.getCommandType() == CommandEnum.DELETE) {
-				add(jsonToTask(op.getjTask()));
-			}	
+			opStack.pop().undo();
 		}
 	}
-
+	
 	public ArrayList<JSONObject> search(String keyword) throws IOException {
 		List<DateGroup> dateGrp = dateParser.parse((keyword));
 		Date date = null;

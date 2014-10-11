@@ -10,6 +10,17 @@ public class Task {
 	private int priority;
 	private int frequency;
 
+	public Task(String name, String description, Date startDate, Date endDate,
+			int priority, int frequency) {
+		super();
+		this.name = name;
+		this.description = description;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.priority = priority;
+		this.frequency = frequency;
+	}
+
 	public Date getStartDate() {
 		return startDate;
 	}
