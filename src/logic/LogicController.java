@@ -108,7 +108,7 @@ public class LogicController {
 		clear();
 		Task tempTask;
 		for(JSONObject taskObj : map.values()){
-			tempTask = jsonToTask(taskObj);
+			tempTask = Converter.jsonToTask(taskObj);
 			add(tempTask);
 		}
 	}
@@ -139,7 +139,7 @@ public class LogicController {
 		}
 		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
 		for (int i = 0; i < tasksBuffer.size(); i++) {
-			Task task = jsonToTask(tasksBuffer.get(i));
+			Task task = Converter.jsonToTask(tasksBuffer.get(i));
 			if (task.getName().contains(keyword)) {
 				foundLine.add(tasksBuffer.get(i));
 			} else if (task.getDescription().contains(keyword)) {
@@ -157,31 +157,4 @@ public class LogicController {
 	public Boolean dateBefore(Date x, Date y){
 		return Consts.cmpFormatter.format(x).compareTo(Consts.cmpFormatter.format(y)) <= 0;
 	}
-
-	public Task jsonToTask(JSONObject obj){
-		Task temp = null;
-		try{
-			temp = new Task(obj.get(Consts.NAME).toString());
-			temp.setDescription(obj.get(Consts.DESCRIPTION).toString());
-			temp.setStartDate(Consts.formatter.parse(obj.get(Consts.STARTDATE).toString()));
-			temp.setEndDate(Consts.formatter.parse(obj.get(Consts.ENDDATE).toString()));
-			temp.setFrequency((int) obj.get(Consts.FREQUENCY));
-			temp.setPriority((int) obj.get(Consts.PRIORITY));
-		}catch(Exception e){
-		}
-		return temp;	
-	}
-
-	@SuppressWarnings("unchecked")
-	public JSONObject taskToJSON(Task task)
-	{
-		JSONObject jTask=new JSONObject();
-		jTask.put(Consts.NAME, task.getName());
-		jTask.put(Consts.DESCRIPTION, task.getDescription());
-		jTask.put(Consts.STARTDATE, Consts.formatter.format(task.getStartDate()));
-		jTask.put(Consts.ENDDATE, Consts.formatter.format(task.getEndDate()));
-		jTask.put(Consts.PRIORITY, task.getPriority());
-		jTask.put(Consts.FREQUENCY, task.getFrequency());
-		return jTask;
-	}	
 }

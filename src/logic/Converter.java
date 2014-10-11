@@ -19,7 +19,7 @@ public class Converter {
 		return jTask;
 	}		
 	
-	private static Task jsonToTask(JSONObject obj){
+	public static Task jsonToTask(JSONObject obj){
 		Task temp = null;
 		try{
 			temp = new Task(obj.get(Consts.NAME).toString());
