@@ -2,7 +2,6 @@ package gui;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 import logic.CommandEnum;
 import logic.Consts;
@@ -13,29 +12,19 @@ import model.Task;
 import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tray;
-import org.eclipse.swt.widgets.TrayItem;
 import org.json.simple.JSONObject;
 
 public class UIController {
@@ -57,7 +46,6 @@ public class UIController {
 	DisplayShell shell = new DisplayShell();
 	TrayIcon trayIcon = new TrayIcon();
 	
-	//Scanner scanner;
 	LogicController logic;
 	private List dayList;
 	private LogicParser parser = new LogicParser();
@@ -140,13 +128,11 @@ public class UIController {
 
 			@Override
 			public void mouseUp(MouseEvent arg0) {
-				// TODO Auto-generated method stub
 				BLNMOUSEDOWN=false;
 			}
 
 			@Override
 			public void mouseDown(MouseEvent e) {
-				// TODO Auto-generated method stub
 				BLNMOUSEDOWN=true;
 				XPOS=e.x;
 				YPOS=e.y;
@@ -154,7 +140,6 @@ public class UIController {
 
 			@Override
 			public void mouseDoubleClick(MouseEvent arg0) {
-				// TODO Auto-generated method stub
 
 			}
 		});
@@ -162,7 +147,6 @@ public class UIController {
 
 			@Override
 			public void mouseMove(MouseEvent e) {
-				// TODO Auto-generated method stub
 				if(BLNMOUSEDOWN){
 
 					SHELL.setLocation(SHELL.getLocation().x+(e.x-XPOS),SHELL.getLocation().y+(e.y-YPOS));
@@ -238,7 +222,6 @@ public class UIController {
 	}
 
 	public ArrayList<JSONObject> getDisplayList() {
-		//return LogicController.tasksBuffer;
 		return taskList;
 	}
 	
@@ -376,14 +359,10 @@ public class UIController {
 	}
 
 	private void printStatement(int mode) {
-		/*if(!shell.isDisposed() && mode == RENDER_STATUS_INDICATOR){
-			updateStatusIndicator(str.get(0).toJSONString());
-		}*/
 		if(mode == Consts.RENDER_BOTH){
 			someday.somedayTable.removeAll();
 			updateSomeday(taskList);
 		}
-		//System.out.println(str.toString());
 	}
 
 	private void updateStatusIndicator(String str) {
