@@ -13,7 +13,7 @@ public final class Consts {
 	public static final String ENDDATE = "EndDate";
 
     // FEEDBACK STRINGS
-    public static final String STRING_WELCOME = "Welcome to TextBuddy. %1$s is ready for use.\n";
+    public static final String STRING_WELCOME = "Welcome to TaskBox. %1$s is ready for use.\n";
     public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, exit";
     public static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
     public static final String STRING_ENTER_COMMAND = "Command: ";
