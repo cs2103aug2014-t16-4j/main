@@ -14,7 +14,7 @@ public final class Consts {
 
     // FEEDBACK STRINGS
     public static final String STRING_WELCOME = "Welcome to TaskBox. %1$s is ready for use.\n";
-    public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, exit";
+    public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, undo, exit";
     public static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
     public static final String STRING_ENTER_COMMAND = "Command: ";
     public static final String STRING_ADD = "added to %1$s: \"%2$s\"";
@@ -23,6 +23,7 @@ public final class Consts {
     public static final String STRING_NOT_FOUND = "No item found.";
     public static final String STRING_FOUND = "%d item(s) found.";
     public static final String STRING_SORTED = "List Sorted";
+    public static final String STRING_UNDO = "Action Undone";
     public static final String STRING_EXIT = "Bye!";
     public static final String STRING_DELETE = "deleted from %s: \"%s\"";
     public static final String STRING_UPDATE = "%s is updated.\n";
@@ -38,6 +39,7 @@ public final class Consts {
     public static final String USAGE_ADD = "Usage: add <todo>";
     public static final String USAGE_DELETE = "Usage: delete <lineno>";
     public static final String USAGE_UPDATE = "Usage: update <lineno> <updated string>";
+    public static final String USAGE_BLOCK = "Usage: block <start date/time> <end date/time>";
 
     // NUMBER CONSTANT
     public static final int INPUT_REQUIREMENT = 1;

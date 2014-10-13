@@ -217,7 +217,10 @@ public class UIController {
 				statusString = update(task);
 				break;
 			case BLOCK:
-				System.out.println("block entered "+splittedString[1]);
+				statusString = block(task);
+				break;
+			case UNDO:
+				undo();
 				break;
 			case EXIT:
 				systemExit();
@@ -237,6 +240,18 @@ public class UIController {
 	public ArrayList<JSONObject> getDisplayList() {
 		//return LogicController.tasksBuffer;
 		return taskList;
+	}
+	
+	public String block(String userInput){
+		if(userInput != null && !userInput.isEmpty()){
+			try{
+				return logic.block(userInput);
+			}catch(NumberFormatException e){
+				return Consts.USAGE_BLOCK;
+			}
+		}else{
+			return Consts.USAGE_BLOCK;
+		}
 	}
 	
 	public void search(String keyword) {
@@ -274,6 +289,15 @@ public class UIController {
 		try {
 			logic.sort();
 			return Consts.STRING_SORTED;
+		} catch (Exception e) {
+		}
+		return null;
+	}
+	
+	public String undo() {
+		try {
+			logic.undo();
+			return Consts.STRING_UNDO;
 		} catch (Exception e) {
 		}
 		return null;
