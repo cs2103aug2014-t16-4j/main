@@ -19,6 +19,7 @@ tmp/**/*
 *.bak
 *.swp
 *.ucls
+*.useq
 *~.nib
 local.properties
 .classpath
