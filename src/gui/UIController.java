@@ -38,8 +38,8 @@ public class UIController {
 	public static Display DISPLAY;
 	public static Shell SHELL;
 	public static Text input;
-	ScrolledComposite dayComposite;
-	Someday someday = new Someday();
+	ScrolledComposite timedTaskComposite;
+	FloatingTaskContainer floatingTask = new FloatingTaskContainer();
 	InputBox inputBox = new InputBox();
 	StatusIndicator statusIndicator = new StatusIndicator();
 	HelpButton help = new HelpButton();
@@ -85,12 +85,12 @@ public class UIController {
 		trayIcon.renderUI();
 		help.renderUI();
 		
-		dayComposite = new ScrolledComposite(SHELL, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		dayComposite.setBounds(10, 35, 280, 405);
-		dayComposite.setExpandHorizontal(true);
-		dayComposite.setExpandVertical(true);
+		timedTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		timedTaskComposite.setBounds(10, 35, 280, 405);
+		timedTaskComposite.setExpandHorizontal(true);
+		timedTaskComposite.setExpandVertical(true);
 		
-		someday.renderUI();
+		floatingTask.renderUI();
 		statusIndicator.renderUI();
 		printStatement(Consts.RENDER_BOTH);
 		printWelcomeMsg(fileName);
@@ -360,8 +360,8 @@ public class UIController {
 
 	private void printStatement(int mode) {
 		if(mode == Consts.RENDER_BOTH){
-			someday.somedayTable.removeAll();
-			updateSomeday(taskList);
+			floatingTask.floatingTaskTable.removeAll();
+			updatefloatingTask(taskList);
 		}
 	}
 
@@ -372,9 +372,9 @@ public class UIController {
 		}
 	}
 
-	private void updateSomeday(ArrayList<JSONObject> str) {
+	private void updatefloatingTask(ArrayList<JSONObject> str) {
 		for(int i=0;i<str.size();i++){
-			TableItem item = new TableItem(someday.somedayTable, 0);
+			TableItem item = new TableItem(floatingTask.floatingTaskTable, 0);
             item.setText((i+1)+". "+str.get(i).get(Consts.NAME).toString());
             item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get(Consts.PRIORITY).toString())));
 		}
