@@ -40,7 +40,7 @@ import org.json.simple.JSONObject;
 
 public class UIController {
 
-	//public ArrayList<JSONObject> taskList;
+	public ArrayList<JSONObject> taskList;
 	
 	public static Boolean ISMAC = false;
 	private static Boolean BLNMOUSEDOWN=false;
@@ -86,6 +86,7 @@ public class UIController {
 		ISMAC = SystemUtils.IS_OS_MAC;
 		logic = LogicController.getInstance();
 		logic.init(fileName);
+		taskList = LogicController.tasksBuffer;
 		DISPLAY = new Display();
 		shell.renderUI();
 		
@@ -196,15 +197,15 @@ public class UIController {
 				statusString = add(task);
 				break;
 			case DISPLAY:
-				//getTaskList();
+				getTaskList();
 				break;
 			case CLEAR:
 				statusString = clear();
-				//getTaskList();
+				getTaskList();
 				break;
 			case DELETE:
 				statusString = delete(task);
-				//getTaskList();
+				getTaskList();
 				break;
 			case SORT:
 				statusString = sort();
@@ -235,16 +236,21 @@ public class UIController {
 
 	public ArrayList<JSONObject> getDisplayList() {
 		//return LogicController.tasksBuffer;
-		return LogicController.getInstance().getDisplayTasksBuffer();
+		return taskList;
 	}
 	
 	public void search(String keyword) {
 		try {
-			LogicController.tasksBuffer = logic.search(keyword);
+			taskList = logic.search(keyword);
+			if(taskList.isEmpty()){
+				updateStatusIndicator(Consts.STRING_NOT_FOUND);
+			}else{
+				updateStatusIndicator(String.format(Consts.STRING_FOUND,taskList.size()));
+			}
 		} catch (IOException e) {
 		}
 	}
-	
+
 	public String update(String userInput){
 		if(userInput != null && !userInput.isEmpty()){
 			String[] splittedString = getSplittedString(userInput);
@@ -267,6 +273,7 @@ public class UIController {
 	public String sort() {
 		try {
 			logic.sort();
+			return Consts.STRING_SORTED;
 		} catch (Exception e) {
 		}
 		return null;
@@ -295,21 +302,16 @@ public class UIController {
 		}
 	}
 
-	/*
 	public void getTaskList() {
-		try {
-			logic.display();
-		} catch (IOException e) {
-		}
+		taskList = LogicController.tasksBuffer;
 	}
-	*/
 
 	public String add(String task) {
 		Task tsk = parser.decompose(task);
 		if (tsk != null && !tsk.isEmpty()) {
 			boolean isSuccess = logic.add(tsk);
 			if (isSuccess) {
-				//getTaskList();
+				getTaskList();
 				return String.format(Consts.STRING_ADD, logic.getFileName(), task);
 			} else {
 				return Consts.USAGE_ADD;
@@ -355,7 +357,7 @@ public class UIController {
 		}*/
 		if(mode == Consts.RENDER_BOTH){
 			someday.somedayTable.removeAll();
-			updateSomeday(LogicController.tasksBuffer);
+			updateSomeday(taskList);
 		}
 		//System.out.println(str.toString());
 	}
