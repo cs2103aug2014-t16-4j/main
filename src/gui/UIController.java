@@ -202,6 +202,7 @@ public class UIController {
 				break;
 			case BLOCK:
 				statusString = block(task);
+				getTaskList();
 				break;
 			case UNDO:
 				undo();
@@ -310,7 +311,7 @@ public class UIController {
 	}
 
 	public void getTaskList() {
-		taskList = LogicController.tasksBuffer;
+		taskList = logic.getDisplayTasksBuffer();
 	}
 
 	public String add(String task) {
