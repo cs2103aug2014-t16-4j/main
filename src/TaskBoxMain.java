@@ -1,6 +1,6 @@
 import java.io.IOException;
 
-import gui.TaskBoxUI;
+import gui.UIController;
 
 public class TaskBoxMain {
 
@@ -9,6 +9,6 @@ public class TaskBoxMain {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		TaskBoxUI ui = new TaskBoxUI(args);
+		UIController ui = new UIController(args);
 	}
 }
