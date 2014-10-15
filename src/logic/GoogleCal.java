@@ -6,8 +6,8 @@ import com.google.gdata.util.AuthenticationException;
 public class GoogleCal {
 	private static final String URL = "https://www.google.com/calendar/feeds/default/private/full";
 	private String appName = "";
-	String username,password;
-	CalendarService client;
+	private String username,password;
+	private CalendarService client;
 
 	public GoogleCal(String appName){
 		this.appName = appName;
