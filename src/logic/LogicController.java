@@ -84,7 +84,7 @@ public class LogicController {
 	}
 	
 	private boolean intersectTime(Task taskA, Task taskB) {
-		return Math.max(taskA.getStartDate().getTime(), taskB.getStartDate().getTime()) < Math.min(taskA.getStartDate().getTime(), taskB.getEndDate().getTime());
+		return Math.max(taskA.getStartDate().getTime(), taskB.getStartDate().getTime()) <= Math.min(taskA.getEndDate().getTime(), taskB.getEndDate().getTime());
 	}
 		
 	public boolean add(Task task){
