@@ -33,27 +33,27 @@ public class LogicParser {
 	private static final int FREQUENCY_MONTHLY_VALUE = 3;
 	private static final String FREQUENCY_CUSTOM = "frequency";
 	
-	private static final String DATE_PREPOSITION = "the at in on from to";
+	private static final String IGNORE_LIST = "important normal the at in on from to";
 	int nameSeparator;
 	Parser dateParser = new Parser();
 	
 	public int decomposePriority(ArrayList<String> words) {
 		for (int i = 0; i < words.size(); i++) {
 			if (words.get(i).compareTo(PRIORITY_IMPORTANT) == 0) {
-				words.remove(i);
-				nameSeparator = Math.min(nameSeparator, i - 1);
+				//words.remove(i);
+				//nameSeparator = Math.min(nameSeparator, i - 1);
 				return PRIORITY_IMPORTANT_VALUE;
 			}
 			if (words.get(i).compareTo(PRIORITY_NORMAL) == 0) {
-				words.remove(i);
-				nameSeparator = Math.min(nameSeparator, i - 1);
+				//words.remove(i);
+				//nameSeparator = Math.min(nameSeparator, i - 1);
 				return PRIORITY_IMPORTANT_VALUE;
 			}
 			if (words.get(i).compareTo(PRIORITY_CUSTOM) == 0) {
 				if (i + 1 < words.size())
 				{
 					//check valid integer
-					nameSeparator = Math.min(nameSeparator, i - 1);
+					//nameSeparator = Math.min(nameSeparator, i - 1);
 					return Integer.parseInt(words.get(i + 1));
 				}
 			}
@@ -155,10 +155,6 @@ public class LogicParser {
 					}
 				}	
 			}
-			if (DATE_PREPOSITION.contains(words.get(nameSeparator)))
-			{
-				nameSeparator--;
-			}
 			if (fullDate.size() == 0) {
 			} else if (fullDate.size() == 1) {
 				date[0] = fullDate.get(0);
@@ -173,7 +169,7 @@ public class LogicParser {
 
 	public String decomposeName(ArrayList<String> words, int nameSeparator) {
 		String result = "";
-		for (int i = 0; i <= nameSeparator; i++) {
+		for (int i = 0; i <= Math.min(words.size() - 1, nameSeparator); i++) {
 			result = result + words.get(i) + " ";
 		}
 		return result.trim();
@@ -196,6 +192,11 @@ public class LogicParser {
 		}
 		resultTask.setStartDate(date[0]);
 		resultTask.setEndDate(date[1]);
+		nameSeparator = Math.min(nameSeparator, words.size() - 1);
+		while (nameSeparator > 0 && IGNORE_LIST.contains(words.get(nameSeparator)))
+		{
+			nameSeparator--;
+		}
 		resultTask.setName(decomposeName(words, nameSeparator));
 		return resultTask;
 	}
