@@ -9,9 +9,10 @@ public class Task {
 	private Date endDate;
 	private int priority;
 	private int frequency;
+	private int status;
 
 	public Task(String name, String description, Date startDate, Date endDate,
-			int priority, int frequency) {
+			int priority, int frequency, int status) {
 		super();
 		this.name = name;
 		this.description = description;
@@ -19,6 +20,7 @@ public class Task {
 		this.endDate = endDate;
 		this.priority = priority;
 		this.frequency = frequency;
+		this.status = status;
 	}
 
 	public Date getStartDate() {
@@ -51,6 +53,14 @@ public class Task {
 	
 	public void setFrequency(int frequency) {
 		this.frequency = frequency;
+	}
+	
+	public int getStatus() {
+		return status;
+	}
+	
+	public void setStatus(int status) {
+		this.status = status;
 	}
 	
 	public Task() {

@@ -198,6 +198,7 @@ public class LogicParser {
 			nameSeparator--;
 		}
 		resultTask.setName(decomposeName(words, nameSeparator));
+		resultTask.setStatus(0);
 		return resultTask;
 	}
 

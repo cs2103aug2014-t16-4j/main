@@ -160,7 +160,7 @@ public class LogicController {
 		if(!dateGrp.isEmpty() && dateGrp.get(0).getDates().size() == 2) {
 			Date startDate = dateGrp.get(0).getDates().get(0);
 			Date endDate = dateGrp.get(0).getDates().get(1);			
-			Task task = new Task("", "BLOCK", startDate, endDate, 0, 0);
+			Task task = new Task("", "BLOCK", startDate, endDate, 0, 0, 0);
 			add(task);
 			return "BLOCK " + startDate.toString() + " -> " + endDate.toString();
 		} else {
