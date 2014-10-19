@@ -1,28 +1,25 @@
 package logic;
 
-import com.google.gdata.client.calendar.CalendarService;
-import com.google.gdata.util.AuthenticationException;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
 public class GoogleCal {
-	private static final String URL = "https://www.google.com/calendar/feeds/default/private/full";
-	private String appName = "";
-	private String username,password;
-	private CalendarService client;
 
-	public GoogleCal(String appName){
-		this.appName = appName;
-	}
-	
-	public String authenticate(String username,String password){
-		this.username = username;
-		this.password = password;
-		this.client = new CalendarService(appName);
-		try {
-			this.client.setUserCredentials(username, password);
-			return Consts.STRING_CRE_CORRECT;
-		} catch (AuthenticationException e) {
-			return Consts.STRING_CRE_NOT_CORRECT;
+	public static boolean isOnline(){
+		Socket sock = new Socket();
+		InetSocketAddress addr = new InetSocketAddress("www.google.com",80);
+		try{
+			sock.connect(addr);
+			return true;
+		}catch(IOException e){
+			System.err.println("User is offline.");
+			e.printStackTrace();
+			return false;
+		}finally{
+			try {
+				sock.close();
+			}catch(IOException e){}
 		}
 	}
-	
 }
