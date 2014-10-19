@@ -168,6 +168,7 @@ public class LogicController {
 		}
 	}
 	
+	/*
 	public String syncWithGoogle(String username,String password){
 		GoogleCal gCal = new GoogleCal("TaskBox-TaskBoxApp-0.3");
 		try{
@@ -178,6 +179,7 @@ public class LogicController {
 		}
 		return Consts.STRING_SYNC_NOT_COMPLETE;
 	}
+	*/
 	
 	public void undo(){
 		if (!opStack.isEmpty()) {
