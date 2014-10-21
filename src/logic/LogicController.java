@@ -168,19 +168,15 @@ public class LogicController {
 		}
 	}
 	
-	/*
-	public String syncWithGoogle(String username,String password){
-		GoogleCal gCal = new GoogleCal("TaskBox-TaskBoxApp-0.3");
-		try{
-			gCal.authenticate(username,password);
-			
-		}catch(Exception e){
-			return Consts.STRING_SYNC_NOT_COMPLETE;
+	public String syncWithGoogle(){
+		GoogleCal gCal = new GoogleCal();
+		if(gCal.isOnline()){
+			return Consts.STRING_SYNC_COMPLETE;
+		}else{
+			return Consts.STRING_USER_NOT_ONLINE;
 		}
-		return Consts.STRING_SYNC_NOT_COMPLETE;
 	}
-	*/
-	
+
 	public void undo(){
 		if (!opStack.isEmpty()) {
 			opStack.pop().undo();

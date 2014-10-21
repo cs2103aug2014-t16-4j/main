@@ -32,6 +32,7 @@ public final class Consts {
 	public static final String STRING_CRE_NOT_CORRECT = "The credentials are not correct.";
 	public static final String STRING_SYNC_COMPLETE = "Synchronization is complete";
 	public static final String STRING_SYNC_NOT_COMPLETE = "Synchronization is not complete";
+	public static final String STRING_USER_NOT_ONLINE = "Please check your internet connection.";
     public static final DateFormat formatter = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
 	public static final SimpleDateFormat cmpFormatter = new SimpleDateFormat("yyyyMMdd");
     
