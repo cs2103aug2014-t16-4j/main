@@ -55,8 +55,7 @@ public class GoogleCal {
 
 		String url = flow.newAuthorizationUrl().setRedirectUri(redirectUrl)
 				.build();
-		System.out
-				.println("Please open the following URL in your browser then type the authorization code:");
+		System.out.println("Please open the following URL in your browser then type the authorization code:");
 
 		System.out.println("  " + url);
 		System.out.println("What is the authorization code?");
@@ -107,6 +106,7 @@ public class GoogleCal {
 			token = in.readLine();
 		} catch (Exception e) {
 			e.printStackTrace();
+			System.err.println("Please generate the token again");
 		}
 		return token;
 	}
