@@ -74,7 +74,7 @@ public class UIController {
 		ISMAC = SystemUtils.IS_OS_MAC;
 		logic = LogicController.getInstance();
 		logic.init(fileName);
-		taskList = LogicController.tasksBuffer;
+		taskList = logic.getDisplayTasksBuffer();
 		DISPLAY = new Display();
 		shell.renderUI();
 		
@@ -181,15 +181,12 @@ public class UIController {
 				statusString = add(task);
 				break;
 			case DISPLAY:
-				getTaskList();
 				break;
 			case CLEAR:
 				statusString = clear();
-				getTaskList();
 				break;
 			case DELETE:
 				statusString = delete(task);
-				getTaskList();
 				break;
 			case SORT:
 				statusString = sort();
@@ -202,7 +199,6 @@ public class UIController {
 				break;
 			case BLOCK:
 				statusString = block(task);
-				getTaskList();
 				break;
 			case UNDO:
 				undo();
@@ -216,6 +212,7 @@ public class UIController {
 			if(!statusString.isEmpty()){
 				updateStatusIndicator(statusString);
 			}
+			getTaskList();
 			printStatement(Consts.RENDER_BOTH);
 		} else {
 			updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
@@ -260,7 +257,7 @@ public class UIController {
 			try{
 				lineNumber = Integer.parseInt(splittedString[0]);
 				Task newTask = parser.decompose(splittedString[1]);
-				return logic.update(LogicController.tasksBuffer.get(lineNumber-1),newTask);
+				return logic.update(logic.getDisplayTasksBuffer().get(lineNumber-1),newTask);
 			}catch(NumberFormatException e){
 				return Consts.USAGE_UPDATE;
 			}
@@ -292,7 +289,7 @@ public class UIController {
 			int lineNumber;
 			try {
 				lineNumber = Integer.parseInt(lineNo);
-				return logic.delete(LogicController.tasksBuffer.get(lineNumber-1));
+				return logic.delete(logic.getDisplayTasksBuffer().get(lineNumber-1));
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_DELETE;
 			}
@@ -319,7 +316,6 @@ public class UIController {
 		if (tsk != null && !tsk.isEmpty()) {
 			boolean isSuccess = logic.add(tsk);
 			if (isSuccess) {
-				getTaskList();
 				return String.format(Consts.STRING_ADD, logic.getFileName(), task);
 			} else {
 				return Consts.USAGE_ADD;

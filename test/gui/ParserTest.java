@@ -5,6 +5,9 @@ import static org.junit.Assert.*;
 
 import java.util.Date;
 import java.util.List;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import org.junit.After;
 import org.junit.Before;
@@ -19,6 +22,7 @@ public class ParserTest {
 		Parser parser = new Parser();
 		String sTest = "abc january to february";
 		System.out.println(parser.parse(sTest).get(0).getDates().size());
+		
 		if (parser.parse(sTest).isEmpty() == false) {
 			List<Date> dates = parser.parse(sTest).get(0).getDates();
 			System.out.println(dates.get(0).toString());

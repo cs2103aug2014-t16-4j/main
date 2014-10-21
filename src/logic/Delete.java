@@ -47,7 +47,7 @@ public class Delete extends Command{
 	}
 
 	public boolean undo() {
-		LogicController.getInstance().add(jsonToTask(task));
+		LogicController.getInstance().add(jsonToTask(task), false);
 		return true;
 	}
 

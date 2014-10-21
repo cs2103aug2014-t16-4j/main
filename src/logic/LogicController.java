@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,8 @@ import org.json.simple.parser.ParseException;
 
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
+
+import edu.emory.mathcs.backport.java.util.Collections;
 
 public class LogicController {
 	Parser dateParser = new Parser();
@@ -87,7 +90,7 @@ public class LogicController {
 		return Math.max(taskA.getStartDate().getTime(), taskB.getStartDate().getTime()) <= Math.min(taskA.getEndDate().getTime(), taskB.getEndDate().getTime());
 	}
 		
-	public boolean add(Task task){
+	public boolean add(Task task, boolean...addToStack){
 		for (JSONObject jtask: tasksBuffer) {
 			if (jtask.containsValue("BLOCK")) {
 				Task temp = Converter.jsonToTask(jtask);
@@ -102,11 +105,12 @@ public class LogicController {
 		logicAdd = new Add();
 		logicAdd.setFileName(fileName);
 		logicAdd.setTask(task);
+		if (addToStack.length == 0 || (addToStack.length > 0 && addToStack[0] == true))
 		opStack.add(logicAdd);
 		return logicAdd.executeCommand();
 	}
 	
-	public boolean clear(){
+	public boolean clear(boolean...addToStack){
 		logicClear = new Clear();
 		logicClear.setFileName(fileName);
 		logicClear.setOldTaskBuffer(tasksBuffer);
@@ -114,7 +118,7 @@ public class LogicController {
 		return logicClear.executeCommand();
 	}
 	
-	public String update(JSONObject oldTask,Task newTask){
+	public String update(JSONObject oldTask, Task newTask, boolean...addToStack){
 		logicUpdate = new Update();
 		logicUpdate.setFileName(fileName);
 		logicUpdate.setOldObj(oldTask);
@@ -126,9 +130,17 @@ public class LogicController {
 			return Consts.STRING_NOT_UPDATE;
 		}
 	}
+
+	class NameComparator implements Comparator<JSONObject>
+	{
+		public int compare(JSONObject u, JSONObject v)
+		{
+			return u.get(Consts.NAME).toString().compareTo(v.get(Consts.NAME).toString());
+		}
+	}
 	
 	public void sort(){
-		Map<String, JSONObject> map = new TreeMap<String, JSONObject>();
+		/*Map<String, JSONObject> map = new TreeMap<String, JSONObject>();
 		String sortKey = "";
 		for(int i=0;i<tasksBuffer.size();i++){
 			JSONObject obj = tasksBuffer.get(i);
@@ -140,13 +152,19 @@ public class LogicController {
 		for(JSONObject taskObj : map.values()){
 			tempTask = Converter.jsonToTask(taskObj);
 			add(tempTask);
+		}*/
+		try {
+			Collections.sort(tasksBuffer, new NameComparator());
+		} catch (Exception e) {
+			System.out.println(e);
 		}
 	}
 	
-	public String delete(JSONObject task){
+	public String delete(JSONObject task, boolean... addToStack){
 		logicDelete = new Delete();
 		logicDelete.setFileName(fileName);
 		logicDelete.setTask(task);
+		if (addToStack.length == 0 || (addToStack.length > 0 && addToStack[0] == true))
 		opStack.add(logicDelete);
 		if(logicDelete.executeCommand()){
 			return String.format(Consts.STRING_DELETE, fileName,task.get(Consts.NAME));

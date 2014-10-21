@@ -43,7 +43,7 @@ public class Add extends Command{
 	}
 
 	public boolean undo() {
-		LogicController.getInstance().delete(Converter.taskToJSON(task));
+		LogicController.getInstance().delete(Converter.taskToJSON(task), false);
 		return true;
 	}
 }
