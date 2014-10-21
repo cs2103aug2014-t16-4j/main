@@ -179,29 +179,35 @@ public class UIController {
 			switch (selectedCommand) {
 			case ADD:
 				statusString = add(task);
+				getTaskList();
 				break;
 			case DISPLAY:
 				break;
 			case CLEAR:
 				statusString = clear();
+				getTaskList();
 				break;
 			case DELETE:
 				statusString = delete(task);
+				getTaskList();
 				break;
 			case SORT:
 				statusString = sort();
+				getTaskList();
 				break;
 			case SEARCH:
 				search(task);
 				break;
 			case UPDATE:
 				statusString = update(task);
+				getTaskList();
 				break;
 			case BLOCK:
 				statusString = block(task);
 				break;
 			case UNDO:
 				undo();
+				getTaskList();
 				break;
 			case EXIT:
 				systemExit();
@@ -212,7 +218,6 @@ public class UIController {
 			if(!statusString.isEmpty()){
 				updateStatusIndicator(statusString);
 			}
-			getTaskList();
 			printStatement(Consts.RENDER_BOTH);
 		} else {
 			updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);

@@ -80,9 +80,11 @@ public class LogicController {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
 			if (!jTask.containsValue("BLOCK")) {
+				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
 		}
+		//System.out.println(); For Debuging
 		return displayTasksBuffer;
 	}
 	
@@ -214,9 +216,9 @@ public class LogicController {
 				foundLine.add(tasksBuffer.get(i));
 			} else if (task.getDescription().contains(keyword)) {
 				foundLine.add(tasksBuffer.get(i));
-			}
-			if(date != null){
-				if(dateBefore(task.getStartDate(),date) && dateBefore(date,task.getEndDate())){
+			} else if(date != null){
+				//if(dateBefore(task.getStartDate(),date) && dateBefore(date,task.getEndDate())){
+				if (task.getStartDate().getTime() <= date.getTime() && date.getTime() <= task.getEndDate().getTime()) {
 					foundLine.add(tasksBuffer.get(i));
 				}
 			}

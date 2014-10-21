@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -32,10 +33,41 @@ public class LogicParser {
 	private static final int FREQUENCY_WEEKLY_VALUE = 2;
 	private static final int FREQUENCY_MONTHLY_VALUE = 3;
 	private static final String FREQUENCY_CUSTOM = "frequency";
+	private static final int TIME_EPS = 2;
 	
 	private static final String IGNORE_LIST = "important normal the at in on from to";
 	int nameSeparator;
 	Parser dateParser = new Parser();
+	
+	@SuppressWarnings("deprecation")
+	public int getTimeFromDate(Date date) {
+		return date.getHours() *  60 * 60 + date.getMinutes() * 60 + date.getSeconds();
+	}
+	
+	public boolean isDefaultTime(Date date) {
+		Date dateNow = new Date();
+		return (getTimeFromDate(dateNow) - getTimeFromDate(date) <= TIME_EPS);
+	}
+	
+	public Date getEndOfDay(Date date) {
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(date);
+	    calendar.set(Calendar.HOUR_OF_DAY, 23);
+	    calendar.set(Calendar.MINUTE, 59);
+	    calendar.set(Calendar.SECOND, 59);
+	    calendar.set(Calendar.MILLISECOND, 999);
+	    return calendar.getTime();
+	}
+
+	public Date getStartOfDay(Date date) {
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(date);
+	    calendar.set(Calendar.HOUR_OF_DAY, 0);
+	    calendar.set(Calendar.MINUTE, 0);
+	    calendar.set(Calendar.SECOND, 0);
+	    calendar.set(Calendar.MILLISECOND, 0);
+	    return calendar.getTime();
+	}
 	
 	public int decomposePriority(ArrayList<String> words) {
 		for (int i = 0; i < words.size(); i++) {
@@ -123,6 +155,13 @@ public class LogicParser {
 		}
 		List<DateGroup> dateGroupFull = dateParser.parse(fullString);
 		if (dateGroupFull.isEmpty()) {
+			if (!isDefaultTime(date[0])) {
+				date[0] = getStartOfDay(date[0]);
+			}
+
+			if (!isDefaultTime(date[1])) {
+				date[1] = getEndOfDay(date[1]);
+			}
 			return date;
 		}
 		List<Date> fullDate = dateGroupFull.get(0).getDates();
@@ -163,6 +202,14 @@ public class LogicParser {
 				date[0] = fullDate.get(0);
 				date[1] = fullDate.get(1);				
 			}
+		}
+
+		if (!isDefaultTime(date[0])) {
+			date[0] = getStartOfDay(date[0]);
+		}
+
+		if (!isDefaultTime(date[1])) {
+			date[1] = getEndOfDay(date[1]);
 		}
 		return date;	
 	}
