@@ -161,24 +161,32 @@ public class TextBuddyUITest {
 		assertEquals(expectedSize,taskList.size());
 	}
 	
-	@SuppressWarnings("static-access")
 	@Test
-	//ensures the UI is assigning correct color based on priority
+	//ensures the UI is assigning red color for important tasks
 	public void getImportantColor(){
 		System.out.println("=== Testing getColorWithPriority function ===");
-		Color red = logic.DISPLAY.getSystemColor(SWT.COLOR_RED);
+		Color red = UIController.DISPLAY.getSystemColor(SWT.COLOR_RED);
 		Color testColor = logic.getColorWithPriority(Consts.TASK_IMPORTANT);
 		assertEquals(red,testColor);
 	}
 	
-	@SuppressWarnings("static-access")
 	@Test
-	//ensures the UI is assigning correct color based on priority
+	//ensures the UI is assigning black color for normal tasks
 	public void getNormalColor(){
 		System.out.println("=== Testing getColorWithPriority function ===");
-		Color black = logic.DISPLAY.getSystemColor(SWT.COLOR_BLACK);
+		Color black = UIController.DISPLAY.getSystemColor(SWT.COLOR_BLACK);
 		Color testColor = logic.getColorWithPriority(Consts.TASK_NORMAL);
 		assertEquals(black,testColor);
+	}
+	
+	@Test
+	//ensures the UI is assigning black color for all other tasks
+	//this is also a boundary value analysis
+	public void getDefaultColor(){
+		System.out.println("=== Testing getColorWithPriority function ===");
+		Color testColor1 = logic.getColorWithPriority(-1);
+		Color testColor2 = logic.getColorWithPriority(2);
+		assertEquals(true,testColor1==testColor2);
 	}
 	
 }

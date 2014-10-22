@@ -386,7 +386,7 @@ public class UIController {
 		if(p==Consts.TASK_IMPORTANT){
 			return DISPLAY.getSystemColor(SWT.COLOR_RED);
 		}
-		else if(p==2){
+		else if(p==Consts.TASK_NORMAL){
 			return new Color(DISPLAY, 255,165,0);
 		}
 		else{
