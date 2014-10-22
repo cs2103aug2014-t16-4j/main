@@ -4,6 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 
+import logic.Consts;
+
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.SWT;
 import org.json.simple.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +17,7 @@ public class TextBuddyUITest {
 
 	String[] fileName = {"kaunghtet.txt"};
 	UIController logic;
+	ArrayList<JSONObject> taskList;
 	@Before
 	public void setUp() throws Exception {
 		logic = new UIController(fileName);
@@ -21,7 +26,7 @@ public class TextBuddyUITest {
 	@After
 	public void tearDown() throws Exception {
 	}
-
+	
 	@Test
 	public void testSearch() {
 		System.out.println("=== Testing search function ===");
@@ -142,4 +147,38 @@ public class TextBuddyUITest {
 		assertEquals(expectedString,returnString);
 	}
 
+	@Test
+	//ensures the UI is getting correct taskList
+	public void testGetTaskList(){
+		System.out.println("=== Testing getTaskList function ===");
+		int expectedSize = 4;
+		logic.clear();
+		logic.add("to sleep");
+		logic.add("to do something");
+		logic.add("to do cs2103 project");
+		logic.add("to eat");
+		taskList = logic.getTaskList();
+		assertEquals(expectedSize,taskList.size());
+	}
+	
+	@SuppressWarnings("static-access")
+	@Test
+	//ensures the UI is assigning correct color based on priority
+	public void getImportantColor(){
+		System.out.println("=== Testing getColorWithPriority function ===");
+		Color red = logic.DISPLAY.getSystemColor(SWT.COLOR_RED);
+		Color testColor = logic.getColorWithPriority(Consts.TASK_IMPORTANT);
+		assertEquals(red,testColor);
+	}
+	
+	@SuppressWarnings("static-access")
+	@Test
+	//ensures the UI is assigning correct color based on priority
+	public void getNormalColor(){
+		System.out.println("=== Testing getColorWithPriority function ===");
+		Color black = logic.DISPLAY.getSystemColor(SWT.COLOR_BLACK);
+		Color testColor = logic.getColorWithPriority(Consts.TASK_NORMAL);
+		assertEquals(black,testColor);
+	}
+	
 }

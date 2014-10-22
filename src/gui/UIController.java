@@ -179,35 +179,35 @@ public class UIController {
 			switch (selectedCommand) {
 			case ADD:
 				statusString = add(task);
-				getTaskList();
+				taskList = getTaskList();
 				break;
 			case DISPLAY:
 				break;
 			case CLEAR:
 				statusString = clear();
-				getTaskList();
+				taskList = getTaskList();
 				break;
 			case DELETE:
 				statusString = delete(task);
-				getTaskList();
+				taskList = getTaskList();
 				break;
 			case SORT:
 				statusString = sort();
-				getTaskList();
+				taskList = getTaskList();
 				break;
 			case SEARCH:
 				search(task);
 				break;
 			case UPDATE:
 				statusString = update(task);
-				getTaskList();
+				taskList = getTaskList();
 				break;
 			case BLOCK:
 				statusString = block(task);
 				break;
 			case UNDO:
 				undo();
-				getTaskList();
+				taskList = getTaskList();
 				break;
 			case EXIT:
 				systemExit();
@@ -312,8 +312,8 @@ public class UIController {
 		}
 	}
 
-	public void getTaskList() {
-		taskList = logic.getDisplayTasksBuffer();
+	public ArrayList<JSONObject> getTaskList() {
+		return logic.getDisplayTasksBuffer();
 	}
 
 	public String add(String task) {
@@ -382,8 +382,8 @@ public class UIController {
 		}
 	}
 	
-	private Color getColorWithPriority(int p){
-		if(p==1){
+	public Color getColorWithPriority(int p){
+		if(p==Consts.TASK_IMPORTANT){
 			return DISPLAY.getSystemColor(SWT.COLOR_RED);
 		}
 		else if(p==2){
