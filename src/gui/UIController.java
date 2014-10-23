@@ -12,19 +12,35 @@ import model.Task;
 import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tray;
+import org.eclipse.swt.widgets.TrayItem;
+import org.eclipse.wb.swt.SWTResourceManager;
 import org.json.simple.JSONObject;
 
 public class UIController {
@@ -36,16 +52,16 @@ public class UIController {
 	private static int XPOS=0;
 	private static int YPOS=0;
 	public static Display DISPLAY;
-	public static Shell SHELL;
 	public static Text input;
 	ScrolledComposite timedTaskComposite;
-	FloatingTaskContainer floatingTask = new FloatingTaskContainer();
-	InputBox inputBox = new InputBox();
-	StatusIndicator statusIndicator = new StatusIndicator();
-	HelpButton help = new HelpButton();
-	DisplayShell shell = new DisplayShell();
-	TrayIcon trayIcon = new TrayIcon();
 	
+	public Shell SHELL;
+	public Composite statusComposite;
+	public Label statusInd;
+	public Button help;
+	public Tray tray;
+	public Table floatingTaskTable;
+	public ScrolledComposite floatingTaskComposite;
 	LogicController logic;
 	private List dayList;
 	private LogicParser parser = new LogicParser();
@@ -88,29 +104,180 @@ public class UIController {
 		logic = LogicController.getInstance();
 		logic.init(fileName);
 		taskList = logic.getDisplayTasksBuffer();
+		
 		DISPLAY = new Display();
-		shell.renderUI();
-		
-		if(inputBox.renderUI()){
-			addInputListener();
-		}
-		
-		trayIcon.renderUI();
-		help.renderUI();
-		
+		renderShell();
+		renderTrayIcon();
+		renderInputBox();
+		renderHelp();
+		renderFloatingTaskContainer();
+		renderStatusIndicator();
 		timedTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		timedTaskComposite.setBounds(10, 35, 280, 405);
 		timedTaskComposite.setExpandHorizontal(true);
 		timedTaskComposite.setExpandVertical(true);
 		
-		floatingTask.renderUI();
-		statusIndicator.renderUI();
+		
+		
 		printStatement(Consts.RENDER_BOTH);
 		printWelcomeMsg(fileName);
 		positionWindow();
 		SHELL.open();
 		enableDrag();
 		disposeDisplay();
+	}
+
+	private void renderStatusIndicator() {
+		statusComposite = new Composite(SHELL, SWT.NONE);
+		statusComposite.setBounds(10, 596, 280, 14);
+		
+		int fontSize = 10;
+		if(!ISMAC) {
+			fontSize = 8;
+		}
+		
+		statusInd = new Label(statusComposite, SWT.NONE);
+		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande", fontSize, SWT.NORMAL));
+		statusInd.setBounds(0, 0, 280, 14);
+		statusInd.setAlignment(SWT.CENTER);
+	}
+
+	private void renderInputBox() {
+		input = new Text(SHELL, SWT.BORDER);
+		input.setFocus();
+		input.setBounds(10, 10, 245, 19);
+		input.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.keyCode == SWT.CR){
+					//TaskBoxUI.delegateTask(input.getText());
+					input.setText("");
+				}
+			}
+		});
+
+		FocusListener listener = new FocusListener() {
+			public void focusGained(FocusEvent event) {
+				input.setFocus();
+			}
+			public void focusLost(FocusEvent event) {
+			}
+		};
+		input.addFocusListener(listener);
+	}
+
+	private void renderHelp() {
+		help = new Button(SHELL, SWT.NONE);
+		if(ISMAC) {
+			help.setBounds(261, 8, 35, 25);
+		}
+		else {
+			help.setBounds(261, 9, 30, 21);
+		}
+		help.setText("?");
+	}
+
+	private void renderFloatingTaskContainer() {
+		floatingTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		floatingTaskComposite.setBounds(10, 446, 280, 144);
+		floatingTaskComposite.setExpandHorizontal(true);
+		floatingTaskComposite.setExpandVertical(true);
+		
+		floatingTaskTable = new Table(floatingTaskComposite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		floatingTaskTable.setHeaderVisible(false);
+		floatingTaskTable.setLinesVisible(true);
+		floatingTaskComposite.setContent(floatingTaskTable);
+		floatingTaskComposite.setMinSize(floatingTaskTable.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		TableColumn names = new TableColumn(floatingTaskTable, SWT.LEFT);
+		names.setWidth(276);
+	}
+
+	private void renderTrayIcon() {
+		Image image = new Image (DISPLAY, 16, 16);
+		Image image2 = new Image (DISPLAY, 16, 16);
+		GC gc = new GC(image2);
+		gc.setBackground(DISPLAY.getSystemColor(SWT.COLOR_BLACK));
+		gc.fillRectangle(image2.getBounds());
+		gc.dispose();
+		tray = DISPLAY.getSystemTray ();
+		if (tray == null) {
+			System.out.println ("The system tray is not available");
+		} else {
+			final TrayItem item = new TrayItem (tray, SWT.NONE);
+			item.setToolTipText("SWT TrayItem");
+			item.addListener (SWT.Show, new Listener () {
+				@Override
+				public void handleEvent (Event event) {
+					System.out.println("show");
+				}
+			});
+			item.addListener (SWT.Hide, new Listener () {
+				@Override
+				public void handleEvent (Event event) {
+					System.out.println("hide");
+				}
+			});
+			item.addListener (SWT.Selection, new Listener () {
+				@Override
+				public void handleEvent (Event event) {
+					if(!SHELL.isVisible()){
+						System.out.println("showing window");
+						SHELL.setVisible(true);
+						SHELL.setMinimized(false); 
+						input.setFocus();
+						SHELL.forceActive();
+					}
+					else{
+						System.out.println("hiding window");
+						SHELL.setMinimized(true);
+						SHELL.setVisible(false);
+					}
+				}
+			});
+			item.addListener (SWT.DefaultSelection, new Listener () {
+				@Override
+				public void handleEvent (Event event) {
+					System.out.println("default selection");
+				}
+			});
+			final Menu menu = new Menu (SHELL, SWT.POP_UP);
+			for (int i = 0; i < 8; i++) {
+				MenuItem mi = new MenuItem (menu, SWT.PUSH);
+				mi.setText ("Item" + i);
+				mi.addListener (SWT.Selection, new Listener () {
+					@Override
+					public void handleEvent (Event event) {
+						System.out.println("selection " + event.widget);
+					}
+				});
+				if (i == 0) menu.setDefaultItem(mi);
+			}
+			item.addListener (SWT.MenuDetect, new Listener () {
+				@Override
+				public void handleEvent (Event event) {
+					menu.setVisible (true);
+				}
+			});
+			item.setImage (image2);
+			item.setHighlightImage (image);
+		}
+	}
+
+	private void renderShell() {
+		SHELL = new Shell (DISPLAY, SWT.ON_TOP | SWT.MODELESS);
+		SHELL.setSize(300, 620);
+		SHELL.setLayout(null);
+		
+		FocusListener listener = new FocusListener() {
+			public void focusGained(FocusEvent event) {
+				SHELL.setFocus();
+			}
+			public void focusLost(FocusEvent event) {
+				//shell.setMinimized(true);
+				//shell.setVisible(false);
+			}
+		};
+		SHELL.addFocusListener(listener);
 	}
 
 	private void addInputListener() {
@@ -375,21 +542,21 @@ public class UIController {
 
 	private void printStatement(int mode) {
 		if(mode == Consts.RENDER_BOTH){
-			floatingTask.floatingTaskTable.removeAll();
+			floatingTaskTable.removeAll();
 			updatefloatingTask(taskList);
 		}
 	}
 
 	private void updateStatusIndicator(String str) {
 		if(!SHELL.isDisposed()){
-			statusIndicator.statusInd.setText(str);
-			statusIndicator.statusComposite.layout();
+			statusInd.setText(str);
+			statusComposite.layout();
 		}
 	}
 
 	private void updatefloatingTask(ArrayList<JSONObject> str) {
 		for(int i=0;i<str.size();i++){
-			TableItem item = new TableItem(floatingTask.floatingTaskTable, 0);
+			TableItem item = new TableItem(floatingTaskTable, 0);
             item.setText((i+1)+". "+str.get(i).get(Consts.NAME).toString());
             item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get(Consts.PRIORITY).toString())));
 		}
