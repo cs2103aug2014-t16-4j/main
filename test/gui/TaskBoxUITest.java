@@ -13,7 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TextBuddyUITest {
+public class TaskBoxUITest {
 
 	String[] fileName = {"kaunghtet.txt"};
 	UIController logic;
@@ -37,9 +37,9 @@ public class TextBuddyUITest {
 		logic.add("to do cs2103 project");
 		logic.add("to eat");
 		logic.search("do");
-		ArrayList<JSONObject> returnString = logic.getDisplayList();
+		ArrayList<JSONObject> returnObjects = logic.getDisplayList();
 		//System.out.println(returnString);
-		assertEquals(expectedString,returnString);
+		assertEquals(expectedString,returnObjects);
 	}
 	
 	@Test
@@ -52,9 +52,9 @@ public class TextBuddyUITest {
 		logic.add("to do cs2103 project");
 		logic.add("to eat");
 		logic.search("Anything not from text file");
-		ArrayList<JSONObject> returnString = logic.getDisplayList();
+		ArrayList<JSONObject> returnObjects = logic.getDisplayList();
 		//System.out.println(returnString);
-		assertEquals(expectedString,returnString);
+		assertEquals(expectedString,returnObjects);
 	}
 
 	@Test
@@ -68,9 +68,9 @@ public class TextBuddyUITest {
 		logic.add("FFFF");
 		logic.add("EEEE");
 		logic.sort();
-		ArrayList<JSONObject> returnString = logic.getDisplayList();
+		ArrayList<JSONObject> returnObjects= logic.getDisplayList();
 		//System.out.println(returnString);
-		assertEquals(expectedString,returnString);
+		assertEquals(expectedString,returnObjects);
 	}
 
 	@Test
@@ -84,9 +84,9 @@ public class TextBuddyUITest {
 		logic.add("to do E");
 		logic.add("to do D");
 		logic.sort();
-		ArrayList<JSONObject> returnString = logic.getDisplayList();
+		ArrayList<JSONObject> returnObjects = logic.getDisplayList();
 		//System.out.println(returnString);
-		assertEquals(expectedString,returnString);
+		assertEquals(expectedString,returnObjects);
 	}
 	@Test
 	public void testDelete() {

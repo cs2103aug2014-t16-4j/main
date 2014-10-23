@@ -223,6 +223,7 @@ public class LogicController {
 				}
 			}
 		}
+		System.out.println(foundLine.toString());
 		return foundLine;
 	}
 	
