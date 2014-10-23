@@ -60,6 +60,19 @@ public class UIController {
 			e.printStackTrace();
 		}
 	}
+	
+	//for testing
+	public UIController(String fileName) {
+		try {
+			ISMAC = SystemUtils.IS_OS_MAC;
+			logic = LogicController.getInstance();
+			logic.init(fileName);
+			taskList = logic.getDisplayTasksBuffer();
+			DISPLAY = new Display();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private void printHelp() {
 		//needs to change to pop up
