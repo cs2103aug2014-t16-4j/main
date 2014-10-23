@@ -23,10 +23,12 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
@@ -42,6 +44,9 @@ import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.json.simple.JSONObject;
+import org.eclipse.swt.widgets.ExpandBar;
+import org.eclipse.swt.widgets.DateTime;
+import org.eclipse.swt.layout.FillLayout;
 
 public class UIController {
 
@@ -51,21 +56,26 @@ public class UIController {
 	private static Boolean BLNMOUSEDOWN=false;
 	private static int XPOS=0;
 	private static int YPOS=0;
-	public static Display DISPLAY;
-	public static Text input;
-	ScrolledComposite timedTaskComposite;
-	
-	public Shell SHELL;
-	public Composite statusComposite;
-	public Label statusInd;
-	public Button help;
-	public Tray tray;
-	public Table floatingTaskTable;
-	public ScrolledComposite floatingTaskComposite;
-	LogicController logic;
 	private List dayList;
 	private LogicParser parser = new LogicParser();
 	private CommandEnum selectedCommand = CommandEnum.INVALID;
+	
+	Display DISPLAY;
+	Text input;
+	Shell SHELL;
+	Composite statusComposite;
+	Label statusInd;
+	Button help;
+	Tray tray;
+	Table floatingTaskTable;
+	ScrolledComposite floatingTaskComposite;
+	ScrolledComposite timedTaskComposite;
+	LogicController logic;
+	private DateTime dateTime;
+	private ExpandBar expandBar;
+	private ExpandItem xpndtmTest;
+	private ExpandBar expandBar_1;
+	
 	
 	public UIController(String[] args) {
 		String fileName = args.length>0?args[0]:"mytext.txt"; 
@@ -112,12 +122,7 @@ public class UIController {
 		renderHelp();
 		renderFloatingTaskContainer();
 		renderStatusIndicator();
-		timedTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		timedTaskComposite.setBounds(10, 35, 280, 405);
-		timedTaskComposite.setExpandHorizontal(true);
-		timedTaskComposite.setExpandVertical(true);
-		
-		
+		renderTimedTaskContainer();
 		
 		printStatement(Consts.RENDER_BOTH);
 		printWelcomeMsg(fileName);
@@ -125,6 +130,42 @@ public class UIController {
 		SHELL.open();
 		enableDrag();
 		disposeDisplay();
+	}
+
+	private void renderTimedTaskContainer() {
+		timedTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		timedTaskComposite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		timedTaskComposite.setBounds(10, 35, 280, 405);
+		timedTaskComposite.setExpandHorizontal(true);
+		timedTaskComposite.setExpandVertical(true);
+		
+		expandBar = new ExpandBar(timedTaskComposite, SWT.NONE);
+		
+		xpndtmTest = new ExpandItem(expandBar, SWT.NONE);
+		xpndtmTest.setExpanded(true);
+		xpndtmTest.setText("test");
+		
+		expandBar_1 = new ExpandBar(expandBar, SWT.NONE);
+		expandBar_1.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		xpndtmTest.setControl(expandBar_1);
+		xpndtmTest.setHeight(xpndtmTest.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+		timedTaskComposite.setContent(expandBar);
+		timedTaskComposite.setMinSize(expandBar.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		
+//		Composite composite1 = new Composite (expandBar, SWT.NONE);
+//		composite1.setLayout(layout);
+//		Button button1 = new Button (composite1, SWT.PUSH);
+//		button1.setText("SWT.PUSH");
+//		button1 = new Button (composite1, SWT.RADIO);
+//		button1.setText("SWT.RADIO");
+//		button1 = new Button (composite1, SWT.CHECK);
+//		button1.setText("SWT.CHECK");
+//		button1 = new Button (composite1, SWT.TOGGLE);
+//		button1.setText("SWT.TOGGLE");
+//		ExpandItem item1 = new ExpandItem (expandBar, SWT.NONE, 0);
+//		item1.setText("What is your favorite button");
+//		item1.setHeight(composite1.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+//		item1.setControl(composite1);
 	}
 
 	private void renderStatusIndicator() {
