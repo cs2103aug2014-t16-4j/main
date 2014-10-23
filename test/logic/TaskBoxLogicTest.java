@@ -94,14 +94,19 @@ public class TaskBoxLogicTest {
 	@Test
 	public void testDelete() {
 		System.out.println("=== Testing delete function ===");
-		Task soonToBeDeletedTask = new Task("Second line");
-		logic.add(new Task("First line"),false);
-		logic.add(soonToBeDeletedTask,false);
-		logic.add(new Task("Third line"),false);
-		logic.add(new Task("Forth line"),false);
-		String expectedString = String.format(Consts.STRING_DELETE, fileName,soonToBeDeletedTask.getName());
+		logic.clear();
+		Task soonToBeDeletedTask = parser.decompose("Second line");
+		Task first = parser.decompose("First line");
+		Task third = parser.decompose("Third line");
+		Task fourth = parser.decompose("Fourth line");
+		logic.add(first,false);
+		logic.add(soonToBeDeletedTask, false);
+		logic.add(third,false);
+		logic.add(fourth,false);
+		String expectedString = String.format(Consts.STRING_DELETE, fileName[0],soonToBeDeletedTask.getName());
 		String returnString = logic.delete(Converter.taskToJSON(soonToBeDeletedTask));
 		//System.out.println(returnString);
+		//System.out.println(expectedString);
 		assertEquals(expectedString,returnString);
 	}
 
@@ -118,15 +123,15 @@ public class TaskBoxLogicTest {
 		logic.add(fourth,false);
 		String expectedString = Consts.USAGE_DELETE;
 		String returnString = logic.delete(Converter.taskToJSON(soonToBeDeletedTask));
-		System.out.println(returnString);
+		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
 	
 	@Test
 	public void testClear() {
 		System.out.println("=== Testing clear function ===");
-		logic.add(new Task("first one"),false);
-		logic.add(new Task("second one"),false);
+		logic.add(parser.decompose("first one"),false);
+		logic.add(parser.decompose("second one"),false);
 		Boolean returnBoolean = logic.clear(false);
 		//System.out.println(returnString);
 		assertEquals(true, returnBoolean);
@@ -136,8 +141,8 @@ public class TaskBoxLogicTest {
 	public void testAdd() {
 		System.out.println("=== Testing add function ===");
 		logic.clear();
-		Boolean returnBoolean = logic.add(new Task("To eat"),false);
-		//System.out.println(returnString);
+		Boolean returnBoolean = logic.add(parser.decompose("To eat"),false);
+		//System.out.println(returnString); //debugging
 		assertEquals(true,returnBoolean);
 	}
 	
@@ -145,8 +150,8 @@ public class TaskBoxLogicTest {
 	public void testAddWithBlankTask(){
 		System.out.println("=== Testing add function with blank todo ===");
 		logic.clear();
-		Boolean returnBoolean = logic.add(new Task(""),false);
-		//System.out.println(returnString);
+		Boolean returnBoolean = logic.add(parser.decompose(" "),false);
+		//System.out.println(returnBoolean); //debugging
 		assertEquals(false,returnBoolean);
 	}
 }

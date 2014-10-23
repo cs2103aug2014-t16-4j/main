@@ -8,7 +8,7 @@ import org.json.simple.JSONObject;
 
 import model.Task;
 
-public class Add extends Command{
+public class Add extends Command {
 	Task task;
 	String fileName;
 
@@ -29,17 +29,21 @@ public class Add extends Command{
 	}
 
 	public boolean executeCommand() {
-		try {
-			FileWriter fstream = new FileWriter(fileName, true);
-			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
-			JSONObject jTask = Converter.taskToJSON(task);
-			bufferedWriter.write(jTask.toString()+"\r\n");
-			bufferedWriter.close();
-			LogicController.tasksBuffer.add(jTask);
-			return true;
-		} catch (IOException e) {
+		if (task.getName().isEmpty()) {
+			return false;
+		} else {
+			try {
+				FileWriter fstream = new FileWriter(fileName, true);
+				BufferedWriter bufferedWriter = new BufferedWriter(fstream);
+				JSONObject jTask = Converter.taskToJSON(task);
+				bufferedWriter.write(jTask.toString() + "\r\n");
+				bufferedWriter.close();
+				LogicController.tasksBuffer.add(jTask);
+				return true;
+			} catch (IOException e) {
+			}
+			return false;
 		}
-		return false;
 	}
 
 	public boolean undo() {
