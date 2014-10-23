@@ -155,11 +155,11 @@ public class LogicParser {
 		}
 		List<DateGroup> dateGroupFull = dateParser.parse(fullString);
 		if (dateGroupFull.isEmpty()) {
-			if (!isDefaultTime(date[0])) {
+			if (isDefaultTime(date[0])) {
 				date[0] = getStartOfDay(date[0]);
 			}
 
-			if (!isDefaultTime(date[1])) {
+			if (isDefaultTime(date[1])) {
 				date[1] = getEndOfDay(date[1]);
 			}
 			return date;
@@ -204,11 +204,11 @@ public class LogicParser {
 			}
 		}
 
-		if (!isDefaultTime(date[0])) {
+		if (isDefaultTime(date[0])) {
 			date[0] = getStartOfDay(date[0]);
 		}
 
-		if (!isDefaultTime(date[1])) {
+		if (isDefaultTime(date[1])) {
 			date[1] = getEndOfDay(date[1]);
 		}
 		return date;	
