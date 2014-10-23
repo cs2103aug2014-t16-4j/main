@@ -8,10 +8,10 @@ import model.Task;
 
 import org.json.simple.JSONObject;
 
-public class Delete extends Command{
+public class Delete extends Command {
 	JSONObject task;
 	String fileName;
-	
+
 	public String getFileName() {
 		return fileName;
 	}
@@ -29,19 +29,23 @@ public class Delete extends Command{
 	}
 
 	public boolean executeCommand() {
-		try{
+		try {
 			FileWriter fstream = new FileWriter(fileName);
 			BufferedWriter bw = new BufferedWriter(fstream);
-			LogicController.tasksBuffer.remove(task);
-			bw.write("");
+			if (LogicController.tasksBuffer.contains(task)) {
+				LogicController.tasksBuffer.remove(task);
+				bw.write("");
+				for (JSONObject jTask : LogicController.tasksBuffer) {
+					bw.write(jTask.toString() + "\r\n");
+				}
 
-			for (JSONObject jTask: LogicController.tasksBuffer) {
-				bw.write(jTask.toString()+"\r\n");
+				bw.close();
+				return true;
+			}else{
+				bw.close();
+				return false;
 			}
-
-			bw.close();		
-			return true;
-		}catch(IOException e){
+		} catch (IOException e) {
 		}
 		return false;
 	}
@@ -51,18 +55,20 @@ public class Delete extends Command{
 		return true;
 	}
 
-	private static Task jsonToTask(JSONObject obj){
+	private static Task jsonToTask(JSONObject obj) {
 		Task temp = null;
-		try{
+		try {
 			temp = new Task(obj.get(Consts.NAME).toString());
 			temp.setDescription(obj.get(Consts.DESCRIPTION).toString());
-			temp.setStartDate(Consts.formatter.parse(obj.get(Consts.STARTDATE).toString()));
-			temp.setEndDate(Consts.formatter.parse(obj.get(Consts.ENDDATE).toString()));
+			temp.setStartDate(Consts.formatter.parse(obj.get(Consts.STARTDATE)
+					.toString()));
+			temp.setEndDate(Consts.formatter.parse(obj.get(Consts.ENDDATE)
+					.toString()));
 			temp.setFrequency((int) obj.get(Consts.FREQUENCY));
 			temp.setPriority((int) obj.get(Consts.PRIORITY));
-		}catch(Exception e){
-			//e.printStackTrace();
+		} catch (Exception e) {
+			// e.printStackTrace();
 		}
-		return temp;	
+		return temp;
 	}
 }

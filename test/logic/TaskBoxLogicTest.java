@@ -2,6 +2,7 @@ package logic;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import model.Task;
@@ -14,10 +15,12 @@ public class TaskBoxLogicTest {
 
 	String[] fileName = {"kaunghtet.txt"};
 	LogicController logic;
+	LogicParser parser;
 	@Before
 	public void setUp() throws Exception {
 		logic = new LogicController();
 		logic.setFileName(fileName[0]);
+		parser = new LogicParser();
 	}
 
 	@After
@@ -106,26 +109,16 @@ public class TaskBoxLogicTest {
 	public void testDeleteLineNotFound(){
 		System.out.println("=== Testing delete function ===");
 		logic.clear();
-		Task soonToBeDeletedTask = new Task("Second line");
-		Task first = new Task("First line");
-		first.setStartDate(new Date());
-		first.setEndDate(new Date());
-		Task second = new Task("Second line");
-		second.setStartDate(new Date());
-		second.setEndDate(new Date());
-		Task third = new Task("Third line");
-		third.setStartDate(new Date());
-		third.setEndDate(new Date());
-		Task fourth = new Task("Fourth line");
-		fourth.setStartDate(new Date());
-		fourth.setEndDate(new Date());
+		Task soonToBeDeletedTask = parser.decompose("Second line");
+		Task first = parser.decompose("First line");
+		Task third = parser.decompose("Third line");
+		Task fourth = parser.decompose("Fourth line");
 		logic.add(first,false);
-		logic.add(second,false);
 		logic.add(third,false);
 		logic.add(fourth,false);
 		String expectedString = Consts.USAGE_DELETE;
 		String returnString = logic.delete(Converter.taskToJSON(soonToBeDeletedTask));
-		//System.out.println(returnString);
+		System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
 	
