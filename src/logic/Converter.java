@@ -12,8 +12,8 @@ public class Converter {
 		JSONObject jTask=new JSONObject();
 		jTask.put(Consts.NAME, task.getName());
 		jTask.put(Consts.DESCRIPTION, task.getDescription());
-		jTask.put(Consts.STARTDATE, Consts.formatter.format(task.getStartDate()));
-		jTask.put(Consts.ENDDATE, Consts.formatter.format(task.getEndDate()));
+		jTask.put(Consts.STARTDATE, task.getStartDate()!=null?Consts.formatter.format(task.getStartDate()):"");
+		jTask.put(Consts.ENDDATE, task.getEndDate()!=null?Consts.formatter.format(task.getEndDate()):"");
 		jTask.put(Consts.PRIORITY, task.getPriority());
 		jTask.put(Consts.FREQUENCY, task.getFrequency());
 		return jTask;

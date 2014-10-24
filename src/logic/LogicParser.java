@@ -156,11 +156,11 @@ public class LogicParser {
 		List<DateGroup> dateGroupFull = dateParser.parse(fullString);
 		if (dateGroupFull.isEmpty()) {
 			if (isDefaultTime(date[0])) {
-				date[0] = getStartOfDay(date[0]);
+				date[0] = null;
 			}
 
 			if (isDefaultTime(date[1])) {
-				date[1] = getEndOfDay(date[1]);
+				date[1] = null;
 			}
 			return date;
 		}
@@ -231,7 +231,7 @@ public class LogicParser {
 		resultTask.setPriority(decomposePriority(words));
 		resultTask.setFrequency(decomposeFrequency(words));
 		Date[] date = decomposeDate(words);
-		if (date[0].compareTo(date[1]) > 0)
+		if (date[0]!=null && date[1]!=null && date[0].compareTo(date[1]) > 0)
 		{
 			Date temp = date[0];
 			date[0] = date[1];
