@@ -23,12 +23,9 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.ExpandItem;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
@@ -44,14 +41,11 @@ import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.json.simple.JSONObject;
-import org.eclipse.swt.widgets.ExpandBar;
-import org.eclipse.swt.widgets.DateTime;
-import org.eclipse.swt.layout.FillLayout;
 
 public class UIController {
 
 	public ArrayList<JSONObject> taskList;
-	
+
 	public static Boolean ISMAC = false;
 	private static Boolean BLNMOUSEDOWN=false;
 	private static int XPOS=0;
@@ -59,24 +53,20 @@ public class UIController {
 	private List dayList;
 	private LogicParser parser = new LogicParser();
 	private CommandEnum selectedCommand = CommandEnum.INVALID;
-	
+
 	Display DISPLAY;
 	Text input;
 	Shell SHELL;
 	Composite statusComposite;
 	Label statusInd;
-	Button help;
 	Tray tray;
 	Table floatingTaskTable;
 	ScrolledComposite floatingTaskComposite;
 	ScrolledComposite timedTaskComposite;
 	LogicController logic;
-	private DateTime dateTime;
-	private ExpandBar expandBar;
-	private ExpandItem xpndtmTest;
-	private ExpandBar expandBar_1;
-	
-	
+	private Menu menu_1;
+
+
 	public UIController(String[] args) {
 		String fileName = args.length>0?args[0]:"mytext.txt"; 
 		fileName = checkFileName(fileName);
@@ -86,7 +76,7 @@ public class UIController {
 			e.printStackTrace();
 		}
 	}
-	
+
 	//for testing
 	public UIController(String fileName) {
 		try {
@@ -114,7 +104,7 @@ public class UIController {
 		logic = LogicController.getInstance();
 		logic.init(fileName);
 		taskList = logic.getDisplayTasksBuffer();
-		
+
 		DISPLAY = new Display();
 		renderShell();
 		renderTrayIcon();
@@ -123,10 +113,9 @@ public class UIController {
 		renderFloatingTaskContainer();
 		renderStatusIndicator();
 		renderTimedTaskContainer();
-		
+
 		printStatement(Consts.RENDER_BOTH);
 		printWelcomeMsg(fileName);
-		positionWindow();
 		SHELL.open();
 		enableDrag();
 		disposeDisplay();
@@ -138,45 +127,32 @@ public class UIController {
 		timedTaskComposite.setBounds(10, 35, 280, 405);
 		timedTaskComposite.setExpandHorizontal(true);
 		timedTaskComposite.setExpandVertical(true);
-		
-		expandBar = new ExpandBar(timedTaskComposite, SWT.NONE);
-		
-		xpndtmTest = new ExpandItem(expandBar, SWT.NONE);
-		xpndtmTest.setExpanded(true);
-		xpndtmTest.setText("test");
-		
-		expandBar_1 = new ExpandBar(expandBar, SWT.NONE);
-		expandBar_1.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		xpndtmTest.setControl(expandBar_1);
-		xpndtmTest.setHeight(xpndtmTest.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-		timedTaskComposite.setContent(expandBar);
-		timedTaskComposite.setMinSize(expandBar.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		
-//		Composite composite1 = new Composite (expandBar, SWT.NONE);
-//		composite1.setLayout(layout);
-//		Button button1 = new Button (composite1, SWT.PUSH);
-//		button1.setText("SWT.PUSH");
-//		button1 = new Button (composite1, SWT.RADIO);
-//		button1.setText("SWT.RADIO");
-//		button1 = new Button (composite1, SWT.CHECK);
-//		button1.setText("SWT.CHECK");
-//		button1 = new Button (composite1, SWT.TOGGLE);
-//		button1.setText("SWT.TOGGLE");
-//		ExpandItem item1 = new ExpandItem (expandBar, SWT.NONE, 0);
-//		item1.setText("What is your favorite button");
-//		item1.setHeight(composite1.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-//		item1.setControl(composite1);
+
+		//		Composite composite1 = new Composite (expandBar, SWT.NONE);
+		//		composite1.setLayout(layout);
+		//		Button button1 = new Button (composite1, SWT.PUSH);
+		//		button1.setText("SWT.PUSH");
+		//		button1 = new Button (composite1, SWT.RADIO);
+		//		button1.setText("SWT.RADIO");
+		//		button1 = new Button (composite1, SWT.CHECK);
+		//		button1.setText("SWT.CHECK");
+		//		button1 = new Button (composite1, SWT.TOGGLE);
+		//		button1.setText("SWT.TOGGLE");
+		//		ExpandItem item1 = new ExpandItem (expandBar, SWT.NONE, 0);
+		//		item1.setText("What is your favorite button");
+		//		item1.setHeight(composite1.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+		//		item1.setControl(composite1);
 	}
 
 	private void renderStatusIndicator() {
 		statusComposite = new Composite(SHELL, SWT.NONE);
 		statusComposite.setBounds(10, 596, 280, 14);
-		
+
 		int fontSize = 10;
 		if(!ISMAC) {
 			fontSize = 8;
 		}
-		
+
 		statusInd = new Label(statusComposite, SWT.NONE);
 		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande", fontSize, SWT.NORMAL));
 		statusInd.setBounds(0, 0, 280, 14);
@@ -186,7 +162,7 @@ public class UIController {
 	private void renderInputBox() {
 		input = new Text(SHELL, SWT.BORDER);
 		input.setFocus();
-		input.setBounds(10, 10, 245, 19);
+		input.setBounds(10, 10, 258, 19);
 		input.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -208,14 +184,43 @@ public class UIController {
 	}
 
 	private void renderHelp() {
-		help = new Button(SHELL, SWT.NONE);
-		if(ISMAC) {
-			help.setBounds(261, 8, 35, 25);
-		}
-		else {
-			help.setBounds(261, 9, 30, 21);
-		}
-		help.setText("?");
+		Label label = new Label(SHELL, SWT.NONE);
+		Image small = new Image(SHELL.getDisplay(),"resource/icon_info.gif");
+		label.setImage(small);
+		label.setBounds(274, 13, 16, 14);
+
+		final Shell helpWindow = new Shell(SHELL, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
+		helpWindow.setText("Help");
+		helpWindow.setSize(250, 150);
+		helpWindow.open();
+		helpWindow.setVisible(false);
+
+		final Label helpText = new Label(helpWindow, SWT.NONE);
+		helpText.setText("Help text here");
+		helpText.setBounds(20, 15, 100, 20);
+		
+		helpWindow.addListener(SWT.Close, new Listener() {
+			public void handleEvent(Event event) {
+				event.doit = false;
+				helpWindow.setVisible(false);
+			}
+		});
+
+		label.addMouseListener(new MouseListener()
+		{
+			public void mouseDown(MouseEvent e)
+			{
+				helpWindow.setVisible(true);
+			}
+			public void mouseUp(MouseEvent e)
+			{
+			}
+			public void mouseDoubleClick(MouseEvent e)
+			{
+			}
+
+		});
+		positionWindow(helpWindow);
 	}
 
 	private void renderFloatingTaskContainer() {
@@ -223,7 +228,7 @@ public class UIController {
 		floatingTaskComposite.setBounds(10, 446, 280, 144);
 		floatingTaskComposite.setExpandHorizontal(true);
 		floatingTaskComposite.setExpandVertical(true);
-		
+
 		floatingTaskTable = new Table(floatingTaskComposite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		floatingTaskTable.setHeaderVisible(false);
 		floatingTaskTable.setLinesVisible(true);
@@ -308,7 +313,7 @@ public class UIController {
 		SHELL = new Shell (DISPLAY, SWT.ON_TOP | SWT.MODELESS);
 		SHELL.setSize(300, 620);
 		SHELL.setLayout(null);
-		
+
 		FocusListener listener = new FocusListener() {
 			public void focusGained(FocusEvent event) {
 				SHELL.setFocus();
@@ -319,6 +324,7 @@ public class UIController {
 			}
 		};
 		SHELL.addFocusListener(listener);
+		positionWindow(SHELL);
 	}
 
 	private void addInputListener() {
@@ -376,15 +382,15 @@ public class UIController {
 		});
 	}
 
-	private void positionWindow() {
+	private void positionWindow(Shell sh) {
 		Monitor primary = DISPLAY.getPrimaryMonitor();
 		Rectangle bounds = primary.getBounds();
-		Rectangle rect = SHELL.getBounds();
+		Rectangle rect = sh.getBounds();
 
 		int x = bounds.x + (bounds.width - rect.width) / 2;
 		int y = bounds.y + (bounds.height - rect.height) / 2;
 
-		SHELL.setLocation(x, y);
+		sh.setLocation(x, y);
 	}
 
 	public void delegateTask(String userInput) {
@@ -448,7 +454,7 @@ public class UIController {
 	public ArrayList<JSONObject> getDisplayList() {
 		return taskList;
 	}
-	
+
 	public String block(String userInput){
 		if(userInput != null && !userInput.isEmpty()){
 			try{
@@ -460,7 +466,7 @@ public class UIController {
 			return Consts.USAGE_BLOCK;
 		}
 	}
-	
+
 	public void search(String keyword) {
 		try {
 			taskList = logic.search(keyword);
@@ -500,7 +506,7 @@ public class UIController {
 		}
 		return null;
 	}
-	
+
 	public String undo() {
 		try {
 			logic.undo();
@@ -598,24 +604,24 @@ public class UIController {
 	private void updatefloatingTask(ArrayList<JSONObject> str) {
 		for(int i=0;i<str.size();i++){
 			TableItem item = new TableItem(floatingTaskTable, 0);
-            item.setText((i+1)+". "+str.get(i).get(Consts.NAME).toString());
-            item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get(Consts.PRIORITY).toString())));
+			item.setText((i+1)+". "+str.get(i).get(Consts.NAME).toString());
+			item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get(Consts.PRIORITY).toString())));
 		}
 	}
-	
+
 	public Color getColorWithPriority(int p){
 		if(p==Consts.TASK_IMPORTANT){
 			return DISPLAY.getSystemColor(SWT.COLOR_RED);
 		}
-//		else if(p==Consts.TASK_NORMAL){
-//			return new Color(DISPLAY, 255,165,0);
-//		}
+		//		else if(p==Consts.TASK_NORMAL){
+		//			return new Color(DISPLAY, 255,165,0);
+		//		}
 		else{
 			//return new Color(display, 204,204,204);
 			return DISPLAY.getSystemColor(SWT.COLOR_BLACK);
 		}
 	}
-	
+
 	private void systemExit() {
 		updateStatusIndicator(Consts.STRING_EXIT);
 		System.exit(0);
