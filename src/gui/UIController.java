@@ -206,13 +206,13 @@ public class UIController {
 
 		final Shell helpWindow = new Shell(SHELL, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
 		helpWindow.setText("Help");
-		helpWindow.setSize(250, 150);
+		helpWindow.setSize(250, 300);
 		helpWindow.open();
 		helpWindow.setVisible(false);
 
 		final Label helpText = new Label(helpWindow, SWT.NONE);
-		helpText.setText("Help text here");
-		helpText.setBounds(20, 15, 100, 20);
+		helpText.setText("Supported commands:\nadd\ndisplay\ndelete\nupdate\nclear\nsort\nsearch\nblock\nundo\nexit\nsync");
+		helpText.setBounds(20, 15, 200, 250);
 
 		helpWindow.addListener(SWT.Close, new Listener() {
 			public void handleEvent(Event event) {
