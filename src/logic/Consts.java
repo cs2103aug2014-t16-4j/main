@@ -14,7 +14,7 @@ public final class Consts {
 
     // FEEDBACK STRINGS
     public static final String STRING_WELCOME = "Welcome to TaskBox. %1$s is ready for use.\n";
-    public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, undo, exit";
+    public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, undo, exit, sync";
     public static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
     public static final String STRING_ENTER_COMMAND = "Command: ";
     public static final String STRING_ADD = "added to %1$s: \"%2$s\"";

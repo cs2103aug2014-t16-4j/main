@@ -11,6 +11,12 @@ import model.Task;
 
 import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTError;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.CloseWindowListener;
+import org.eclipse.swt.browser.OpenWindowListener;
+import org.eclipse.swt.browser.VisibilityWindowListener;
+import org.eclipse.swt.browser.WindowEvent;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -22,7 +28,9 @@ import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -57,6 +65,8 @@ public class UIController {
 	Display DISPLAY;
 	Text input;
 	Shell SHELL;
+	Shell authShell;
+	Browser browser;
 	Composite statusComposite;
 	Label statusInd;
 	Tray tray;
@@ -64,7 +74,6 @@ public class UIController {
 	ScrolledComposite floatingTaskComposite;
 	ScrolledComposite timedTaskComposite;
 	LogicController logic;
-	private Menu menu_1;
 
 
 	public UIController(String[] args) {
@@ -113,6 +122,7 @@ public class UIController {
 		renderFloatingTaskContainer();
 		renderStatusIndicator();
 		renderTimedTaskContainer();
+		renderAuthPopup();
 
 		printStatement(Consts.RENDER_BOTH);
 		printWelcomeMsg(fileName);
@@ -167,7 +177,7 @@ public class UIController {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if(e.keyCode == SWT.CR){
-					//TaskBoxUI.delegateTask(input.getText());
+					delegateTask(input.getText());
 					input.setText("");
 				}
 			}
@@ -198,7 +208,7 @@ public class UIController {
 		final Label helpText = new Label(helpWindow, SWT.NONE);
 		helpText.setText("Help text here");
 		helpText.setBounds(20, 15, 100, 20);
-		
+
 		helpWindow.addListener(SWT.Close, new Listener() {
 			public void handleEvent(Event event) {
 				event.doit = false;
@@ -223,6 +233,29 @@ public class UIController {
 		positionWindow(helpWindow);
 	}
 
+	private void renderAuthPopup() {
+		System.out.println("rendering auth");
+		authShell = new Shell(DISPLAY);
+		authShell.setText("Main Window");
+		authShell.setLayout(new FillLayout());
+		browser = new Browser(authShell, SWT.NONE);
+		initialize(DISPLAY, browser);
+		authShell.open();
+		authShell.setVisible(false);
+		browser.setUrl("http://www.google.com");
+		authShell.addListener(SWT.Close, new Listener() {
+			public void handleEvent(Event event) {
+				event.doit = false;
+				authShell.setVisible(false);
+			}
+		});
+	}
+	
+	private void showAuthPopup(String url) {
+		browser.setUrl(url);
+		authShell.setVisible(true);
+	}
+
 	private void renderFloatingTaskContainer() {
 		floatingTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		floatingTaskComposite.setBounds(10, 446, 280, 144);
@@ -236,6 +269,48 @@ public class UIController {
 		floatingTaskComposite.setMinSize(floatingTaskTable.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		TableColumn names = new TableColumn(floatingTaskTable, SWT.LEFT);
 		names.setWidth(276);
+	}
+
+	static void initialize(final Display display, Browser browser) {
+		browser.addOpenWindowListener(new OpenWindowListener() {
+			@Override
+			public void open(WindowEvent event) {
+				if (!event.required) return;	/* only do it if necessary */
+				Shell shell = new Shell(display);
+				shell.setText("New Window");
+				shell.setLayout(new FillLayout());
+				Browser browser = new Browser(shell, SWT.NONE);
+				initialize(display, browser);
+				event.browser = browser;
+			}
+		});
+		browser.addVisibilityWindowListener(new VisibilityWindowListener() {
+			@Override
+			public void hide(WindowEvent event) {
+				Browser browser = (Browser)event.widget;
+				Shell shell = browser.getShell();
+				shell.setVisible(false);
+			}
+			@Override
+			public void show(WindowEvent event) {
+				Browser browser = (Browser)event.widget;
+				final Shell shell = browser.getShell();
+				if (event.location != null) shell.setLocation(event.location);
+				if (event.size != null) {
+					Point size = event.size;
+					shell.setSize(shell.computeSize(size.x, size.y));
+				}
+				shell.open();
+			}
+		});
+		browser.addCloseWindowListener(new CloseWindowListener() {
+			@Override
+			public void close(WindowEvent event) {
+				Browser browser = (Browser)event.widget;
+				Shell shell = browser.getShell();
+				shell.close();
+			}
+		});
 	}
 
 	private void renderTrayIcon() {
@@ -435,6 +510,9 @@ public class UIController {
 			case UNDO:
 				undo();
 				taskList = getTaskList();
+				break;
+			case SYNC:
+				showAuthPopup("google.com");
 				break;
 			case EXIT:
 				systemExit();
