@@ -41,7 +41,7 @@ public class GoogleCal {
 
 	}
 
-	public static String generateToken() {
+	public String getURL() {
 		HttpTransport httpTransport = new NetHttpTransport();
 		JacksonFactory jsonFactory = new JacksonFactory();
 		String appName = "TaskBox";
@@ -55,8 +55,10 @@ public class GoogleCal {
 
 		String url = flow.newAuthorizationUrl().setRedirectUri(redirectUrl)
 				.build();
+		
+		return url;
+		/*
 		System.out.println("Please open the following URL in your browser then type the authorization code:");
-
 		System.out.println("  " + url);
 		System.out.println("What is the authorization code?");
 		String code = new Scanner(System.in).nextLine();
@@ -75,6 +77,7 @@ public class GoogleCal {
 		} else {
 			return "Couldn't get token";
 		}
+		*/
 	}
 
 	public static void writeFile(String token) {

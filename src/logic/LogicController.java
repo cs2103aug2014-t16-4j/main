@@ -188,13 +188,13 @@ public class LogicController {
 		}
 	}
 	
+	public String getUrl(){
+		GoogleCal gCal = new GoogleCal();
+		return gCal.getURL();
+	}
 	public String syncWithGoogle(){
 		GoogleCal gCal = new GoogleCal();
-		if(gCal.isOnline()){
-			return Consts.STRING_SYNC_COMPLETE;
-		}else{
-			return Consts.STRING_USER_NOT_ONLINE;
-		}
+		return null;
 	}
 
 	public void undo(){

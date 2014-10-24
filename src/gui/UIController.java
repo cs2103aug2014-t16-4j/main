@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import logic.CommandEnum;
 import logic.Consts;
+import logic.GoogleCal;
 import logic.LogicController;
 import logic.LogicParser;
 import model.Task;
@@ -251,9 +252,13 @@ public class UIController {
 		});
 	}
 	
-	private void showAuthPopup(String url) {
-		browser.setUrl(url);
-		authShell.setVisible(true);
+	private void showAuthPopup() {
+		if(GoogleCal.isOnline()){
+			browser.setUrl(logic.getUrl());
+			authShell.setVisible(true);
+		}else{
+			updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
+		}
 	}
 
 	private void renderFloatingTaskContainer() {
@@ -512,7 +517,7 @@ public class UIController {
 				taskList = getTaskList();
 				break;
 			case SYNC:
-				showAuthPopup("google.com");
+				showAuthPopup();
 				break;
 			case EXIT:
 				systemExit();
