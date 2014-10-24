@@ -53,8 +53,8 @@ public final class Consts {
     public static final int FILE_TYPE_POSITION = 1;
     public static final int FILE_VALID_LENGTH = 2;
     public static final int RENDER_STATUS_INDICATOR = 0;
-    public static final int RENDER_DAY = 1;
-    public static final int RENDER_SOMEDAY = 2;
+    public static final int RENDER_TIMED = 1;
+    public static final int RENDER_FLOATING = 2;
     public static final int RENDER_BOTH = 3;
     public static final int TASK_IMPORTANT = 1;
     public static final int TASK_NORMAL = 0;

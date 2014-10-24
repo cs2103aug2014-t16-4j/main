@@ -34,10 +34,10 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -57,12 +57,13 @@ import org.eclipse.swt.widgets.ExpandItem;
 public class UIController {
 
 	public ArrayList<JSONObject> taskList;
+	public ArrayList<JSONObject> timedList;
+	public ArrayList<JSONObject> FloatingList;
 
 	public static Boolean ISMAC = false;
 	private static Boolean BLNMOUSEDOWN=false;
 	private static int XPOS=0;
 	private static int YPOS=0;
-	private List dayList;
 	private LogicParser parser = new LogicParser();
 	private CommandEnum selectedCommand = CommandEnum.INVALID;
 
@@ -137,26 +138,7 @@ public class UIController {
 		timedTaskComposite.setExpandHorizontal(true);
 		timedTaskComposite.setExpandVertical(true);
 
-		ExpandBar expandBar = new ExpandBar(timedTaskComposite, SWT.NONE);
 
-		ExpandItem xpndtmNewExpanditem = new ExpandItem(expandBar, SWT.NONE);
-		xpndtmNewExpanditem.setExpanded(false);
-		xpndtmNewExpanditem.setText("New ExpandItem");
-
-		ExpandBar expandBar_2 = new ExpandBar(expandBar, SWT.NONE);
-		xpndtmNewExpanditem.setControl(expandBar_2);
-		xpndtmNewExpanditem.setHeight(xpndtmNewExpanditem.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-
-		ExpandItem xpndtmNewExpanditem_1 = new ExpandItem(expandBar, SWT.NONE);
-		xpndtmNewExpanditem_1.setExpanded(false);
-		xpndtmNewExpanditem_1.setText("New ExpandItem");
-
-		ExpandBar expandBar_1 = new ExpandBar(expandBar, SWT.NONE);
-		xpndtmNewExpanditem_1.setControl(expandBar_1);
-		xpndtmNewExpanditem_1.setHeight(xpndtmNewExpanditem_1.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-
-		timedTaskComposite.setContent(expandBar);
-		timedTaskComposite.setMinSize(expandBar.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		//		Composite composite1 = new Composite (expandBar, SWT.NONE);
 		//		composite1.setLayout(layout);
@@ -693,6 +675,11 @@ public class UIController {
 		if(mode == Consts.RENDER_BOTH){
 			floatingTaskTable.removeAll();
 			updatefloatingTask(taskList);
+			updateTimedTask(taskList);
+		}
+		else if(mode == Consts.RENDER_FLOATING){
+			floatingTaskTable.removeAll();
+			updatefloatingTask(taskList);
 		}
 	}
 
@@ -701,6 +688,27 @@ public class UIController {
 			statusInd.setText(str);
 			statusComposite.layout();
 		}
+	}
+
+	private void updateTimedTask(ArrayList<JSONObject> str){
+		for (Control eb : timedTaskComposite.getChildren()) {
+	        eb.dispose();
+	    }
+		
+		ExpandBar expandBar = new ExpandBar(timedTaskComposite, SWT.NONE);
+
+		for(int i=0;i<str.size();i++){
+			ExpandItem innerExpanditem = new ExpandItem(expandBar, SWT.NONE);
+			innerExpanditem.setExpanded(false);
+			innerExpanditem.setText((i+1)+". "+str.get(i).get(Consts.NAME).toString());
+
+			ExpandBar innerExpandBar = new ExpandBar(expandBar, SWT.NONE);
+			innerExpanditem.setControl(innerExpandBar);
+			innerExpanditem.setHeight(innerExpanditem.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+		}
+
+		timedTaskComposite.setContent(expandBar);
+		timedTaskComposite.setMinSize(expandBar.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
 	private void updatefloatingTask(ArrayList<JSONObject> str) {
