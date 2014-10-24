@@ -58,7 +58,7 @@ public class UIController {
 
 	public ArrayList<JSONObject> taskList;
 	public ArrayList<JSONObject> timedList;
-	public ArrayList<JSONObject> FloatingList;
+	public ArrayList<JSONObject> floatingList;
 
 	public static Boolean ISMAC = false;
 	private static Boolean BLNMOUSEDOWN=false;
@@ -79,6 +79,11 @@ public class UIController {
 	ScrolledComposite floatingTaskComposite;
 	ScrolledComposite timedTaskComposite;
 	LogicController logic;
+	private ExpandBar expandBar;
+	private ExpandBar expandBar_1;
+	private ExpandItem xpndtmTask;
+	private Composite composite_1;
+	private Label lblHello;
 
 
 	public UIController(String[] args) {
@@ -112,7 +117,7 @@ public class UIController {
 		ISMAC = SystemUtils.IS_OS_MAC;
 		logic = LogicController.getInstance();
 		logic.init(fileName);
-		taskList = logic.getDisplayTasksBuffer();
+		updateTaskList();
 
 		DISPLAY = new Display();
 		renderShell();
@@ -137,8 +142,6 @@ public class UIController {
 		timedTaskComposite.setBounds(10, 35, 280, 405);
 		timedTaskComposite.setExpandHorizontal(true);
 		timedTaskComposite.setExpandVertical(true);
-
-
 
 		//		Composite composite1 = new Composite (expandBar, SWT.NONE);
 		//		composite1.setLayout(layout);
@@ -242,7 +245,6 @@ public class UIController {
 		authShell.open();
 		positionWindow(authShell);
 		authShell.setVisible(false);
-		browser.setUrl("http://www.google.com");
 		authShell.addListener(SWT.Close, new Listener() {
 			public void handleEvent(Event event) {
 				event.doit = false;
@@ -271,7 +273,7 @@ public class UIController {
 			updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
 		}
 	}
-	
+
 	private String syncWithGoogle(String code){
 		return logic.syncWithGoogle(code);
 	}
@@ -487,35 +489,35 @@ public class UIController {
 			switch (selectedCommand) {
 			case ADD:
 				statusString = add(task);
-				taskList = getTaskList();
+				updateTaskList();
 				break;
 			case DISPLAY:
 				break;
 			case CLEAR:
 				statusString = clear();
-				taskList = getTaskList();
+				updateTaskList();
 				break;
 			case DELETE:
 				statusString = delete(task);
-				taskList = getTaskList();
+				updateTaskList();
 				break;
 			case SORT:
 				statusString = sort();
-				taskList = getTaskList();
+				updateTaskList();
 				break;
 			case SEARCH:
 				search(task);
 				break;
 			case UPDATE:
 				statusString = update(task);
-				taskList = getTaskList();
+				updateTaskList();
 				break;
 			case BLOCK:
 				statusString = block(task);
 				break;
 			case UNDO:
 				undo();
-				taskList = getTaskList();
+				updateTaskList();
 				break;
 			case SYNC:
 				showAuthPopup();
@@ -533,10 +535,6 @@ public class UIController {
 		} else {
 			updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
 		}
-	}
-
-	public ArrayList<JSONObject> getDisplayList() {
-		return taskList;
 	}
 
 	public String block(String userInput){
@@ -623,8 +621,19 @@ public class UIController {
 		}
 	}
 
-	public ArrayList<JSONObject> getTaskList() {
-		return logic.getDisplayTasksBuffer();
+	public void updateTaskList() {
+		taskList = logic.getDisplayTasksBuffer();
+		floatingList = new ArrayList<JSONObject>();
+		timedList = new ArrayList<JSONObject>();
+		for(int i=0;i<taskList.size();i++){
+			JSONObject o = taskList.get(i);
+			if(o.get(Consts.STARTDATE).toString().isEmpty()){
+				floatingList.add(o);
+			}
+			else{
+				timedList.add(o);
+			}
+		}
 	}
 
 	public String add(String task) {
@@ -674,12 +683,12 @@ public class UIController {
 	private void printStatement(int mode) {
 		if(mode == Consts.RENDER_BOTH){
 			floatingTaskTable.removeAll();
-			updatefloatingTask(taskList);
-			updateTimedTask(taskList);
+			updatefloatingTask();
+			updateTimedTask();
 		}
 		else if(mode == Consts.RENDER_FLOATING){
 			floatingTaskTable.removeAll();
-			updatefloatingTask(taskList);
+			updatefloatingTask();
 		}
 	}
 
@@ -690,32 +699,67 @@ public class UIController {
 		}
 	}
 
-	private void updateTimedTask(ArrayList<JSONObject> str){
+	private void updateTimedTask(){
 		for (Control eb : timedTaskComposite.getChildren()) {
-	        eb.dispose();
-	    }
-		
-		ExpandBar expandBar = new ExpandBar(timedTaskComposite, SWT.NONE);
+			eb.dispose();
+		}
+		String currentDateString = "";
 
-		for(int i=0;i<str.size();i++){
-			ExpandItem innerExpanditem = new ExpandItem(expandBar, SWT.NONE);
-			innerExpanditem.setExpanded(false);
-			innerExpanditem.setText((i+1)+". "+str.get(i).get(Consts.NAME).toString());
+		expandBar = new ExpandBar(timedTaskComposite, SWT.NONE);
+		
+		for(int i=0;i<timedList.size();i++){
+			JSONObject o = timedList.get(i);
+			
+			if(currentDateString.compareTo(o.get(Consts.STARTDATE).toString().substring(0,10))!=0){
+				currentDateString = o.get(Consts.STARTDATE).toString().substring(0,10);
+				ExpandItem dateItem = new ExpandItem(expandBar, SWT.NONE);
+				dateItem.setExpanded(false);
+				dateItem.setText(o.get(Consts.STARTDATE).toString().substring(0,10));
+				dateItem.setImage(new Image(SHELL.getDisplay(),"resource/icon_favourites.gif"));
+			}
 
 			ExpandBar innerExpandBar = new ExpandBar(expandBar, SWT.NONE);
+			innerExpandBar.setBackground(DISPLAY.getSystemColor(SWT.COLOR_WHITE));
+			
+			Composite composite = new Composite (innerExpandBar, SWT.NONE);
+			
+			ExpandItem innerExpanditem = new ExpandItem(expandBar, SWT.NONE);
+			innerExpanditem.setExpanded(false);
+			innerExpanditem.setText((i+1)+". "+o.get(Consts.NAME).toString());
 			innerExpanditem.setControl(innerExpandBar);
 			innerExpanditem.setHeight(innerExpanditem.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+			
+			Label descLabel = new Label(composite, SWT.NONE);
+			descLabel.setText(o.get(Consts.NAME).toString());
+
+//			expandBar_1 = new ExpandBar(timedTaskComposite, SWT.NONE);
+//			
+//			xpndtmTask = new ExpandItem(expandBar_1, SWT.NONE);
+//			xpndtmTask.setExpanded(true);
+//			xpndtmTask.setText("Task");
+//			
+//			composite_1 = new Composite(expandBar_1, SWT.NONE);
+//			xpndtmTask.setControl(composite_1);
+//			xpndtmTask.setHeight(xpndtmTask.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+//			
+//			lblHello = new Label(composite_1, SWT.NONE);
+//			lblHello.setBounds(104, 0, 60, 14);
+//			lblHello.setText("Hello");
+//			timedTaskComposite.setContent(expandBar_1);
+//			timedTaskComposite.setMinSize(expandBar_1.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+			
+			
 		}
 
 		timedTaskComposite.setContent(expandBar);
 		timedTaskComposite.setMinSize(expandBar.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 	}
 
-	private void updatefloatingTask(ArrayList<JSONObject> str) {
-		for(int i=0;i<str.size();i++){
+	private void updatefloatingTask() {
+		for(int i=0;i<floatingList.size();i++){
 			TableItem item = new TableItem(floatingTaskTable, 0);
-			item.setText((i+1)+". "+str.get(i).get(Consts.NAME).toString());
-			item.setForeground(getColorWithPriority(Integer.parseInt(str.get(i).get(Consts.PRIORITY).toString())));
+			item.setText((i+1)+". "+floatingList.get(i).get(Consts.NAME).toString());
+			item.setForeground(getColorWithPriority(Integer.parseInt(floatingList.get(i).get(Consts.PRIORITY).toString())));
 		}
 	}
 
