@@ -273,7 +273,7 @@ public class UIController {
 				if (event.title != null && event.title.length() > 0) {
 					authShell.setText(event.title);
 					if(event.title.contains("Success")){
-						System.out.println(event.title.substring(13));
+						updateStatusIndicator(syncWithGoogle(event.title.substring(13)));
 						authShell.close();
 					}
 				}
@@ -288,6 +288,10 @@ public class UIController {
 		}else{
 			updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
 		}
+	}
+	
+	private String syncWithGoogle(String code){
+		return logic.syncWithGoogle(code);
 	}
 
 	private void renderFloatingTaskContainer() {

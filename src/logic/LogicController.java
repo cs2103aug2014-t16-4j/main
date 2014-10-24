@@ -32,7 +32,9 @@ public class LogicController {
 	Clear logicClear;
 	Delete logicDelete;
 	Update logicUpdate;
+	GoogleCal gCal;
 	Stack<Command> opStack = new Stack<Command>();
+	String authToken = "";
    
 	private static LogicController singleton = null;
    /* Static 'instance' method */
@@ -47,6 +49,7 @@ public class LogicController {
 	
 	public LogicController() {
 		tasksBuffer = new ArrayList<JSONObject>();
+		gCal = new GoogleCal();
 	}
 	
 	public void setFileName(String fileName) {
@@ -189,12 +192,10 @@ public class LogicController {
 	}
 	
 	public String getUrl(){
-		GoogleCal gCal = new GoogleCal();
 		return gCal.getURL();
 	}
-	public String syncWithGoogle(){
-		GoogleCal gCal = new GoogleCal();
-		return null;
+	public String syncWithGoogle(String code){
+		return gCal.syncGCal(code);
 	}
 
 	public void undo(){

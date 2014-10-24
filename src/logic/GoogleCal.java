@@ -20,7 +20,9 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.calendar.CalendarScopes;
 
 public class GoogleCal {
-
+	GoogleAuthorizationCodeFlow flow;
+	String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
+	
 	public static boolean isOnline(){
 		Socket sock = new Socket();
 		InetSocketAddress addr = new InetSocketAddress("www.google.com",80);
@@ -47,9 +49,9 @@ public class GoogleCal {
 		String appName = "TaskBox";
 		String clientId = "743259209106-g4qtcmneg0dhi9efos04d46bnnjiiich.apps.googleusercontent.com";
 		String clientSecret = "AyJjPfMtT0gQPki-eArk4xKG";
-		String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
+		//String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
 
-		GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+		flow = new GoogleAuthorizationCodeFlow.Builder(
 				httpTransport, jsonFactory, clientId, clientSecret,
 				Arrays.asList(CalendarScopes.CALENDAR)).build();
 
@@ -79,15 +81,34 @@ public class GoogleCal {
 		}
 		*/
 	}
+	public String syncGCal(String code){
+		AuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code)
+				.setRedirectUri(redirectUrl);
+		TokenResponse tokenRes = null;
+		try {
+			tokenRes = tokenRequest.execute();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.err.println("Token request failed");
+		}
+		if (tokenRes != null) {
+			writeFile(tokenRes.getAccessToken());
+			return Consts.STRING_SYNC_COMPLETE;
+		} else {
+			return Consts.STRING_SYNC_NOT_COMPLETE;
+		}
+	}
 
-	public static void writeFile(String token) {
+	public static boolean writeFile(String token) {
 		try {
 			FileWriter fstream = new FileWriter("GoogleToken", false);
 			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
 			bufferedWriter.write(token);
 			bufferedWriter.close();
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
+			return false;
 		}
 	}
 	
