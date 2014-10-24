@@ -12,10 +12,11 @@ import model.Task;
 
 import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.CloseWindowListener;
 import org.eclipse.swt.browser.OpenWindowListener;
+import org.eclipse.swt.browser.TitleEvent;
+import org.eclipse.swt.browser.TitleListener;
 import org.eclipse.swt.browser.VisibilityWindowListener;
 import org.eclipse.swt.browser.WindowEvent;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -50,6 +51,8 @@ import org.eclipse.swt.widgets.Tray;
 import org.eclipse.swt.widgets.TrayItem;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.json.simple.JSONObject;
+import org.eclipse.swt.widgets.ExpandBar;
+import org.eclipse.swt.widgets.ExpandItem;
 
 public class UIController {
 
@@ -100,11 +103,6 @@ public class UIController {
 		}
 	}
 
-	private void printHelp() {
-		//needs to change to pop up
-		updateStatusIndicator(Consts.STRING_HELP);
-	}
-
 	/**
 	 * @throws IOException 
 	 * @wbp.parser.entryPoint
@@ -138,6 +136,27 @@ public class UIController {
 		timedTaskComposite.setBounds(10, 35, 280, 405);
 		timedTaskComposite.setExpandHorizontal(true);
 		timedTaskComposite.setExpandVertical(true);
+
+		ExpandBar expandBar = new ExpandBar(timedTaskComposite, SWT.NONE);
+
+		ExpandItem xpndtmNewExpanditem = new ExpandItem(expandBar, SWT.NONE);
+		xpndtmNewExpanditem.setExpanded(false);
+		xpndtmNewExpanditem.setText("New ExpandItem");
+
+		ExpandBar expandBar_2 = new ExpandBar(expandBar, SWT.NONE);
+		xpndtmNewExpanditem.setControl(expandBar_2);
+		xpndtmNewExpanditem.setHeight(xpndtmNewExpanditem.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+
+		ExpandItem xpndtmNewExpanditem_1 = new ExpandItem(expandBar, SWT.NONE);
+		xpndtmNewExpanditem_1.setExpanded(false);
+		xpndtmNewExpanditem_1.setText("New ExpandItem");
+
+		ExpandBar expandBar_1 = new ExpandBar(expandBar, SWT.NONE);
+		xpndtmNewExpanditem_1.setControl(expandBar_1);
+		xpndtmNewExpanditem_1.setHeight(xpndtmNewExpanditem_1.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+
+		timedTaskComposite.setContent(expandBar);
+		timedTaskComposite.setMinSize(expandBar.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		//		Composite composite1 = new Composite (expandBar, SWT.NONE);
 		//		composite1.setLayout(layout);
@@ -219,15 +238,12 @@ public class UIController {
 
 		label.addMouseListener(new MouseListener()
 		{
-			public void mouseDown(MouseEvent e)
-			{
+			public void mouseDown(MouseEvent e){
 				helpWindow.setVisible(true);
 			}
-			public void mouseUp(MouseEvent e)
-			{
+			public void mouseUp(MouseEvent e){
 			}
-			public void mouseDoubleClick(MouseEvent e)
-			{
+			public void mouseDoubleClick(MouseEvent e){
 			}
 
 		});
@@ -242,6 +258,7 @@ public class UIController {
 		browser = new Browser(authShell, SWT.NONE);
 		initialize(DISPLAY, browser);
 		authShell.open();
+		positionWindow(authShell);
 		authShell.setVisible(false);
 		browser.setUrl("http://www.google.com");
 		authShell.addListener(SWT.Close, new Listener() {
@@ -250,8 +267,20 @@ public class UIController {
 				authShell.setVisible(false);
 			}
 		});
+		browser.addTitleListener(new TitleListener(){
+			@Override
+			public void changed(TitleEvent event) {
+				if (event.title != null && event.title.length() > 0) {
+					authShell.setText(event.title);
+					if(event.title.contains("Success")){
+						System.out.println(event.title.substring(13));
+						authShell.close();
+					}
+				}
+			}
+		});
 	}
-	
+
 	private void showAuthPopup() {
 		if(GoogleCal.isOnline()){
 			browser.setUrl(logic.getUrl());
@@ -390,7 +419,8 @@ public class UIController {
 	}
 
 	private void renderShell() {
-		SHELL = new Shell (DISPLAY, SWT.ON_TOP | SWT.MODELESS);
+		SHELL = new Shell (DISPLAY, SWT.MODELESS);
+		//SHELL = new Shell (DISPLAY, SWT.ON_TOP | SWT.MODELESS);
 		SHELL.setSize(300, 620);
 		SHELL.setLayout(null);
 
@@ -399,24 +429,10 @@ public class UIController {
 				SHELL.setFocus();
 			}
 			public void focusLost(FocusEvent event) {
-				//shell.setMinimized(true);
-				//shell.setVisible(false);
 			}
 		};
 		SHELL.addFocusListener(listener);
 		positionWindow(SHELL);
-	}
-
-	private void addInputListener() {
-		input.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if(e.keyCode == SWT.CR){
-					delegateTask(input.getText());
-					input.setText("");
-				}
-			}
-		});
 	}
 
 	private void disposeDisplay() {
@@ -426,7 +442,6 @@ public class UIController {
 			}
 		}
 		DISPLAY.dispose();
-		//alex-temp to make it exit after gui is closed
 		systemExit();
 	}
 
