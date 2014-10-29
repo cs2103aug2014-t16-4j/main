@@ -80,11 +80,6 @@ public class UIController {
 	ScrolledComposite timedTaskComposite;
 	LogicController logic;
 	private ExpandBar expandBar;
-	private ExpandBar expandBar_1;
-	private ExpandItem xpndtmTask;
-	private Composite composite_1;
-	private Label lblHello;
-
 
 	public UIController(String[] args) {
 		String fileName = args.length>0?args[0]:"mytext.txt"; 
@@ -118,8 +113,8 @@ public class UIController {
 		logic = LogicController.getInstance();
 		logic.init(fileName);
 		updateTaskList();
-
-		DISPLAY = new Display();
+		
+		renderDisplay();
 		renderShell();
 		renderTrayIcon();
 		renderInputBox();
@@ -134,6 +129,20 @@ public class UIController {
 		SHELL.open();
 		enableDrag();
 		disposeDisplay();
+	}
+
+	private void renderDisplay() {
+		DISPLAY = new Display();
+		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+
+            public void handleEvent(Event e) {
+                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'f'))
+                {
+                    System.out.println("From Display I am the Key down !!" + e.keyCode);
+                }
+            }
+        });
+		
 	}
 
 	private void renderTimedTaskContainer() {
