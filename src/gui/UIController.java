@@ -668,7 +668,8 @@ public class UIController {
 		timedList = new ArrayList<JSONObject>();
 		for(int i=0;i<taskList.size();i++){
 			JSONObject o = taskList.get(i);
-			if(o.get(Consts.STARTDATE).toString().isEmpty()){
+			//if(o.get(Consts.STARTDATE).toString().isEmpty()){
+			if (o.get(Consts.STARTDATE).toString().equals(Consts.floatingDateString)) {
 				floatingList.add(o);
 			}
 			else{

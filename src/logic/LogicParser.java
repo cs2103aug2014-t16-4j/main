@@ -13,6 +13,7 @@ import org.apache.commons.lang.time.DateUtils;
 
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
+import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 
 import model.Task;
 
@@ -156,11 +157,11 @@ public class LogicParser {
 		List<DateGroup> dateGroupFull = dateParser.parse(fullString);
 		if (dateGroupFull.isEmpty()) {
 			if (isDefaultTime(date[0])) {
-				date[0] = getStartOfDay(date[0]);
+				date[0] = Consts.floatingDate;
 			}
 
 			if (isDefaultTime(date[1])) {
-				date[1] = getEndOfDay(date[1]);
+				date[1] = Consts.floatingDate;
 			}
 			return date;
 		}

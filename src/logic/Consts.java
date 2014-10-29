@@ -2,6 +2,7 @@ package logic;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public final class Consts {
 	//Json key strings
@@ -58,4 +59,9 @@ public final class Consts {
     public static final int RENDER_BOTH = 3;
     public static final int TASK_IMPORTANT = 1;
     public static final int TASK_NORMAL = 0;
+    
+    // DATE CONSTANT
+	@SuppressWarnings("deprecation")
+	public static final Date floatingDate = new Date(1,1,1); 
+    public static final String floatingDateString = "01/2/1901 00:00:00";
 }
