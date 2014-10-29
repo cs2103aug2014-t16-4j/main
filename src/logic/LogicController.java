@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -24,6 +25,8 @@ import com.joestelmach.natty.Parser;
 import edu.emory.mathcs.backport.java.util.Collections;
 
 public class LogicController {
+	private static final int TIME_EPS = 2;
+
 	Parser dateParser = new Parser();
 	public static ArrayList <JSONObject> tasksBuffer;
 	ArrayList <Task> blockBuffer;
@@ -106,6 +109,10 @@ public class LogicController {
 	
 	private boolean intersectTime(Task taskA, Task taskB) {
 		return Math.max(taskA.getStartDate().getTime(), taskB.getStartDate().getTime()) <= Math.min(taskA.getEndDate().getTime(), taskB.getEndDate().getTime());
+	}
+		
+	private boolean intersectTime(Date startDate1, Date endDate1, Date startDate2, Date endDate2) {
+		return Math.max(startDate1.getTime(), startDate2.getTime()) <= Math.min(endDate1.getTime(), endDate2.getTime());
 	}
 		
 	public boolean add(Task task, boolean...addToStack){
@@ -216,12 +223,55 @@ public class LogicController {
 			opStack.pop().undo();
 		}
 	}
+
+	@SuppressWarnings("deprecation")
+	public int getTimeFromDate(Date date) {
+		return date.getHours() *  60 * 60 + date.getMinutes() * 60 + date.getSeconds();
+	}
+	
+	public boolean isDefaultTime(Date date) {
+		Date dateNow = new Date();
+		return (getTimeFromDate(dateNow) - getTimeFromDate(date) <= TIME_EPS);
+	}
+
+	public Date getEndOfDay(Date date) {
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(date);
+	    calendar.set(Calendar.HOUR_OF_DAY, 23);
+	    calendar.set(Calendar.MINUTE, 59);
+	    calendar.set(Calendar.SECOND, 59);
+	    calendar.set(Calendar.MILLISECOND, 999);
+	    return calendar.getTime();
+	}
+
+	public Date getStartOfDay(Date date) {
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(date);
+	    calendar.set(Calendar.HOUR_OF_DAY, 0);
+	    calendar.set(Calendar.MINUTE, 0);
+	    calendar.set(Calendar.SECOND, 0);
+	    calendar.set(Calendar.MILLISECOND, 0);
+	    return calendar.getTime();
+	}
 	
 	public ArrayList<JSONObject> search(String keyword) throws IOException {
 		List<DateGroup> dateGrp = dateParser.parse(keyword);
-		Date date = null;
+		Date date1 = null;
+		Date date2 = null;
 		if(!dateGrp.isEmpty()){
-			date = dateGrp.get(0).getDates().get(0);
+			date1 = dateGrp.get(0).getDates().get(0);
+			if (dateGrp.get(0).getDates().size() == 1)
+			{
+				date2 = date1;
+			} else {
+				date2 = dateGrp.get(0).getDates().get(1);
+			}
+			if (isDefaultTime(date1)) {
+				date1 = getStartOfDay(date1);
+			}
+			if (isDefaultTime(date2)) {
+				date2 = getEndOfDay(date2);
+			}
 		}
 		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
 		for (int i = 0; i < tasksBuffer.size(); i++) {
@@ -230,9 +280,10 @@ public class LogicController {
 				foundLine.add(tasksBuffer.get(i));
 			} else if (task.getDescription().contains(keyword)) {
 				foundLine.add(tasksBuffer.get(i));
-			} else if(date != null){
+			} else if(date1 != null){
 				//if(dateBefore(task.getStartDate(),date) && dateBefore(date,task.getEndDate())){
-				if (task.getStartDate().getTime() <= date.getTime() && date.getTime() <= task.getEndDate().getTime()) {
+				//if (task.getStartDate().getTime() <= date.getTime() && date.getTime() <= task.getEndDate().getTime()) {
+				if (intersectTime(task.getStartDate(), task.getEndDate(), date1, date2)) {
 					foundLine.add(tasksBuffer.get(i));
 				}
 			}
