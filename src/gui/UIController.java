@@ -1,8 +1,17 @@
 package gui;
 
+import gui.common.HotKey;
+import gui.common.HotKeyListener;
+import gui.common.Provider;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javax.swing.KeyStroke;
+
+import static java.awt.event.KeyEvent.*;
 import logic.CommandEnum;
 import logic.Consts;
 import logic.GoogleCal;
@@ -78,7 +87,9 @@ public class UIController {
 	ScrolledComposite floatingTaskComposite;
 	ScrolledComposite timedTaskComposite;
 	LogicController logic;
-	private ExpandBar expandBar;
+	ExpandBar expandBar;
+	
+	final Provider provider = Provider.getCurrentProvider(true);
 
 	public UIController(String[] args) {
 		String fileName = args.length>0?args[0]:"mytext.txt"; 
@@ -133,6 +144,25 @@ public class UIController {
 
 	private void renderDisplay() {
 		DISPLAY = new Display();
+		
+		final HotKeyListener listener = new HotKeyListener() {
+			public void onHotKey(final HotKey hotKey) {
+				System.out.println("hotkey");
+				if(!SHELL.isVisible()){
+					System.out.println("showing window");
+					SHELL.setVisible(true);
+					SHELL.setMinimized(false); 
+					input.setFocus();
+					SHELL.forceActive();
+				}
+				else{
+					System.out.println("hiding window");
+					SHELL.setMinimized(true);
+					SHELL.setVisible(false);
+				}
+			}
+		};
+
 		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
 				if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'z')){
@@ -147,18 +177,8 @@ public class UIController {
 					showAuthPopup();
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'h')){
-					if(!SHELL.isVisible()){
-						System.out.println("showing window");
-						SHELL.setVisible(true);
-						SHELL.setMinimized(false); 
-						input.setFocus();
-						SHELL.forceActive();
-					}
-					else{
-						System.out.println("hiding window");
-						SHELL.setMinimized(true);
-						SHELL.setVisible(false);
-					}
+					provider.reset();
+					provider.register(KeyStroke.getKeyStroke(VK_H,InputEvent.CTRL_DOWN_MASK), listener);
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'a')){
 					e.doit = false;
@@ -328,7 +348,7 @@ public class UIController {
 	private void renderFloatingTaskContainer() {
 		floatingTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		floatingTaskComposite.setBounds(10, 446, 280, 144);
-		
+
 		floatingTaskComposite.setExpandHorizontal(true);
 		floatingTaskComposite.setExpandVertical(true);
 
@@ -344,7 +364,7 @@ public class UIController {
 		else{
 			names.setWidth(271);
 		}
-			
+
 	}
 
 	static void initialize(final Display display, Browser browser) {
@@ -822,6 +842,8 @@ public class UIController {
 
 	private void systemExit() {
 		updateStatusIndicator(Consts.STRING_EXIT);
+		provider.reset();
+		provider.stop();
 		System.exit(0);
 	}
 }
