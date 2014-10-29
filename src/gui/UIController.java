@@ -715,6 +715,7 @@ public class UIController {
 		String currentDateString = "";
 
 		expandBar = new ExpandBar(timedTaskComposite, SWT.NONE);
+		expandBar.setBackground(DISPLAY.getSystemColor(SWT.COLOR_WHITE));
 		
 		for(int i=0;i<timedList.size();i++){
 			JSONObject o = timedList.get(i);
