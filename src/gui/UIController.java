@@ -112,8 +112,8 @@ public class UIController {
 		ISMAC = SystemUtils.IS_OS_MAC;
 		logic = LogicController.getInstance();
 		logic.init(fileName);
-		updateTaskList();
 
+		updateTaskList();
 		renderDisplay();
 		renderShell();
 		renderTrayIcon();
@@ -145,6 +145,20 @@ public class UIController {
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 's')){
 					showAuthPopup();
+				}
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'h')){
+					if(!SHELL.isVisible()){
+						System.out.println("showing window");
+						SHELL.setVisible(true);
+						SHELL.setMinimized(false); 
+						input.setFocus();
+						SHELL.forceActive();
+					}
+					else{
+						System.out.println("hiding window");
+						SHELL.setMinimized(true);
+						SHELL.setVisible(false);
+					}
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'a')){
 					input.setText("add");
@@ -412,17 +426,14 @@ public class UIController {
 				}
 			});
 			final Menu menu = new Menu (SHELL, SWT.POP_UP);
-			for (int i = 0; i < 8; i++) {
-				MenuItem mi = new MenuItem (menu, SWT.PUSH);
-				mi.setText ("Item" + i);
-				mi.addListener (SWT.Selection, new Listener () {
-					@Override
-					public void handleEvent (Event event) {
-						System.out.println("selection " + event.widget);
-					}
-				});
-				if (i == 0) menu.setDefaultItem(mi);
-			}
+			MenuItem mi = new MenuItem (menu, SWT.PUSH);
+			mi.setText ("Item");
+			mi.addListener (SWT.Selection, new Listener () {
+				@Override
+				public void handleEvent (Event event) {
+					System.out.println("selection " + event.widget);
+				}
+			});
 			item.addListener (SWT.MenuDetect, new Listener () {
 				@Override
 				public void handleEvent (Event event) {
