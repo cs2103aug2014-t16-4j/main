@@ -113,7 +113,7 @@ public class UIController {
 		logic = LogicController.getInstance();
 		logic.init(fileName);
 		updateTaskList();
-		
+
 		renderDisplay();
 		renderShell();
 		renderTrayIcon();
@@ -124,7 +124,7 @@ public class UIController {
 		renderTimedTaskContainer();
 		renderAuthPopup();
 
-		printStatement(Consts.RENDER_BOTH);
+		renderTasks(Consts.RENDER_BOTH);
 		printWelcomeMsg(fileName);
 		SHELL.open();
 		enableDrag();
@@ -134,15 +134,27 @@ public class UIController {
 	private void renderDisplay() {
 		DISPLAY = new Display();
 		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+			public void handleEvent(Event e) {
+				if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'z')){
+					undo();
+					updateTaskList();
+					renderTasks(Consts.RENDER_BOTH);
+				}
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'w')){
+					systemExit();
+				}
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 's')){
+					showAuthPopup();
+				}
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'a')){
+					input.setText("add");
+				}
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'd')){
+					input.setText("delete");
+				}
+			}
+		});
 
-            public void handleEvent(Event e) {
-                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'f'))
-                {
-                    System.out.println("From Display I am the Key down !!" + e.keyCode);
-                }
-            }
-        });
-		
 	}
 
 	private void renderTimedTaskContainer() {
@@ -241,13 +253,20 @@ public class UIController {
 			}
 
 		});
+		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+			public void handleEvent(Event e) {
+				if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == '/')){
+					helpWindow.setVisible(true);
+				}
+			}
+		});
 		positionWindow(helpWindow);
 	}
 
 	private void renderAuthPopup() {
 		System.out.println("rendering auth");
 		authShell = new Shell(DISPLAY);
-		authShell.setText("Main Window");
+		authShell.setText("Request for Permission");
 		authShell.setLayout(new FillLayout());
 		browser = new Browser(authShell, SWT.NONE);
 		initialize(DISPLAY, browser);
@@ -540,7 +559,7 @@ public class UIController {
 			if(!statusString.isEmpty()){
 				updateStatusIndicator(statusString);
 			}
-			printStatement(Consts.RENDER_BOTH);
+			renderTasks(Consts.RENDER_BOTH);
 		} else {
 			updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
 		}
@@ -689,7 +708,7 @@ public class UIController {
 		return CommandEnum.INVALID;
 	}
 
-	private void printStatement(int mode) {
+	private void renderTasks(int mode) {
 		if(mode == Consts.RENDER_BOTH){
 			floatingTaskTable.removeAll();
 			updatefloatingTask();
@@ -716,10 +735,10 @@ public class UIController {
 
 		expandBar = new ExpandBar(timedTaskComposite, SWT.NONE);
 		expandBar.setBackground(DISPLAY.getSystemColor(SWT.COLOR_WHITE));
-		
+
 		for(int i=0;i<timedList.size();i++){
 			JSONObject o = timedList.get(i);
-			
+
 			if(currentDateString.compareTo(o.get(Consts.STARTDATE).toString().substring(0,10))!=0){
 				currentDateString = o.get(Consts.STARTDATE).toString().substring(0,10);
 				ExpandItem dateItem = new ExpandItem(expandBar, SWT.NONE);
@@ -730,35 +749,35 @@ public class UIController {
 
 			ExpandBar innerExpandBar = new ExpandBar(expandBar, SWT.NONE);
 			innerExpandBar.setBackground(DISPLAY.getSystemColor(SWT.COLOR_WHITE));
-			
+
 			Composite composite = new Composite (innerExpandBar, SWT.NONE);
-			
+
 			ExpandItem innerExpanditem = new ExpandItem(expandBar, SWT.NONE);
 			innerExpanditem.setExpanded(false);
 			innerExpanditem.setText((i+1)+". "+o.get(Consts.NAME).toString());
 			innerExpanditem.setControl(innerExpandBar);
 			innerExpanditem.setHeight(innerExpanditem.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-			
+
 			Label descLabel = new Label(composite, SWT.NONE);
 			descLabel.setText(o.get(Consts.NAME).toString());
 
-//			expandBar_1 = new ExpandBar(timedTaskComposite, SWT.NONE);
-//			
-//			xpndtmTask = new ExpandItem(expandBar_1, SWT.NONE);
-//			xpndtmTask.setExpanded(true);
-//			xpndtmTask.setText("Task");
-//			
-//			composite_1 = new Composite(expandBar_1, SWT.NONE);
-//			xpndtmTask.setControl(composite_1);
-//			xpndtmTask.setHeight(xpndtmTask.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-//			
-//			lblHello = new Label(composite_1, SWT.NONE);
-//			lblHello.setBounds(104, 0, 60, 14);
-//			lblHello.setText("Hello");
-//			timedTaskComposite.setContent(expandBar_1);
-//			timedTaskComposite.setMinSize(expandBar_1.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-			
-			
+			//			expandBar_1 = new ExpandBar(timedTaskComposite, SWT.NONE);
+			//			
+			//			xpndtmTask = new ExpandItem(expandBar_1, SWT.NONE);
+			//			xpndtmTask.setExpanded(true);
+			//			xpndtmTask.setText("Task");
+			//			
+			//			composite_1 = new Composite(expandBar_1, SWT.NONE);
+			//			xpndtmTask.setControl(composite_1);
+			//			xpndtmTask.setHeight(xpndtmTask.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
+			//			
+			//			lblHello = new Label(composite_1, SWT.NONE);
+			//			lblHello.setBounds(104, 0, 60, 14);
+			//			lblHello.setText("Hello");
+			//			timedTaskComposite.setContent(expandBar_1);
+			//			timedTaskComposite.setMinSize(expandBar_1.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
+
 		}
 
 		timedTaskComposite.setContent(expandBar);
