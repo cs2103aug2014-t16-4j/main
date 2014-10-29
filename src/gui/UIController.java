@@ -140,7 +140,7 @@ public class UIController {
 					updateTaskList();
 					renderTasks(Consts.RENDER_BOTH);
 				}
-				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'w')){
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'q')){
 					systemExit();
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 's')){
@@ -161,10 +161,10 @@ public class UIController {
 					}
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'a')){
-					input.setText("add");
+					input.setText("add ");
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'd')){
-					input.setText("delete");
+					input.setText("delete ");
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'n')){
 					NotifierDialog.notify("Hi There! I'm a notification widget!", "Today we are creating a widget that allows us to show notifications that fade in and out!");
@@ -325,6 +325,7 @@ public class UIController {
 	private void renderFloatingTaskContainer() {
 		floatingTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		floatingTaskComposite.setBounds(10, 446, 280, 144);
+		
 		floatingTaskComposite.setExpandHorizontal(true);
 		floatingTaskComposite.setExpandVertical(true);
 
@@ -334,7 +335,13 @@ public class UIController {
 		floatingTaskComposite.setContent(floatingTaskTable);
 		floatingTaskComposite.setMinSize(floatingTaskTable.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		TableColumn names = new TableColumn(floatingTaskTable, SWT.LEFT);
-		names.setWidth(276);
+		if(ISMAC){
+			names.setWidth(276);
+		}
+		else{
+			names.setWidth(271);
+		}
+			
 	}
 
 	static void initialize(final Display display, Browser browser) {
