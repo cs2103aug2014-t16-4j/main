@@ -166,6 +166,9 @@ public class UIController {
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'd')){
 					input.setText("delete");
 				}
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'n')){
+					NotifierDialog.notify("Hi There! I'm a notification widget!", "Today we are creating a widget that allows us to show notifications that fade in and out!");
+				}
 			}
 		});
 
