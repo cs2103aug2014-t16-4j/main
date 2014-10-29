@@ -147,7 +147,7 @@ public class NotifierDialog {
 
         CLabel imgLabel = new CLabel(inner, SWT.NONE);
         imgLabel.setLayoutData(new GridData(GridData.VERTICAL_ALIGN_BEGINNING | GridData.HORIZONTAL_ALIGN_BEGINNING));
-        imgLabel.setImage(new Image(_shell.getDisplay(),"resource/bell-256.png"));
+        imgLabel.setImage(new Image(_shell.getDisplay(),"resource/notify-bell.png"));
 
         CLabel titleLabel = new CLabel(inner, SWT.NONE);
         titleLabel.setLayoutData(new GridData(GridData.FILL_HORIZONTAL | GridData.VERTICAL_ALIGN_CENTER));
@@ -157,14 +157,14 @@ public class NotifierDialog {
         FontData fd = f.getFontData()[0];
         fd.setStyle(SWT.BOLD);
         fd.height = 11;
-        titleLabel.setFont(SWTResourceManager.getFont("Lucida Grande", 11, SWT.BOLD));
+        titleLabel.setFont(SWTResourceManager.getFont("Lucida Grande", 13, SWT.BOLD));
 
         Label text = new Label(inner, SWT.WRAP);
         Font tf = text.getFont();
         FontData tfd = tf.getFontData()[0];
         tfd.setStyle(SWT.BOLD);
         tfd.height = 8;
-        text.setFont(SWTResourceManager.getFont("Lucida Grande", 8, SWT.BOLD));
+        text.setFont(SWTResourceManager.getFont("Lucida Grande", 10, SWT.BOLD));
         GridData gd = new GridData(GridData.FILL_BOTH);
         gd.horizontalSpan = 2;
         text.setLayoutData(gd);
