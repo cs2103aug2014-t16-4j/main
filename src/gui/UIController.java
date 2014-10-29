@@ -88,8 +88,8 @@ public class UIController {
 	ScrolledComposite timedTaskComposite;
 	LogicController logic;
 	ExpandBar expandBar;
-	
-	final Provider provider = Provider.getCurrentProvider(true);
+
+	final Provider provider = Provider.getCurrentProvider(false);
 
 	public UIController(String[] args) {
 		String fileName = args.length>0?args[0]:"mytext.txt"; 
@@ -144,25 +144,37 @@ public class UIController {
 
 	private void renderDisplay() {
 		DISPLAY = new Display();
-		
+
 		final HotKeyListener listener = new HotKeyListener() {
 			public void onHotKey(final HotKey hotKey) {
 				System.out.println("hotkey");
-				if(!SHELL.isVisible()){
-					System.out.println("showing window");
-					SHELL.setVisible(true);
-					SHELL.setMinimized(false); 
-					input.setFocus();
-					SHELL.forceActive();
-				}
-				else{
-					System.out.println("hiding window");
-					SHELL.setMinimized(true);
-					SHELL.setVisible(false);
-				}
+
+				new Thread(new Runnable() {
+					public void run() {
+						Display.getDefault().asyncExec(new Runnable() {
+							public void run() {
+								if(!SHELL.isVisible() || DISPLAY.getFocusControl()==null){
+									System.out.println("showing window");
+									SHELL.setVisible(true);
+									SHELL.setMinimized(false); 
+									input.setFocus();
+									SHELL.forceActive();
+								}
+								else{
+									System.out.println("hiding window");
+									SHELL.setMinimized(true);
+									SHELL.setVisible(false);
+								}
+							}
+						});
+					}
+				}).start();
 			}
 		};
 
+		provider.reset();
+		provider.register(KeyStroke.getKeyStroke(VK_H,InputEvent.CTRL_DOWN_MASK), listener);
+		
 		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
 				if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'z')){
@@ -176,10 +188,8 @@ public class UIController {
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 's')){
 					showAuthPopup();
 				}
-				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'h')){
-					provider.reset();
-					provider.register(KeyStroke.getKeyStroke(VK_H,InputEvent.CTRL_DOWN_MASK), listener);
-				}
+//				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'h')){
+//				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'a')){
 					e.doit = false;
 					input.setText("add ");
