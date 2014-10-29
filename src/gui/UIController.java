@@ -4,14 +4,13 @@ import gui.common.HotKey;
 import gui.common.HotKeyListener;
 import gui.common.Provider;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.KeyStroke;
-
 import static java.awt.event.KeyEvent.*;
+
 import logic.CommandEnum;
 import logic.Consts;
 import logic.GoogleCal;
@@ -188,8 +187,6 @@ public class UIController {
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 's')){
 					showAuthPopup();
 				}
-//				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'h')){
-//				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'a')){
 					e.doit = false;
 					input.setText("add ");
