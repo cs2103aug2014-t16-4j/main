@@ -78,11 +78,24 @@ public class LogicController {
 		}
 	}
 	
-	//TasksBuffer without Block task
-	public ArrayList<JSONObject> getDisplayTasksBuffer() {
+	//TasksBuffer without Block task (Timed)
+	public ArrayList<JSONObject> getTimedTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
-			if (!jTask.containsValue("BLOCK")) {
+			if (!jTask.containsValue("BLOCK") && !jTask.get(Consts.STARTDATE).toString().equals(Consts.floatingDateString)) {
+				//System.out.println(jTask);// For Debuging
+				displayTasksBuffer.add(jTask);
+			}
+		}
+		//System.out.println(); For Debuging
+		return displayTasksBuffer;
+	}
+	
+	//TasksBuffer without Block task (Floating)
+	public ArrayList<JSONObject> getFloatingTasksBuffer() {
+		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
+		for (JSONObject jTask: tasksBuffer) {
+			if (!jTask.containsValue("BLOCK") && jTask.get(Consts.STARTDATE).toString().equals(Consts.floatingDateString)) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
