@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.wb.swt.SWTResourceManager;
 
 public class NotifierDialog {
-
+	// http://hexapixel.com/2009/06/30/creating-a-notification-popup-widget
     // how long the the tray popup is displayed after fading in (in milliseconds)
     private static final int   DISPLAY_TIME  = 4500;
     // how long each tick is when fading in (in ms)

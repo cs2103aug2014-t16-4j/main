@@ -281,7 +281,6 @@ public class UIController {
 	}
 
 	private void renderAuthPopup() {
-		System.out.println("rendering auth");
 		authShell = new Shell(DISPLAY);
 		authShell.setText("Request for Permission");
 		authShell.setLayout(new FillLayout());
@@ -707,7 +706,6 @@ public class UIController {
 	}
 
 	private void printWelcomeMsg(String fileName) {
-		System.out.printf(Consts.STRING_WELCOME, fileName);
 		updateStatusIndicator(String.format(Consts.STRING_WELCOME, fileName));
 	}
 
