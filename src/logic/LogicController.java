@@ -254,6 +254,14 @@ public class LogicController {
 	    return calendar.getTime();
 	}
 	
+	private boolean checkWeekly(Date dateStart1, Date dateEnd1, Date dateStart2, Date dateEnd2) {
+		return true;
+	}
+	
+	private boolean checkMonthly(Date dateStart1, Date dateEnd1, Date dateStart2, Date dateEnd2) {
+		return true;
+	}
+	
 	public ArrayList<JSONObject> search(String keyword) throws IOException {
 		List<DateGroup> dateGrp = dateParser.parse(keyword);
 		Date date1 = null;
@@ -285,7 +293,15 @@ public class LogicController {
 				//if (task.getStartDate().getTime() <= date.getTime() && date.getTime() <= task.getEndDate().getTime()) {
 				if (intersectTime(task.getStartDate(), task.getEndDate(), date1, date2)) {
 					foundLine.add(tasksBuffer.get(i));
-				}
+				} else if (task.getFrequency() == Consts.FREQUENCY_DAILY_VALUE) {
+					foundLine.add(tasksBuffer.get(i));
+				} else if (task.getFrequency() == Consts.FREQUENCY_WEEKLY_VALUE && 
+						checkWeekly(task.getStartDate(), task.getEndDate(), date1, date2)) {
+					foundLine.add(tasksBuffer.get(i));
+				} else if (task.getFrequency() == Consts.FREQUENCY_MONTHLY_VALUE && 
+						checkMonthly(task.getStartDate(), task.getEndDate(), date1, date2)) {
+					foundLine.add(tasksBuffer.get(i));
+				} 
 			}
 		}
 		System.out.println(foundLine.toString());

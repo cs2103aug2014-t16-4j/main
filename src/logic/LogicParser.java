@@ -26,13 +26,7 @@ public class LogicParser {
 	private static final int PRIORITY_IMPORTANT_VALUE = 1;
 	private static final int PRIORITY_NORMAL_VALUE = 2;
 	
-	// FREQUENCY CONSTANT
-	private static final String FREQUENCY_DAILY = "daily";
-	private static final String FREQUENCY_WEEKLY = "weekly";
-	private static final String FREQUENCY_MONTHLY = "monthly";
-	private static final int FREQUENCY_DAILY_VALUE = 1;
-	private static final int FREQUENCY_WEEKLY_VALUE = 2;
-	private static final int FREQUENCY_MONTHLY_VALUE = 3;
+
 	private static final String FREQUENCY_CUSTOM = "frequency";
 	private static final int TIME_EPS = 2;
 	
@@ -96,20 +90,20 @@ public class LogicParser {
 	
 	public int decomposeFrequency(ArrayList<String> words) {
 		for (int i = 0; i < words.size(); i++) {
-			if (words.get(i).compareTo(FREQUENCY_DAILY) == 0) {
+			if (words.get(i).compareTo(Consts.FREQUENCY_DAILY) == 0) {
 				words.remove(i);
 				nameSeparator = Math.min(nameSeparator, i - 1);
-				return FREQUENCY_DAILY_VALUE;
+				return Consts.FREQUENCY_DAILY_VALUE;
 			}
-			if (words.get(i).compareTo(FREQUENCY_WEEKLY) == 0) {
+			if (words.get(i).compareTo(Consts.FREQUENCY_WEEKLY) == 0) {
 				words.remove(i);
 				nameSeparator = Math.min(nameSeparator, i - 1);
-				return FREQUENCY_WEEKLY_VALUE;
+				return Consts.FREQUENCY_WEEKLY_VALUE;
 			}
-			if (words.get(i).compareTo(FREQUENCY_MONTHLY) == 0) {
+			if (words.get(i).compareTo(Consts.FREQUENCY_MONTHLY) == 0) {
 				words.remove(i);
 				nameSeparator = Math.min(nameSeparator, i - 1);
-				return FREQUENCY_MONTHLY_VALUE;
+				return Consts.FREQUENCY_MONTHLY_VALUE;
 			}
 			if (words.get(i).compareTo(FREQUENCY_CUSTOM) == 0) {
 				if (i + 1 < words.size())

@@ -60,6 +60,14 @@ public final class Consts {
     public static final int TASK_IMPORTANT = 1;
     public static final int TASK_NORMAL = 0;
     
+	// FREQUENCY CONSTANT
+    public static final String FREQUENCY_DAILY = "daily";
+	public static final String FREQUENCY_WEEKLY = "weekly";
+	public static final String FREQUENCY_MONTHLY = "monthly";
+	public static final int FREQUENCY_DAILY_VALUE = 1;
+	public static final int FREQUENCY_WEEKLY_VALUE = 2;
+	public static final int FREQUENCY_MONTHLY_VALUE = 3;
+	
     // DATE CONSTANT
 	@SuppressWarnings("deprecation")
 	public static final Date floatingDate = new Date(1,1,1); 
