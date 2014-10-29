@@ -15,7 +15,7 @@
  * version 3 along with this work.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.tulskiy.keymaster.windows;
+package gui.windows;
 
 import com.sun.jna.*;
 import com.sun.jna.win32.W32APIOptions;

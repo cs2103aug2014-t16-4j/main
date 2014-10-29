@@ -15,12 +15,12 @@
  * version 3 along with this work.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.tulskiy.keymaster.windows;
+package gui.windows;
 
-import com.tulskiy.keymaster.common.HotKey;
-import com.tulskiy.keymaster.common.HotKeyListener;
-import com.tulskiy.keymaster.common.MediaKey;
-import com.tulskiy.keymaster.common.Provider;
+import gui.common.HotKey;
+import gui.common.HotKeyListener;
+import gui.common.MediaKey;
+import gui.common.Provider;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
-import static com.tulskiy.keymaster.windows.User32.*;
+import static gui.windows.User32.*;
 
 /**
  * Author: Denis Tulskiy

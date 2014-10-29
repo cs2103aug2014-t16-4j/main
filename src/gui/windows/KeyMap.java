@@ -15,16 +15,16 @@
  * version 3 along with this work.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.tulskiy.keymaster.windows;
+package gui.windows;
 
-import com.tulskiy.keymaster.common.HotKey;
+import gui.common.HotKey;
 
 import javax.swing.*;
 import java.awt.event.InputEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.tulskiy.keymaster.windows.User32.*;
+import static gui.windows.User32.*;
 import static java.awt.event.KeyEvent.*;
 import static java.awt.event.KeyEvent.VK_SEMICOLON;
 import static java.awt.event.KeyEvent.VK_SLASH;

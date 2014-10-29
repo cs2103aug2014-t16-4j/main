@@ -23,6 +23,10 @@ import gui.common.MediaKey;
 import gui.common.Provider;
 
 import javax.swing.*;
+
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.PointerByReference;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;

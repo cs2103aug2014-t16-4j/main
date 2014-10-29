@@ -15,14 +15,16 @@
  * version 3 along with this work.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.tulskiy.keymaster.osx;
+package gui.osx;
 
 import javax.swing.*;
+
 import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.tulskiy.keymaster.osx.Carbon.*;
+import static gui.osx.Carbon.*;
 import static java.awt.event.KeyEvent.*;
 
 /**
@@ -139,16 +141,16 @@ public class KeyMap {
     public static int getModifier(KeyStroke keyStroke) {
         int modifiers = 0;
         if ((keyStroke.getModifiers() & InputEvent.SHIFT_DOWN_MASK) != 0) {
-            modifiers |= shiftKey;
+            modifiers |= KeyEvent.VK_SHIFT;
         }
         if ((keyStroke.getModifiers() & InputEvent.CTRL_DOWN_MASK) != 0) {
-            modifiers |= controlKey;
+            modifiers |= KeyEvent.VK_CONTROL;
         }
         if ((keyStroke.getModifiers() & InputEvent.META_DOWN_MASK) != 0) {
-            modifiers |= cmdKey;
+            modifiers |= KeyEvent.VK_META;
         }
         if ((keyStroke.getModifiers() & InputEvent.ALT_DOWN_MASK) != 0) {
-            modifiers |= optionKey;
+            modifiers |= KeyEvent.VK_ALT;
         }
         return modifiers;
     }

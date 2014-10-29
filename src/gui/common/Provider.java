@@ -15,12 +15,12 @@
  * version 3 along with this work.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.tulskiy.keymaster.common;
+package gui.common;
 
 import com.sun.jna.Platform;
-import com.tulskiy.keymaster.osx.CarbonProvider;
-import com.tulskiy.keymaster.windows.WindowsProvider;
-import com.tulskiy.keymaster.x11.X11Provider;
+import gui.osx.CarbonProvider;
+import gui.windows.WindowsProvider;
+import gui.x11.X11Provider;
 
 import javax.swing.*;
 import java.util.concurrent.ExecutorService;

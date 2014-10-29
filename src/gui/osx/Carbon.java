@@ -15,7 +15,7 @@
  * version 3 along with this work.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.tulskiy.keymaster.osx;
+package gui.osx;
 
 import com.sun.jna.*;
 import com.sun.jna.ptr.PointerByReference;
