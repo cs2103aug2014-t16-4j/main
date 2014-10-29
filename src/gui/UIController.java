@@ -56,7 +56,6 @@ import org.eclipse.swt.widgets.ExpandItem;
 
 public class UIController {
 
-	public ArrayList<JSONObject> taskList;
 	public ArrayList<JSONObject> timedList;
 	public ArrayList<JSONObject> floatingList;
 
@@ -97,7 +96,8 @@ public class UIController {
 			ISMAC = SystemUtils.IS_OS_MAC;
 			logic = LogicController.getInstance();
 			logic.init(fileName);
-			taskList = logic.getDisplayTasksBuffer();
+			timedList = logic.getTimedTasksBuffer();
+			floatingList = logic.getFloatingTasksBuffer();
 			DISPLAY = new Display();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -161,10 +161,13 @@ public class UIController {
 					}
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'a')){
+					e.doit = false;
 					input.setText("add ");
+					input.setSelection(input.getText().length());
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'd')){
 					input.setText("delete ");
+					input.setSelection(input.getText().length());
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'n')){
 					NotifierDialog.notify("Hi There! I'm a notification widget!", "Today we are creating a widget that allows us to show notifications that fade in and out!");
@@ -599,11 +602,11 @@ public class UIController {
 
 	public void search(String keyword) {
 		try {
-			taskList = logic.search(keyword);
-			if(taskList.isEmpty()){
+			timedList = logic.search(keyword);
+			if(timedList.isEmpty()){
 				updateStatusIndicator(Consts.STRING_NOT_FOUND);
 			}else{
-				updateStatusIndicator(String.format(Consts.STRING_FOUND,taskList.size()));
+				updateStatusIndicator(String.format(Consts.STRING_FOUND,timedList.size()));
 			}
 		} catch (IOException e) {
 		}
@@ -619,7 +622,7 @@ public class UIController {
 			try{
 				lineNumber = Integer.parseInt(splittedString[0]);
 				Task newTask = parser.decompose(splittedString[1]);
-				return logic.update(logic.getDisplayTasksBuffer().get(lineNumber-1),newTask);
+				return logic.update(logic.getTimedTasksBuffer().get(lineNumber-1),newTask);
 			}catch(NumberFormatException e){
 				return Consts.USAGE_UPDATE;
 			}
@@ -651,7 +654,7 @@ public class UIController {
 			int lineNumber;
 			try {
 				lineNumber = Integer.parseInt(lineNo);
-				return logic.delete(logic.getDisplayTasksBuffer().get(lineNumber-1));
+				return logic.delete(logic.getTimedTasksBuffer().get(lineNumber-1));
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_DELETE;
 			}
@@ -670,19 +673,8 @@ public class UIController {
 	}
 
 	public void updateTaskList() {
-		taskList = logic.getDisplayTasksBuffer();
-		floatingList = new ArrayList<JSONObject>();
-		timedList = new ArrayList<JSONObject>();
-		for(int i=0;i<taskList.size();i++){
-			JSONObject o = taskList.get(i);
-			//if(o.get(Consts.STARTDATE).toString().isEmpty()){
-			if (o.get(Consts.STARTDATE).toString().equals(Consts.floatingDateString)) {
-				floatingList.add(o);
-			}
-			else{
-				timedList.add(o);
-			}
-		}
+		timedList = logic.getTimedTasksBuffer();
+		floatingList = logic.getFloatingTasksBuffer();
 	}
 
 	public String add(String task) {
@@ -737,6 +729,9 @@ public class UIController {
 		else if(mode == Consts.RENDER_FLOATING){
 			floatingTaskTable.removeAll();
 			updatefloatingTask();
+		}
+		else if(mode == Consts.RENDER_TIMED){
+			updateTimedTask();
 		}
 	}
 
