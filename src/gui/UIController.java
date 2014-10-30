@@ -143,37 +143,37 @@ public class UIController {
 
 	private void renderDisplay() {
 		DISPLAY = new Display();
+		if(!ISMAC){
+			final HotKeyListener listener = new HotKeyListener() {
+				public void onHotKey(final HotKey hotKey) {
+					System.out.println("hotkey");
 
-		final HotKeyListener listener = new HotKeyListener() {
-			public void onHotKey(final HotKey hotKey) {
-				System.out.println("hotkey");
-
-				new Thread(new Runnable() {
-					public void run() {
-						Display.getDefault().asyncExec(new Runnable() {
-							public void run() {
-								if(!SHELL.isVisible() || DISPLAY.getFocusControl()==null){
-									System.out.println("showing window");
-									SHELL.setVisible(true);
-									SHELL.setMinimized(false); 
-									input.setFocus();
-									SHELL.forceActive();
+					new Thread(new Runnable() {
+						public void run() {
+							Display.getDefault().asyncExec(new Runnable() {
+								public void run() {
+									if(!SHELL.isVisible() || DISPLAY.getFocusControl()==null){
+										System.out.println("showing window");
+										SHELL.setVisible(true);
+										SHELL.setMinimized(false); 
+										input.setFocus();
+										SHELL.forceActive();
+									}
+									else{
+										System.out.println("hiding window");
+										SHELL.setMinimized(true);
+										SHELL.setVisible(false);
+									}
 								}
-								else{
-									System.out.println("hiding window");
-									SHELL.setMinimized(true);
-									SHELL.setVisible(false);
-								}
-							}
-						});
-					}
-				}).start();
-			}
-		};
+							});
+						}
+					}).start();
+				}
+			};
 
-		provider.reset();
-		provider.register(KeyStroke.getKeyStroke(VK_H,InputEvent.CTRL_DOWN_MASK), listener);
-		
+			provider.reset();
+			provider.register(KeyStroke.getKeyStroke(VK_H,InputEvent.CTRL_DOWN_MASK), listener);
+		}
 		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
 				if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'z')){
@@ -564,6 +564,7 @@ public class UIController {
 			task = splittedString[Consts.TASK_POSITION];
 		}
 		if (selectedCommand != CommandEnum.INVALID) {
+			int taskListToUpdate = Consts.RENDER_BOTH;
 			switch (selectedCommand) {
 			case ADD:
 				statusString = add(task);
@@ -582,6 +583,7 @@ public class UIController {
 			case SORT:
 				statusString = sort();
 				updateTaskList();
+				taskListToUpdate = Consts.RENDER_FLOATING;
 				break;
 			case SEARCH:
 				search(task);
@@ -609,7 +611,7 @@ public class UIController {
 			if(!statusString.isEmpty()){
 				updateStatusIndicator(statusString);
 			}
-			renderTasks(Consts.RENDER_BOTH);
+			renderTasks(taskListToUpdate);
 		} else {
 			updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
 		}
@@ -649,7 +651,7 @@ public class UIController {
 			try{
 				lineNumber = Integer.parseInt(splittedString[0]);
 				Task newTask = parser.decompose(splittedString[1]);
-				return logic.update(logic.getTimedTasksBuffer().get(lineNumber-1),newTask);
+				return logic.update(logic.getFloatingTasksBuffer().get(lineNumber-1),newTask);
 			}catch(NumberFormatException e){
 				return Consts.USAGE_UPDATE;
 			}
@@ -681,7 +683,7 @@ public class UIController {
 			int lineNumber;
 			try {
 				lineNumber = Integer.parseInt(lineNo);
-				return logic.delete(logic.getTimedTasksBuffer().get(lineNumber-1));
+				return logic.delete(logic.getFloatingTasksBuffer().get(lineNumber-1));
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_DELETE;
 			}
@@ -758,6 +760,7 @@ public class UIController {
 			updatefloatingTask();
 		}
 		else if(mode == Consts.RENDER_TIMED){
+			expandBar.dispose();
 			updateTimedTask();
 		}
 	}
