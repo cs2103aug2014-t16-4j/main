@@ -163,6 +163,17 @@ public class LogicParser {
 
 		//determine nameSeparator
 		if (!words.isEmpty()) {
+			int l = dateGroupFull.get(0).getPosition();
+			
+			for (int i = 0; i < words.size(); i++) {
+				l -= words.get(i).length() + 1;
+				if (l < 0) {
+					nameSeparator = Math.min(nameSeparator, i - 1);
+					break;
+				}
+			}			
+			
+			/*
 			String tempString = "";
 			for (int i = (int)words.size() - 1; i >= 0; i--) {
 				if (i == words.size() - 1) {
@@ -188,7 +199,7 @@ public class LogicParser {
 						}
 					}
 				}	
-			}
+			}*/
 			if (fullDate.size() == 0) {
 			} else if (fullDate.size() == 1) {
 				date[0] = fullDate.get(0);
