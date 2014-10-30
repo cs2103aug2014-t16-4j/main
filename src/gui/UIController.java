@@ -331,7 +331,11 @@ public class UIController {
 				if (event.title != null && event.title.length() > 0) {
 					authShell.setText(event.title);
 					if(event.title.contains("Success")){
-						updateStatusIndicator(syncWithGoogle(event.title.substring(13)));
+						try {
+							updateStatusIndicator(syncWithGoogle(event.title.substring(13)));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 						authShell.close();
 					}
 				}
@@ -348,7 +352,7 @@ public class UIController {
 		}
 	}
 
-	private String syncWithGoogle(String code){
+	private String syncWithGoogle(String code) throws IOException{
 		return logic.syncWithGoogle(code);
 	}
 

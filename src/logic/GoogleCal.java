@@ -91,11 +91,14 @@ public class GoogleCal {
 		*/
 	}
 	public String syncGCal(String code) throws IOException{
-		AuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code)
-				.setRedirectUri(redirectUrl);
-		TokenResponse tokenRes = null;
+		TokenResponse tokenRes = new TokenResponse();
 		try {
-			tokenRes = tokenRequest.execute();
+			if(validFile()){
+				tokenRes.setAccessToken(readFile());
+			}else{
+				AuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code).setRedirectUri(redirectUrl);
+				tokenRes = tokenRequest.execute();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.err.println("Token request failed");
@@ -116,7 +119,6 @@ public class GoogleCal {
 		Event event= new Event();
 		event.setSummary(tsk.getName());
 		event.setDescription(tsk.getDescription());
-		
 	}
 
 	public static boolean writeFile(String token) {
