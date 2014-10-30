@@ -214,7 +214,7 @@ public class LogicController {
 	public String getUrl(){
 		return gCal.getURL();
 	}
-	public String syncWithGoogle(String code){
+	public String syncWithGoogle(String code) throws IOException{
 		return gCal.syncGCal(code);
 	}
 

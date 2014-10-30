@@ -9,19 +9,28 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Arrays;
-import java.util.Scanner;
+
+import model.Task;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest;
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
 
 public class GoogleCal {
 	GoogleAuthorizationCodeFlow flow;
 	String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
+	String appName = "TaskBox";
+	HttpTransport httpTransport;
+	JacksonFactory jsonFactory;
+	private static Calendar client;
 	
 	public static boolean isOnline(){
 		Socket sock = new Socket();
@@ -44,8 +53,8 @@ public class GoogleCal {
 	}
 
 	public String getURL() {
-		HttpTransport httpTransport = new NetHttpTransport();
-		JacksonFactory jsonFactory = new JacksonFactory();
+		httpTransport = new NetHttpTransport();
+		jsonFactory = new JacksonFactory();
 		String appName = "TaskBox";
 		String clientId = "743259209106-g4qtcmneg0dhi9efos04d46bnnjiiich.apps.googleusercontent.com";
 		String clientSecret = "AyJjPfMtT0gQPki-eArk4xKG";
@@ -81,7 +90,7 @@ public class GoogleCal {
 		}
 		*/
 	}
-	public String syncGCal(String code){
+	public String syncGCal(String code) throws IOException{
 		AuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code)
 				.setRedirectUri(redirectUrl);
 		TokenResponse tokenRes = null;
@@ -93,10 +102,21 @@ public class GoogleCal {
 		}
 		if (tokenRes != null) {
 			writeFile(tokenRes.getAccessToken());
+			Credential credential = flow.createAndStoreCredential(tokenRes, appName);
+			HttpRequestInitializer initializer = credential;
+			Calendar.Builder builder = new Calendar.Builder(httpTransport, jsonFactory,initializer);
+			client = builder.build();
 			return Consts.STRING_SYNC_COMPLETE;
 		} else {
 			return Consts.STRING_SYNC_NOT_COMPLETE;
 		}
+	}
+
+	public void createEvent(Task tsk){
+		Event event= new Event();
+		event.setSummary(tsk.getName());
+		event.setDescription(tsk.getDescription());
+		
 	}
 
 	public static boolean writeFile(String token) {
