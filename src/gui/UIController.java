@@ -6,11 +6,16 @@ import gui.common.Provider;
 
 import java.awt.event.InputEvent;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 
 import javax.swing.KeyStroke;
-import static java.awt.event.KeyEvent.*;
 
+import static java.awt.event.KeyEvent.*;
 import logic.CommandEnum;
 import logic.Consts;
 import logic.GoogleCal;
@@ -575,6 +580,7 @@ public class UIController {
 				updateTaskList();
 				break;
 			case DISPLAY:
+				updateTaskList();
 				break;
 			case CLEAR:
 				statusString = clear();
@@ -587,7 +593,6 @@ public class UIController {
 			case SORT:
 				statusString = sort();
 				updateTaskList();
-				taskListToUpdate = Consts.RENDER_FLOATING;
 				break;
 			case SEARCH:
 				search(task);
@@ -708,6 +713,28 @@ public class UIController {
 	public void updateTaskList() {
 		timedList = logic.getTimedTasksBuffer();
 		floatingList = logic.getFloatingTasksBuffer();
+		sortTimedList();
+	}
+
+	private void sortTimedList() {
+		Collections.sort(timedList, new Comparator<JSONObject>() {
+			@Override public int compare(JSONObject t1, JSONObject t2) {
+				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+				Date date1 = null;
+				Date date2 = null;
+				try {
+					date1 = sdf.parse(t1.get(Consts.STARTDATE).toString());
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				try {
+					date2 = sdf.parse(t2.get(Consts.STARTDATE).toString());
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+				return date1.compareTo(date2);
+			}
+		});
 	}
 
 	public String add(String task) {
