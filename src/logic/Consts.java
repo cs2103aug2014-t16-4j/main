@@ -18,7 +18,7 @@ public final class Consts {
     public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, undo, exit, sync";
     public static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
     public static final String STRING_ENTER_COMMAND = "Command: ";
-    public static final String STRING_ADD = "added to %1$s: \"%2$s\"";
+    public static final String STRING_ADD = "added \"%s\" from %s to %s";
     public static final String STRING_CLEAR = "All content deleted from %1$s";
     public static final String STRING_FOUND_LINE = "=== Found line ===";
     public static final String STRING_NOT_FOUND = "No item found.";
@@ -39,6 +39,7 @@ public final class Consts {
     
     // ERRORS
     public static final String ERROR_ADD = "Task cannot be blank.";
+    public static final String ERROR_ADD_BLOCK = "Added to a block.";
     public static final String ERROR_UNKNOWN = "Unknown error occured!";
 
     // USAGE

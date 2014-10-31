@@ -740,14 +740,16 @@ public class UIController {
 	public String add(String task) {
 		Task tsk = parser.decompose(task);
 		if (tsk != null && !tsk.isEmpty()) {
-			boolean isSuccess = logic.add(tsk);
+/*			boolean isSuccess = logic.add(tsk);
 			if (isSuccess) {
 				return String.format(Consts.STRING_ADD, logic.getFileName(), task);
 			} else {
-				return Consts.USAGE_ADD;
-			}
+				return Consts.USAGE_ADD;				
+			}*/
+			return logic.add(tsk);
 		} else {
-			return Consts.ERROR_ADD;
+			//return Consts.ERROR_ADD;
+			return Consts.USAGE_ADD;				
 		}
 	}
 

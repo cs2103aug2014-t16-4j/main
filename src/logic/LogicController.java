@@ -115,24 +115,32 @@ public class LogicController {
 		return Math.max(startDate1.getTime(), startDate2.getTime()) <= Math.min(endDate1.getTime(), endDate2.getTime());
 	}
 		
-	public boolean add(Task task, boolean...addToStack){
+	public String add(Task task, boolean...addToStack){
+		
+		if (task.getName().compareTo("") == 0) {
+			return Consts.ERROR_ADD;
+		}
+		
 		for (JSONObject jtask: tasksBuffer) {
 			if (jtask.containsValue("BLOCK")) {
 				Task temp = Converter.jsonToTask(jtask);
 				//intersect
 				if (intersectTime(temp, task)) {
-					System.out.println("Added to a block");
-					return false;
+					return Consts.ERROR_ADD_BLOCK;
 				}
 			}
 		}
-		
 		logicAdd = new Add();
 		logicAdd.setFileName(fileName);
 		logicAdd.setTask(task);
 		if (addToStack.length == 0 || (addToStack.length > 0 && addToStack[0] == true))
 		opStack.add(logicAdd);
-		return logicAdd.executeCommand();
+		if (logicAdd.executeCommand()) {
+			return String.format(Consts.STRING_ADD, task.getName(), task.getStartDate(), task.getEndDate());
+		} else {
+			return Consts.ERROR_ADD;
+		}
+			
 	}
 	
 	public boolean clear(boolean...addToStack){
