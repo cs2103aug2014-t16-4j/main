@@ -65,7 +65,7 @@ public class UIController {
 	ScrolledComposite floatingTaskComposite;
 	ScrolledComposite timedTaskComposite;
 	LogicController logic;
-	ExpandBar expandBar;
+	Composite timedInnerComposite;
 
 	final Provider provider = Provider.getCurrentProvider(false);
 
@@ -113,7 +113,7 @@ public class UIController {
 		renderTimedTaskContainer();
 		renderAuthPopup();
 
-		renderTasks(Consts.RENDER_BOTH);
+		renderTasks();
 		printWelcomeMsg(fileName);
 		SHELL.open();
 		enableDrag();
@@ -158,7 +158,7 @@ public class UIController {
 				if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'z')){
 					undo();
 					updateTaskList();
-					renderTasks(Consts.RENDER_BOTH);
+					renderTasks();
 				}
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'q')){
 					systemExit();
@@ -532,7 +532,6 @@ public class UIController {
 			task = splittedString[Consts.TASK_POSITION];
 		}
 		if (selectedCommand != CommandEnum.INVALID) {
-			int taskListToUpdate = Consts.RENDER_BOTH;
 			switch (selectedCommand) {
 			case ADD:
 				statusString = add(task);
@@ -579,7 +578,7 @@ public class UIController {
 			if(!statusString.isEmpty()){
 				updateStatusIndicator(statusString);
 			}
-			renderTasks(taskListToUpdate);
+			renderTasks();
 		} else {
 			updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
 		}
@@ -699,7 +698,7 @@ public class UIController {
 	public String add(String task) {
 		Task tsk = parser.decompose(task);
 		if (tsk != null && !tsk.isEmpty()) {
-/*			boolean isSuccess = logic.add(tsk);
+			/*			boolean isSuccess = logic.add(tsk);
 			if (isSuccess) {
 				return String.format(Consts.STRING_ADD, logic.getFileName(), task);
 			} else {
@@ -741,20 +740,13 @@ public class UIController {
 		return CommandEnum.INVALID;
 	}
 
-	private void renderTasks(int mode) {
-		if(mode == Consts.RENDER_BOTH){
-			floatingTaskTable.removeAll();
-			updatefloatingTask();
-			updateTimedTask();
+	private void renderTasks() {
+		if(timedInnerComposite != null){
+			timedInnerComposite.dispose();
 		}
-		else if(mode == Consts.RENDER_FLOATING){
-			floatingTaskTable.removeAll();
-			updatefloatingTask();
-		}
-		else if(mode == Consts.RENDER_TIMED){
-			expandBar.dispose();
-			updateTimedTask();
-		}
+		floatingTaskTable.removeAll();
+		updatefloatingTask();
+		updateTimedTask();
 	}
 
 	private void updateStatusIndicator(String str) {
@@ -766,51 +758,56 @@ public class UIController {
 
 	private void updateTimedTask(){
 		String currentDateString = "";
-		Composite composite = new Composite(timedTaskComposite, SWT.NONE);
-		composite.setLayout(new GridLayout(1, true));
+		timedInnerComposite = new Composite(timedTaskComposite, SWT.NONE);
+		timedInnerComposite.setLayout(new GridLayout(1, true));
 		FormToolkit toolkit = null;
 		Form form = null;
 
 		for(int i=0;i<timedList.size();i++){
 			JSONObject o = timedList.get(i);
 			String start = o.get(Consts.STARTDATE).toString();
-			String startTime = start.substring(10);
+			String startTime = start.substring(10, start.length()-3)+" hr";
 			String startDate = start.substring(0,10);
-			String endTime = o.get(Consts.ENDDATE).toString().substring(10);
+			String end = o.get(Consts.ENDDATE).toString();
+			String endTime = end.substring(11, end.length()-3)+" hr";
 			String desc = o.get(Consts.DESCRIPTION).toString();
 			String taskName = o.get(Consts.NAME).toString();
-			String shortenedTaskName = ellipsize(taskName, 32);
+			String shortenedTaskName = ellipsize(taskName, 30);
+			String dateString = start.compareTo(end)==0?startTime:startTime+" to "+endTime;
 
 			if(currentDateString.compareTo(startDate)!=0){
-				toolkit = new FormToolkit(composite.getDisplay());
+				toolkit = new FormToolkit(timedInnerComposite.getDisplay());
 				currentDateString = startDate;
-				form = toolkit.createForm(composite);
+				form = toolkit.createForm(timedInnerComposite);
 				form.setLayoutData(new GridData(GridData.FILL_BOTH));
 				form.setText(currentDateString);
 				ColumnLayout cl = new ColumnLayout();
 				cl.maxNumColumns = 1;
 				form.getBody().setLayout(cl);
 			}
+			Section section = null;
+			desc = desc.isEmpty()?(taskName.compareTo(shortenedTaskName)==0?"":taskName):desc;
 
-			Section section = toolkit.createSection(form.getBody(), Section.DESCRIPTION | Section.TREE_NODE);
+			if(desc.isEmpty()){
+				section = toolkit.createSection(form.getBody(), Section.TREE_NODE | Section.COMPACT);
+			}
+			else{
+				section = toolkit.createSection(form.getBody(), Section.DESCRIPTION | Section.TREE_NODE | Section.COMPACT);
+				section.setDescription(desc);
+			}
 
-			desc = desc.isEmpty()?"---":desc;
-			section.setText(shortenedTaskName);
-			section.setDescription(desc);
-			//section.setDescription(startTime+" to"+endTime);
-			section.setSize(10, 10);
+			section.setText((i+1)+". "+shortenedTaskName);
 
 			FormText text = toolkit.createFormText(section, false);
-			text.setText(startTime+" to"+endTime, false, false);
-			//text.setText(desc, false, false);
+			text.setText(dateString, false, false);
 			text.setVisible(false);
 			section.setClient(text);
 		}
-		timedTaskComposite.setContent(composite);
-		timedTaskComposite.setMinHeight(timedList.size()*43);
+		timedTaskComposite.setContent(timedInnerComposite);
+		timedTaskComposite.setMinHeight(timedList.size()*44);
 
-//		timedTaskComposite.setExpandHorizontal(false);
-//		timedTaskComposite.setExpandVertical(true);
+		//		timedTaskComposite.setExpandHorizontal(false);
+		//		timedTaskComposite.setExpandVertical(true);
 	}
 
 	private final static String NON_THIN = "[^iIl1\\.,']";
