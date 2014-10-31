@@ -52,6 +52,7 @@ public class UIController {
 	private static int YPOS=0;
 	private LogicParser parser = new LogicParser();
 	private CommandEnum selectedCommand = CommandEnum.INVALID;
+	private int taskNo = 1;
 
 	Display DISPLAY;
 	Text input;
@@ -741,12 +742,13 @@ public class UIController {
 	}
 
 	private void renderTasks() {
+		taskNo = 1;
 		if(timedInnerComposite != null){
 			timedInnerComposite.dispose();
 		}
 		floatingTaskTable.removeAll();
-		updatefloatingTask();
 		updateTimedTask();
+		updatefloatingTask();
 	}
 
 	private void updateStatusIndicator(String str) {
@@ -763,8 +765,8 @@ public class UIController {
 		FormToolkit toolkit = null;
 		Form form = null;
 
-		for(int i=0;i<timedList.size();i++){
-			JSONObject o = timedList.get(i);
+		for(;taskNo<timedList.size()+1;taskNo++){
+			JSONObject o = timedList.get(taskNo-1);
 			String start = o.get(Consts.STARTDATE).toString();
 			String startTime = start.substring(10, start.length()-3)+" hr";
 			String startDate = start.substring(0,10);
@@ -796,13 +798,14 @@ public class UIController {
 				section.setDescription(desc);
 			}
 
-			section.setText((i+1)+". "+shortenedTaskName);
+			section.setText(taskNo+". "+shortenedTaskName);
 
 			FormText text = toolkit.createFormText(section, false);
 			text.setText(dateString, false, false);
 			text.setVisible(false);
 			section.setClient(text);
 		}
+		System.out.println(taskNo);
 		timedTaskComposite.setContent(timedInnerComposite);
 		timedTaskComposite.setMinHeight(timedList.size()*44);
 
@@ -847,7 +850,7 @@ public class UIController {
 	private void updatefloatingTask() {
 		for(int i=0;i<floatingList.size();i++){
 			TableItem item = new TableItem(floatingTaskTable, 0);
-			item.setText((i+1)+". "+floatingList.get(i).get(Consts.NAME).toString());
+			item.setText((i+taskNo)+". "+floatingList.get(i).get(Consts.NAME).toString());
 			item.setForeground(getColorWithPriority(Integer.parseInt(floatingList.get(i).get(Consts.PRIORITY).toString())));
 		}
 	}
