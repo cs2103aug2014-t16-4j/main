@@ -23,49 +23,38 @@ import logic.LogicController;
 import logic.LogicParser;
 import model.Task;
 
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
+import org.eclipse.ui.forms.events.HyperlinkAdapter;
+import org.eclipse.ui.forms.events.HyperlinkEvent;
+import org.eclipse.ui.forms.widgets.ColumnLayout;
+import org.eclipse.ui.forms.widgets.ExpandableComposite;
+import org.eclipse.ui.forms.widgets.Form;
+import org.eclipse.ui.forms.widgets.FormText;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.Hyperlink;
+import org.eclipse.ui.forms.widgets.ScrolledForm;
+import org.eclipse.ui.forms.widgets.Section;
+import org.eclipse.ui.forms.widgets.TableWrapData;
+import org.eclipse.ui.forms.widgets.TableWrapLayout;
+import org.eclipse.nebula.widgets.pshelf.PShelf;
+import org.eclipse.nebula.widgets.pshelf.PShelfItem;
+import org.eclipse.nebula.widgets.pshelf.PaletteShelfRenderer;
+import org.eclipse.nebula.widgets.pshelf.RedmondShelfRenderer;
 import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.browser.CloseWindowListener;
-import org.eclipse.swt.browser.OpenWindowListener;
-import org.eclipse.swt.browser.TitleEvent;
-import org.eclipse.swt.browser.TitleListener;
-import org.eclipse.swt.browser.VisibilityWindowListener;
-import org.eclipse.swt.browser.WindowEvent;
+import org.eclipse.swt.browser.*;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Monitor;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tray;
-import org.eclipse.swt.widgets.TrayItem;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.widgets.*;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.json.simple.JSONObject;
-import org.eclipse.swt.widgets.ExpandBar;
-import org.eclipse.swt.widgets.ExpandItem;
 
 public class UIController {
 
@@ -215,21 +204,6 @@ public class UIController {
 		timedTaskComposite.setBounds(10, 35, 280, 405);
 		timedTaskComposite.setExpandHorizontal(true);
 		timedTaskComposite.setExpandVertical(true);
-
-		//		Composite composite1 = new Composite (expandBar, SWT.NONE);
-		//		composite1.setLayout(layout);
-		//		Button button1 = new Button (composite1, SWT.PUSH);
-		//		button1.setText("SWT.PUSH");
-		//		button1 = new Button (composite1, SWT.RADIO);
-		//		button1.setText("SWT.RADIO");
-		//		button1 = new Button (composite1, SWT.CHECK);
-		//		button1.setText("SWT.CHECK");
-		//		button1 = new Button (composite1, SWT.TOGGLE);
-		//		button1.setText("SWT.TOGGLE");
-		//		ExpandItem item1 = new ExpandItem (expandBar, SWT.NONE, 0);
-		//		item1.setText("What is your favorite button");
-		//		item1.setHeight(composite1.computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-		//		item1.setControl(composite1);
 	}
 
 	private void renderStatusIndicator() {
@@ -375,7 +349,7 @@ public class UIController {
 		floatingTaskComposite.setMinSize(floatingTaskTable.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		TableColumn names = new TableColumn(floatingTaskTable, SWT.LEFT);
 		if(ISMAC){
-			names.setWidth(276);
+			names.setWidth(261);
 		}
 		else{
 			names.setWidth(271);
@@ -806,60 +780,86 @@ public class UIController {
 	}
 
 	private void updateTimedTask(){
-		for (Control eb : timedTaskComposite.getChildren()) {
-			eb.dispose();
-		}
 		String currentDateString = "";
-
-		expandBar = new ExpandBar(timedTaskComposite, SWT.NONE);
-		expandBar.setBackground(DISPLAY.getSystemColor(SWT.COLOR_WHITE));
+		Composite composite = new Composite(timedTaskComposite, SWT.NONE);
+		composite.setLayout(new GridLayout(1, true));
+		FormToolkit toolkit = null;
+		Form form = null;
 
 		for(int i=0;i<timedList.size();i++){
 			JSONObject o = timedList.get(i);
+			String start = o.get(Consts.STARTDATE).toString();
+			String startTime = start.substring(10);
+			String startDate = start.substring(0,10);
+			String endTime = o.get(Consts.ENDDATE).toString().substring(10);
+			String desc = o.get(Consts.DESCRIPTION).toString();
+			String taskName = o.get(Consts.NAME).toString();
+			String shortenedTaskName = ellipsize(taskName, 32);
 
-			if(currentDateString.compareTo(o.get(Consts.STARTDATE).toString().substring(0,10))!=0){
-				currentDateString = o.get(Consts.STARTDATE).toString().substring(0,10);
-				ExpandItem dateItem = new ExpandItem(expandBar, SWT.NONE);
-				dateItem.setExpanded(false);
-				dateItem.setText(o.get(Consts.STARTDATE).toString().substring(0,10));
-				dateItem.setImage(new Image(SHELL.getDisplay(),"resource/icon_favourites.gif"));
+			if(currentDateString.compareTo(startDate)!=0){
+				toolkit = new FormToolkit(composite.getDisplay());
+				currentDateString = startDate;
+				form = toolkit.createForm(composite);
+				form.setLayoutData(new GridData(GridData.FILL_BOTH));
+				form.setText(currentDateString);
+				ColumnLayout cl = new ColumnLayout();
+				cl.maxNumColumns = 1;
+				form.getBody().setLayout(cl);
 			}
 
-			ExpandBar innerExpandBar = new ExpandBar(expandBar, SWT.NONE);
-			innerExpandBar.setBackground(DISPLAY.getSystemColor(SWT.COLOR_WHITE));
+			Section section = toolkit.createSection(form.getBody(), Section.DESCRIPTION | Section.TREE_NODE);
 
-			Composite composite = new Composite (innerExpandBar, SWT.NONE);
+			desc = desc.isEmpty()?"---":desc;
+			section.setText(shortenedTaskName);
+			section.setDescription(desc);
+			//section.setDescription(startTime+" to"+endTime);
+			section.setSize(10, 10);
 
-			ExpandItem innerExpanditem = new ExpandItem(expandBar, SWT.NONE);
-			innerExpanditem.setExpanded(false);
-			innerExpanditem.setText((i+1)+". "+o.get(Consts.NAME).toString());
-			innerExpanditem.setControl(innerExpandBar);
-			innerExpanditem.setHeight(innerExpanditem.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-
-			Label descLabel = new Label(composite, SWT.NONE);
-			descLabel.setText(o.get(Consts.NAME).toString());
-
-			//			expandBar_1 = new ExpandBar(timedTaskComposite, SWT.NONE);
-			//			
-			//			xpndtmTask = new ExpandItem(expandBar_1, SWT.NONE);
-			//			xpndtmTask.setExpanded(true);
-			//			xpndtmTask.setText("Task");
-			//			
-			//			composite_1 = new Composite(expandBar_1, SWT.NONE);
-			//			xpndtmTask.setControl(composite_1);
-			//			xpndtmTask.setHeight(xpndtmTask.getControl().computeSize(SWT.DEFAULT, SWT.DEFAULT).y);
-			//			
-			//			lblHello = new Label(composite_1, SWT.NONE);
-			//			lblHello.setBounds(104, 0, 60, 14);
-			//			lblHello.setText("Hello");
-			//			timedTaskComposite.setContent(expandBar_1);
-			//			timedTaskComposite.setMinSize(expandBar_1.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-
-
+			FormText text = toolkit.createFormText(section, false);
+			text.setText(startTime+" to"+endTime, false, false);
+			//text.setText(desc, false, false);
+			text.setVisible(false);
+			section.setClient(text);
 		}
+		timedTaskComposite.setContent(composite);
+		timedTaskComposite.setMinHeight(timedList.size()*43);
 
-		timedTaskComposite.setContent(expandBar);
-		timedTaskComposite.setMinSize(expandBar.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+//		timedTaskComposite.setExpandHorizontal(false);
+//		timedTaskComposite.setExpandVertical(true);
+	}
+
+	private final static String NON_THIN = "[^iIl1\\.,']";
+
+	private static int textWidth(String str) {
+		return (int) (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
+	}
+
+	public static String ellipsize(String text, int max) {
+
+		if (textWidth(text) <= max)
+			return text;
+
+		// Start by chopping off at the word before max
+		// This is an over-approximation due to thin-characters...
+		int end = text.lastIndexOf(' ', max - 3);
+
+		// Just one long word. Chop it off.
+		if (end == -1)
+			return text.substring(0, max-3) + "...";
+
+		// Step forward as long as textWidth allows.
+		int newEnd = end;
+		do {
+			end = newEnd;
+			newEnd = text.indexOf(' ', end + 1);
+
+			// No more spaces.
+			if (newEnd == -1)
+				newEnd = text.length();
+
+		} while (textWidth(text.substring(0, newEnd) + "...") < max);
+
+		return text.substring(0, end) + "...";
 	}
 
 	private void updatefloatingTask() {
