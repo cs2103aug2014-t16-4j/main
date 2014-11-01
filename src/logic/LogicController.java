@@ -42,10 +42,6 @@ public class LogicController {
 	private static LogicController singleton = null;
    /* Static 'instance' method */
 	
-	boolean isBlock(JSONObject jTask) {
-		return jTask.get(Consts.DESCRIPTION).toString().equals("BLOCK") && jTask.get(Consts.NAME).toString().isEmpty();
-	}
-	
 	public static LogicController getInstance( ) {
 		if (singleton == null)
 		{
@@ -135,13 +131,13 @@ public class LogicController {
 		
 	public String add(Task task, boolean...addToStack){
 		
-		if (!isBlock(Converter.taskToJSON(task))) { 
+		if (task.getStatus() == Consts.STATUS_TIMED_TASK) { 
 			if (task.getName().compareTo("") == 0) {
 				return Consts.ERROR_ADD;
 			}
 			
 			for (JSONObject jTask: tasksBuffer) {
-				if (isBlock(jTask)) {
+				if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_BLOCK_TASK) {
 					Task temp = Converter.jsonToTask(jTask);
 					//intersect
 					if (intersectTime(temp, task)) {
@@ -233,7 +229,7 @@ public class LogicController {
 		if(!dateGrp.isEmpty() && dateGrp.get(0).getDates().size() == 2) {
 			Date startDate = dateGrp.get(0).getDates().get(0);
 			Date endDate = dateGrp.get(0).getDates().get(1);			
-			Task task = new Task("", "BLOCK", startDate, endDate, 0, 0, 0);
+			Task task = new Task("Blocked " + startDate + " > " + endDate, "", startDate, endDate, 0, 0, Consts.STATUS_BLOCK_TASK);
 			add(task);
 			return "BLOCK " + startDate.toString() + " -> " + endDate.toString();
 		} else {
@@ -308,7 +304,7 @@ public class LogicController {
 		//tasksBuffer inside is different from outside
 		ArrayList <JSONObject> tasksBuffer;
 		
-		if (statusType == Consts.STATUS_BLOCK_TASK) {
+		if (statusType == Consts.STATUS_TIMED_TASK) {
 			tasksBuffer = getTimedTasksBuffer();
 			if (keyword.trim().toLowerCase().equals("block")) {
 				return getBlockTasksBuffer();

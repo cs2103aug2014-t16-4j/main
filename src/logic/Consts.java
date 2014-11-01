@@ -12,6 +12,7 @@ public final class Consts {
     public static final String FREQUENCY = "Frequency";
     public static final String STARTDATE = "StartDate";
 	public static final String ENDDATE = "EndDate";
+	public static final String STATUS = "Status";
 
     // FEEDBACK STRINGS
     public static final String STRING_WELCOME = "Welcome to TaskBox. %1$s is ready for use.\n";

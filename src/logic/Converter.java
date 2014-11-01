@@ -16,6 +16,7 @@ public class Converter {
 		jTask.put(Consts.ENDDATE, task.getEndDate()!=null?Consts.formatter.format(task.getEndDate()):"");
 		jTask.put(Consts.PRIORITY, task.getPriority());
 		jTask.put(Consts.FREQUENCY, task.getFrequency());
+		jTask.put(Consts.STATUS, task.getStatus());
 		return jTask;
 	}		
 	
@@ -28,8 +29,9 @@ public class Converter {
 			temp.setEndDate(Consts.formatter.parse(obj.get(Consts.ENDDATE).toString()));
 			temp.setFrequency((int) obj.get(Consts.FREQUENCY));
 			temp.setPriority((int) obj.get(Consts.PRIORITY));
+			temp.setStatus((int) obj.get(Consts.STATUS));
 		}catch(Exception e){
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 		return temp;	
 	}
