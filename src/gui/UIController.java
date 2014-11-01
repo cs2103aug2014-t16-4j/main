@@ -54,6 +54,8 @@ public class UIController {
 	private CommandEnum selectedCommand = CommandEnum.INVALID;
 	private int taskNo = 1;
 
+	private final static String NON_THIN = "[^iIl1\\.,']";
+
 	Display DISPLAY;
 	Text input;
 	Shell SHELL;
@@ -795,7 +797,9 @@ public class UIController {
 			String endTime = end.substring(11, end.length()-3)+" hr";
 			String desc = o.get(Consts.DESCRIPTION).toString();
 			String taskName = o.get(Consts.NAME).toString();
-			String shortenedTaskName = ellipsize(taskName, 30);
+			int priority = Integer.parseInt(o.get(Consts.PRIORITY).toString());
+			int frequency = Integer.parseInt(o.get(Consts.FREQUENCY).toString());
+			String shortenedTaskName = ellipsize(taskName, 28);
 			String dateString = start.compareTo(end)==0?startTime:(startTime.compareTo("00:00 hr")==0 && endTime.compareTo("23:59 hr")==0?"Full Day Event":startTime+" to "+endTime);
 
 			if(currentDateString.compareTo(startDate)!=0){
@@ -809,27 +813,55 @@ public class UIController {
 				cl.maxNumColumns = 1;
 				form.getBody().setLayout(cl);
 			}
-			Section section = null;
-			desc = desc.isEmpty()?(taskName.compareTo(shortenedTaskName)==0?"":taskName):desc;
+			//Section section = null;
+			Section section = toolkit.createSection(form.getBody(), Section.TREE_NODE | Section.COMPACT | Section.TITLE_BAR);
 
-			if(desc.isEmpty()){
-				section = toolkit.createSection(form.getBody(), Section.TREE_NODE | Section.COMPACT);
-			}
-			else{
-				section = toolkit.createSection(form.getBody(), Section.DESCRIPTION | Section.TREE_NODE | Section.COMPACT);
-				section.setDescription(desc);
+			//			if(desc.isEmpty()){
+			//				section = toolkit.createSection(form.getBody(), Section.TREE_NODE | Section.COMPACT);
+			//			}
+			//			else{
+			//				section = toolkit.createSection(form.getBody(), Section.DESCRIPTION | Section.TREE_NODE | Section.COMPACT);
+			//				section.setDescription(desc);
+			//			}
+
+			section.setText(taskNo+". "+shortenedTaskName);
+			
+			if(priority == 1){
+				//section.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
+				//section.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
+				section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_RED));
 			}
 			
-			section.setText(taskNo+". "+shortenedTaskName);
-			FormText text = toolkit.createFormText(section, false);
+			Composite sectionClient = toolkit.createComposite(section);
+			sectionClient.setLayout(new GridLayout());
+			FormText text;
+			
+			//full name
+			if(taskName.compareTo(shortenedTaskName)!=0){
+				text = toolkit.createFormText(sectionClient, false);
+				text.setText(taskName, false, false);
+			}
+			
+			// time
+			text = toolkit.createFormText(sectionClient, false);
 			text.setText(dateString, false, false);
-			section.setClient(text);
+			// description
+			if(!desc.isEmpty()){
+				text = toolkit.createFormText(sectionClient, false);
+				text.setText(desc, false, false);
+			}
+			//repeats
+			if(frequency > 0 && frequency < 4){
+				String freString = frequency==1?"daily":(frequency==2?"weekly":(frequency==3?"monthly":"-"));
+				text = toolkit.createFormText(sectionClient, false);
+				text.setText("Repeats "+freString, false, false);
+			}
+
+			section.setClient(sectionClient);
 		}
 		timedTaskComposite.setContent(timedInnerComposite);
 		timedTaskComposite.setMinHeight(timedList.size()*32 + noOfDays*35);
 	}
-
-	private final static String NON_THIN = "[^iIl1\\.,']";
 
 	private static int textWidth(String str) {
 		return (int) (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
