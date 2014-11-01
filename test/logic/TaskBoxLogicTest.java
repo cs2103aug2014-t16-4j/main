@@ -8,6 +8,7 @@ import java.util.Date;
 
 import model.Task;
 
+import org.json.simple.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -113,7 +114,7 @@ public class TaskBoxLogicTest {
 	
 	@Test
 	public void testDeleteAndUndo() {
-		System.out.println("=== Testing delete function ===");
+		System.out.println("=== Testing delete and undo function ===");
 		logic.clear();
 		Task soonToBeDeletedTask = parser.decompose("Second line");
 		Task first = parser.decompose("First line");
@@ -123,20 +124,42 @@ public class TaskBoxLogicTest {
 		logic.add(soonToBeDeletedTask, true);
 		logic.add(third,true);
 		logic.add(fourth,true);
-		//String expectedString = String.format(Consts.STRING_DELETE, fileName[0],soonToBeDeletedTask.getName());
-		//String returnString = logic.delete(Converter.taskToJSON(soonToBeDeletedTask));
 		logic.delete(Converter.taskToJSON(soonToBeDeletedTask),true);
-		boolean returnBoolean = logic.undo();
-		//System.out.println(returnString);
-		//System.out.println(expectedString);
-		//assertEquals(expectedString,returnString);
+		logic.undo();
+		boolean returnBoolean = false;
+		for(JSONObject i:LogicController.tasksBuffer){
+			if(Converter.jsonToTask(i).getName().equalsIgnoreCase(soonToBeDeletedTask.getName())){
+				returnBoolean = true;
+			}
+		}
+		assertTrue(returnBoolean);
+	}
+	
+	@Test
+	public void testAddAndUndo() {
+		System.out.println("=== Testing add and undo  ===");
+		logic.clear();
+		Task first = parser.decompose("First line");
+		Task third = parser.decompose("Third line");
+		Task fourth = parser.decompose("Fourth line");
+		logic.add(first,true);
+		logic.add(third,true);
+		logic.add(fourth,true);
+		logic.undo();
+		boolean returnBoolean = true;
+		for(JSONObject i:LogicController.tasksBuffer){
+			//System.out.println(Converter.jsonToTask(i).getName());
+			if(Converter.jsonToTask(i).getName().equalsIgnoreCase(fourth.getName())){
+				returnBoolean = false;
+			}
+		}
 		assertTrue(returnBoolean);
 	}
 
 
 	@Test
 	public void testDeleteLineNotFound(){
-		System.out.println("=== Testing delete function ===");
+		System.out.println("=== Testing delete function with invlaid selection ===");
 		logic.clear();
 		Task soonToBeDeletedTask = parser.decompose("Second line");
 		Task first = parser.decompose("First line");
