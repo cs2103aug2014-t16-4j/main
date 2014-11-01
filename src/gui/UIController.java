@@ -297,7 +297,8 @@ public class UIController {
 					authShell.setText(event.title);
 					if(event.title.contains("Success")){
 						try {
-							updateStatusIndicator(syncWithGoogle(event.title.substring(13)));
+							logic.generateNewToken(event.title.substring(13));
+							updateStatusIndicator(logic.syncWithGoogle());
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -309,16 +310,21 @@ public class UIController {
 	}
 
 	private void showAuthPopup() {
-		if(GoogleCal.isOnline()){
-			browser.setUrl(logic.getUrl());
-			authShell.setVisible(true);
+		if(logic.sycnWithGoogleExistingToken()){
+			try {
+				updateStatusIndicator(logic.syncWithGoogle());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}else{
-			updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
+			if(GoogleCal.isOnline()){
+				browser.setUrl(logic.getUrl());
+				authShell.setVisible(true);
+			}else{
+				updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
+			}
 		}
-	}
-
-	private String syncWithGoogle(String code) throws IOException{
-		return logic.syncWithGoogle(code);
 	}
 
 	private void renderFloatingTaskContainer() {

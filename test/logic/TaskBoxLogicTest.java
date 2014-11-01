@@ -159,7 +159,7 @@ public class TaskBoxLogicTest {
 
 	@Test
 	public void testDeleteLineNotFound(){
-		System.out.println("=== Testing delete function with invlaid selection ===");
+		System.out.println("=== Testing delete function with invalid selection ===");
 		logic.clear();
 		Task soonToBeDeletedTask = parser.decompose("Second line");
 		Task first = parser.decompose("First line");

@@ -225,8 +225,17 @@ public class LogicController {
 	public String getUrl(){
 		return gCal.getURL();
 	}
-	public String syncWithGoogle(String code) throws IOException{
-		return gCal.syncGCal(code);
+	
+	public boolean sycnWithGoogleExistingToken(){
+		return gCal.withExistingToken();
+	}
+
+	public boolean generateNewToken(String code) throws IOException{
+		return gCal.generateNewToken(code);
+	}
+	
+	public String syncWithGoogle() throws IOException{
+		return gCal.syncGCal();
 	}
 
 	public boolean undo(){

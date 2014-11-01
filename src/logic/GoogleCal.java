@@ -10,6 +10,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Arrays;
 
+import org.json.simple.JSONObject;
+
 import model.Task;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest;
@@ -20,9 +22,12 @@ import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.Calendar.CalendarList;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
 
 public class GoogleCal {
 	GoogleAuthorizationCodeFlow flow;
@@ -90,35 +95,79 @@ public class GoogleCal {
 		}
 		*/
 	}
-	public String syncGCal(String code) throws IOException{
+	
+	public boolean withExistingToken(){
 		TokenResponse tokenRes = new TokenResponse();
-		try {
+		if(validFile()){
+			tokenRes.setAccessToken(readFile());
+			try{
+				Credential credential = flow.createAndStoreCredential(tokenRes, appName);
+				HttpRequestInitializer initializer = credential;
+				Calendar.Builder builder = new Calendar.Builder(httpTransport, jsonFactory,initializer);
+				builder.setApplicationName(appName);
+				client = builder.build();
+				return true;
+			}catch(Exception e){
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	public boolean generateNewToken(String code) throws IOException{
+		TokenResponse tokenRes = new TokenResponse();
+		try{
 			if(validFile()){
 				tokenRes.setAccessToken(readFile());
-			}else{
-				AuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code).setRedirectUri(redirectUrl);
-				tokenRes = tokenRequest.execute();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.err.println("Token request failed");
-		}
-		if (tokenRes != null) {
+		}catch(Exception e){
+			AuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code).setRedirectUri(redirectUrl);
+			tokenRes = tokenRequest.execute();
 			writeFile(tokenRes.getAccessToken());
 			Credential credential = flow.createAndStoreCredential(tokenRes, appName);
 			HttpRequestInitializer initializer = credential;
 			Calendar.Builder builder = new Calendar.Builder(httpTransport, jsonFactory,initializer);
+			builder.setApplicationName(appName);
 			client = builder.build();
+			return true;
+		}
+		return false;
+	}
+	
+	public String syncGCal() throws IOException{
+		TokenResponse tokenRes = new TokenResponse();
+		//try {
+		//	if(validFile()){
+		//		tokenRes.setAccessToken(readFile());
+		//	}else{
+				//AuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code).setRedirectUri(redirectUrl);
+				//tokenRes = tokenRequest.execute();
+	//		}
+	//	} catch (IOException e) {
+	//		e.printStackTrace();
+	//		System.err.println("Token request failed");
+	//	}
+		if (tokenRes != null) {
+			com.google.api.services.calendar.model.Calendar calendar = client.calendars().get("primary").execute();
+			System.out.println(calendar.getSummary());
+			//for(JSONObject i:LogicController.tasksBuffer){
+			//	createEvent(Converter.jsonToTask(i));
+			//}
 			return Consts.STRING_SYNC_COMPLETE;
 		} else {
 			return Consts.STRING_SYNC_NOT_COMPLETE;
 		}
 	}
 
-	public void createEvent(Task tsk){
+	public String createEvent(Task tsk) throws IOException{
 		Event event= new Event();
 		event.setSummary(tsk.getName());
 		event.setDescription(tsk.getDescription());
+		event.setStart(new EventDateTime().setDateTime(new DateTime(tsk.getStartDate())));
+		event.setEnd(new EventDateTime().setDateTime(new DateTime(tsk.getEndDate())));
+		client.events().insert("primary", event).execute();
+		return event.getId();
 	}
 
 	public static boolean writeFile(String token) {
