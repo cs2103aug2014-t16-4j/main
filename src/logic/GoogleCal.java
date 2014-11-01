@@ -8,11 +8,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.json.simple.JSONObject;
-
 import model.Task;
+
+import org.json.simple.JSONObject;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest;
 import com.google.api.client.auth.oauth2.Credential;
@@ -24,7 +25,6 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.Calendar.CalendarList;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
@@ -119,15 +119,13 @@ public class GoogleCal {
 		}
 	}
 
-	public String syncGCal() throws IOException {
+	public String syncGCal(ArrayList<JSONObject> timeTasks) throws IOException {
 			com.google.api.services.calendar.model.Calendar calendar = client
 					.calendars().get("primary").execute();
 			//System.out.println(calendar.getId());
-			/*
-			for(JSONObject i:LogicController.tasksBuffer){
+			for(JSONObject i:timeTasks){
 				createEvent(Converter.jsonToTask(i),calendar.getId());
 			}
-			*/
 			return Consts.STRING_SYNC_COMPLETE;
 	}
 

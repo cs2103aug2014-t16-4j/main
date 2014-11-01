@@ -19,6 +19,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.google.gson.JsonObject;
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;
 
@@ -250,7 +251,7 @@ public class LogicController {
 	}
 	
 	public String syncWithGoogle() throws IOException{
-		return gCal.syncGCal();
+		return gCal.syncGCal(getTimedTasksBuffer());
 	}
 
 	public boolean undo(){
