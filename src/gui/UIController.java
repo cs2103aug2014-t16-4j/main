@@ -314,8 +314,12 @@ public class UIController {
 			try {
 				updateStatusIndicator(logic.syncWithGoogle());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if(GoogleCal.isOnline()){
+					browser.setUrl(logic.getUrl());
+					authShell.setVisible(true);
+				}else{
+					updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
+				}
 			}
 		}else{
 			if(GoogleCal.isOnline()){
