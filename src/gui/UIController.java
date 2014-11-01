@@ -516,7 +516,8 @@ public class UIController {
 				updateTaskList();
 				break;
 			case SEARCH:
-				search(task);
+				searchTimed(task);
+				searchFloating(task);
 				break;
 			case UPDATE:
 				statusString = update(task);
@@ -559,7 +560,7 @@ public class UIController {
 		}
 	}
 
-	public void search(String keyword) {
+	public void searchTimed(String keyword) {
 		if(keyword != null && !keyword.isEmpty()) {
 			try {
 				timedList = logic.search(keyword, Consts.STATUS_TIMED_TASK);
@@ -567,6 +568,22 @@ public class UIController {
 					updateStatusIndicator(Consts.STRING_NOT_FOUND);
 				} else {
 					updateStatusIndicator(String.format(Consts.STRING_FOUND,timedList.size()));
+				}
+			} catch (IOException e) {
+			}
+		} else {
+			updateStatusIndicator(Consts.STRING_NOT_FOUND);
+		}
+	}
+	
+	public void searchFloating(String keyword) {
+		if(keyword != null && !keyword.isEmpty()) {
+			try {
+				floatingList = logic.search(keyword, Consts.STATUS_FLOATING_TASK);
+				if(floatingList.isEmpty()) {
+					updateStatusIndicator(Consts.STRING_NOT_FOUND);
+				} else {
+					updateStatusIndicator(String.format(Consts.STRING_FOUND,floatingList.size()));
 				}
 			} catch (IOException e) {
 			}
