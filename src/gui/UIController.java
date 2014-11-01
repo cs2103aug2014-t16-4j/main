@@ -45,8 +45,9 @@ public class UIController {
 
 	public ArrayList<JSONObject> timedList;
 	public ArrayList<JSONObject> floatingList;
-
 	public static Boolean ISMAC = false;
+
+	private final static String NON_THIN = "[^iIl1\\.,']";
 	private static Boolean BLNMOUSEDOWN=false;
 	private static int XPOS=0;
 	private static int YPOS=0;
@@ -54,7 +55,7 @@ public class UIController {
 	private CommandEnum selectedCommand = CommandEnum.INVALID;
 	private int taskNo = 1;
 
-	private final static String NON_THIN = "[^iIl1\\.,']";
+	final Provider provider = Provider.getCurrentProvider(false);
 
 	Display DISPLAY;
 	Text input;
@@ -69,8 +70,6 @@ public class UIController {
 	ScrolledComposite timedTaskComposite;
 	LogicController logic;
 	Composite timedInnerComposite;
-
-	final Provider provider = Provider.getCurrentProvider(false);
 
 	public UIController(String[] args) {
 		String fileName = args.length>0?args[0]:"mytext.txt"; 
@@ -117,7 +116,7 @@ public class UIController {
 		renderAuthPopup();
 
 		renderTasks();
-		printWelcomeMsg(fileName);
+		updateStatusIndicator(String.format(Consts.STRING_WELCOME, fileName));
 		SHELL.open();
 		enableDrag();
 		disposeDisplay();
@@ -125,23 +124,22 @@ public class UIController {
 
 	private void renderDisplay() {
 		DISPLAY = new Display();
-		if(!ISMAC){
+		if(!ISMAC) {
 			final HotKeyListener listener = new HotKeyListener() {
 				public void onHotKey(final HotKey hotKey) {
-					System.out.println("hotkey");
 
 					new Thread(new Runnable() {
 						public void run() {
 							Display.getDefault().asyncExec(new Runnable() {
 								public void run() {
-									if(!SHELL.isVisible() || DISPLAY.getFocusControl()==null){
+									if(!SHELL.isVisible() || DISPLAY.getFocusControl()==null) {
 										System.out.println("showing window");
 										SHELL.setVisible(true);
 										SHELL.setMinimized(false); 
 										input.setFocus();
 										SHELL.forceActive();
 									}
-									else{
+									else {
 										System.out.println("hiding window");
 										SHELL.setMinimized(true);
 										SHELL.setVisible(false);
@@ -158,32 +156,42 @@ public class UIController {
 		}
 		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
-				if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'z')){
+				//undo 
+				if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'z')) {
 					undo();
 					updateTaskList();
 					renderTasks();
 				}
-				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'q')){
+				//quit 
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'q')) {
 					systemExit();
 				}
-				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 's')){
+				//sync
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 's')) {
 					showAuthPopup();
 				}
-				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'a')){
-					e.doit = false;
+				//prepare input to add
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'a')) {
+					e.doit = false; //disable select all
 					input.setText("add ");
 					input.setSelection(input.getText().length());
 				}
-				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'd')){
+				//prepare input to delete
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'd')) {
 					input.setText("delete ");
 					input.setSelection(input.getText().length());
 				}
-				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'n')){
-					NotifierDialog.notify("Hi There! I'm a notification widget!", "Today we are creating a widget that allows us to show notifications that fade in and out!");
+				//notification
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'n')) {
+					showNotification("Hi There! I'm a notification widget!", "Today we are creating a widget that allows us to show notifications that fade in and out!");
 				}
 			}
 		});
 
+	}
+
+	private void showNotification(String title, String text) {
+		NotifierDialog.notify(title, text);
 	}
 
 	private void renderTimedTaskContainer() {
@@ -198,46 +206,31 @@ public class UIController {
 		statusComposite = new Composite(SHELL, SWT.NONE);
 		statusComposite.setBounds(10, 596, 280, 14);
 
-		int fontSize = 10;
-		if(!ISMAC) {
-			fontSize = 8;
-		}
-
 		statusInd = new Label(statusComposite, SWT.NONE);
-		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande", fontSize, SWT.NORMAL));
+		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande", ISMAC?10:8, SWT.NORMAL));
 		statusInd.setBounds(0, 0, 280, 14);
 		statusInd.setAlignment(SWT.CENTER);
 	}
 
 	private void renderInputBox() {
 		input = new Text(SHELL, SWT.BORDER);
-		input.setFocus();
 		input.setBounds(10, 10, 258, 19);
+
+		//delegate task and reset input
 		input.addKeyListener(new KeyAdapter() {
-			@Override
 			public void keyPressed(KeyEvent e) {
-				if(e.keyCode == SWT.CR){
+				if(e.keyCode == SWT.CR) {
 					delegateTask(input.getText());
 					input.setText("");
 				}
 			}
 		});
-
-		FocusListener listener = new FocusListener() {
-			public void focusGained(FocusEvent event) {
-				input.setFocus();
-			}
-			public void focusLost(FocusEvent event) {
-			}
-		};
-		input.addFocusListener(listener);
 	}
 
 	private void renderHelp() {
-		Label label = new Label(SHELL, SWT.NONE);
-		Image small = new Image(SHELL.getDisplay(),"resource/icon_info.gif");
-		label.setImage(small);
-		label.setBounds(274, 13, 16, 14);
+		Label helpButton = new Label(SHELL, SWT.NONE);
+		helpButton.setImage(new Image(SHELL.getDisplay(),"resource/icon_info.gif"));
+		helpButton.setBounds(274, 13, 16, 14);
 
 		final Shell helpWindow = new Shell(SHELL, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
 		helpWindow.setText("Help");
@@ -256,20 +249,21 @@ public class UIController {
 			}
 		});
 
-		label.addMouseListener(new MouseListener()
+		helpButton.addMouseListener(new MouseListener()
 		{
-			public void mouseDown(MouseEvent e){
+			public void mouseDown(MouseEvent e) {
 				helpWindow.setVisible(true);
 			}
-			public void mouseUp(MouseEvent e){
+			public void mouseUp(MouseEvent e) {
 			}
-			public void mouseDoubleClick(MouseEvent e){
+			public void mouseDoubleClick(MouseEvent e) {
 			}
 
 		});
+		//add ctrl + ? hotkey
 		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
-				if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == '/')){
+				if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == '/')) {
 					helpWindow.setVisible(true);
 				}
 			}
@@ -292,17 +286,22 @@ public class UIController {
 				authShell.setVisible(false);
 			}
 		});
-		browser.addTitleListener(new TitleListener(){
+		browser.addTitleListener(new TitleListener() {
 			@Override
 			public void changed(TitleEvent event) {
 				if (event.title != null && event.title.length() > 0) {
 					authShell.setText(event.title);
-					if(event.title.contains("Success")){
+					if(event.title.contains("Success")) {
 						try {
-							logic.generateNewToken(event.title.substring(13));
-							updateStatusIndicator(logic.syncWithGoogle());
+							if(!logic.sycnWithGoogleExistingToken()) {
+								logic.generateNewToken(event.title.substring(13));
+							}
+							showNotification("Syncing Success!", logic.syncWithGoogle());
 						} catch (IOException e) {
-							e.printStackTrace();
+							if(GoogleCal.isOnline()) {
+							} else {
+								updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
+							}
 						}
 						authShell.close();
 					}
@@ -312,47 +311,24 @@ public class UIController {
 	}
 
 	private void showAuthPopup() {
-		if(logic.sycnWithGoogleExistingToken()){
-			try {
-				updateStatusIndicator(logic.syncWithGoogle());
-			} catch (IOException e) {
-				if(GoogleCal.isOnline()){
-					browser.setUrl(logic.getUrl());
-					authShell.setVisible(true);
-				}else{
-					updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
-				}
-			}
-		}else{
-			if(GoogleCal.isOnline()){
-				browser.setUrl(logic.getUrl());
-				authShell.setVisible(true);
-			}else{
-				updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
-			}
-		}
+		browser.setUrl(logic.getUrl());
+		authShell.setVisible(true);
 	}
 
 	private void renderFloatingTaskContainer() {
 		floatingTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		floatingTaskComposite.setBounds(10, 446, 280, 144);
-
 		floatingTaskComposite.setExpandHorizontal(true);
 		floatingTaskComposite.setExpandVertical(true);
 
 		floatingTaskTable = new Table(floatingTaskComposite, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
 		floatingTaskTable.setHeaderVisible(false);
 		floatingTaskTable.setLinesVisible(true);
+
 		floatingTaskComposite.setContent(floatingTaskTable);
 		floatingTaskComposite.setMinSize(floatingTaskTable.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		TableColumn names = new TableColumn(floatingTaskTable, SWT.LEFT);
-		if(ISMAC){
-			names.setWidth(261);
-		}
-		else{
-			names.setWidth(271);
-		}
-
+		TableColumn taskNames = new TableColumn(floatingTaskTable, SWT.LEFT);
+		taskNames.setWidth(ISMAC?261:271);
 	}
 
 	static void initialize(final Display display, Browser browser) {
@@ -361,7 +337,7 @@ public class UIController {
 			public void open(WindowEvent event) {
 				if (!event.required) return;	/* only do it if necessary */
 				Shell shell = new Shell(display);
-				shell.setText("New Window");
+				shell.setText("Request for Permission");
 				shell.setLayout(new FillLayout());
 				Browser browser = new Browser(shell, SWT.NONE);
 				initialize(display, browser);
@@ -408,41 +384,41 @@ public class UIController {
 			item.addListener (SWT.Selection, new Listener () {
 				@Override
 				public void handleEvent (Event event) {
-					if(!SHELL.isVisible()){
+					if(!SHELL.isVisible()) {
 						System.out.println("showing window");
 						SHELL.setVisible(true);
 						SHELL.setMinimized(false); 
 						input.setFocus();
 						SHELL.forceActive();
 					}
-					else{
+					else {
 						System.out.println("hiding window");
 						SHELL.setMinimized(true);
 						SHELL.setVisible(false);
 					}
 				}
 			});
-//			item.addListener (SWT.DefaultSelection, new Listener () {
-//				@Override
-//				public void handleEvent (Event event) {
-//					System.out.println("default selection");
-//				}
-//			});
-//			final Menu menu = new Menu (SHELL, SWT.POP_UP);
-//			MenuItem mi = new MenuItem (menu, SWT.PUSH);
-//			mi.setText ("Item");
-//			mi.addListener (SWT.Selection, new Listener () {
-//				@Override
-//				public void handleEvent (Event event) {
-//					System.out.println("selection " + event.widget);
-//				}
-//			});
-//			item.addListener (SWT.MenuDetect, new Listener () {
-//				@Override
-//				public void handleEvent (Event event) {
-//					menu.setVisible (true);
-//				}
-//			});
+			//			item.addListener (SWT.DefaultSelection, new Listener () {
+			//				@Override
+			//				public void handleEvent (Event event) {
+			//					System.out.println("default selection");
+			//				}
+			//			});
+			//			final Menu menu = new Menu (SHELL, SWT.POP_UP);
+			//			MenuItem mi = new MenuItem (menu, SWT.PUSH);
+			//			mi.setText ("Item");
+			//			mi.addListener (SWT.Selection, new Listener () {
+			//				@Override
+			//				public void handleEvent (Event event) {
+			//					System.out.println("selection " + event.widget);
+			//				}
+			//			});
+			//			item.addListener (SWT.MenuDetect, new Listener () {
+			//				@Override
+			//				public void handleEvent (Event event) {
+			//					menu.setVisible (true);
+			//				}
+			//			});
 			item.setImage (image);
 			item.setHighlightImage (image);
 		}
@@ -453,15 +429,14 @@ public class UIController {
 		//SHELL = new Shell (DISPLAY, SWT.ON_TOP | SWT.MODELESS);
 		SHELL.setSize(300, 620);
 		SHELL.setLayout(null);
-
-		FocusListener listener = new FocusListener() {
+		//allow user to input once shell gets focus
+		SHELL.addFocusListener(new FocusListener() {
 			public void focusGained(FocusEvent event) {
-				SHELL.setFocus();
+				input.setFocus();
 			}
 			public void focusLost(FocusEvent event) {
 			}
-		};
-		SHELL.addFocusListener(listener);
+		});
 		positionWindow(SHELL);
 	}
 
@@ -478,35 +453,27 @@ public class UIController {
 	private void enableDrag() {
 		SHELL.addMouseListener(new MouseListener() {
 
-			@Override
 			public void mouseUp(MouseEvent arg0) {
 				BLNMOUSEDOWN=false;
 			}
-
-			@Override
 			public void mouseDown(MouseEvent e) {
 				BLNMOUSEDOWN=true;
 				XPOS=e.x;
 				YPOS=e.y;
 			}
-
-			@Override
 			public void mouseDoubleClick(MouseEvent arg0) {
-
 			}
 		});
 		SHELL.addMouseMoveListener(new MouseMoveListener() {
-
-			@Override
 			public void mouseMove(MouseEvent e) {
-				if(BLNMOUSEDOWN){
-
+				if(BLNMOUSEDOWN) {
 					SHELL.setLocation(SHELL.getLocation().x+(e.x-XPOS),SHELL.getLocation().y+(e.y-YPOS));
 				}
 			}
 		});
 	}
 
+	//sets shell position to middle of screen
 	private void positionWindow(Shell sh) {
 		Monitor primary = DISPLAY.getPrimaryMonitor();
 		Rectangle bounds = primary.getBounds();
@@ -571,7 +538,7 @@ public class UIController {
 				updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
 				break;
 			}
-			if(!statusString.isEmpty()){
+			if(!statusString.isEmpty()) {
 				updateStatusIndicator(statusString);
 			}
 			renderTasks();
@@ -580,50 +547,52 @@ public class UIController {
 		}
 	}
 
-	public String block(String userInput){
-		if(userInput != null && !userInput.isEmpty()){
+	public String block(String userInput) {
+		if(userInput != null && !userInput.isEmpty()) {
 			try{
 				return logic.block(userInput);
-			}catch(NumberFormatException e){
+			} catch(NumberFormatException e) {
 				return Consts.USAGE_BLOCK;
 			}
-		}else{
+		} else {
 			return Consts.USAGE_BLOCK;
 		}
 	}
 
 	public void search(String keyword) {
-		try {
-			timedList = logic.search(keyword);
-			if(timedList.isEmpty()){
-				updateStatusIndicator(Consts.STRING_NOT_FOUND);
-			}else{
-				updateStatusIndicator(String.format(Consts.STRING_FOUND,timedList.size()));
+		if(keyword != null && !keyword.isEmpty()) {
+			try {
+				timedList = logic.search(keyword);
+				if(timedList.isEmpty()) {
+					updateStatusIndicator(Consts.STRING_NOT_FOUND);
+				} else {
+					updateStatusIndicator(String.format(Consts.STRING_FOUND,timedList.size()));
+				}
+			} catch (IOException e) {
 			}
-		} catch (IOException e) {
+		} else {
+			updateStatusIndicator(Consts.STRING_NOT_FOUND);
 		}
 	}
 
-	public String update(String userInput){
-		if(userInput != null && !userInput.isEmpty()){
+	public String update(String userInput) {
+		if(userInput != null && !userInput.isEmpty()) {
 			String[] splittedString = getSplittedString(userInput);
-			if(splittedString.length != Consts.NO_ARGS_UPDATE){
+			if(splittedString.length != Consts.NO_ARGS_UPDATE) {
 				return Consts.USAGE_UPDATE;
 			}
-			int lineNumber;
+			int lineNumber = Integer.parseInt(splittedString[0]);
+			if(lineNumber > taskNo + floatingList.size()){
+				return Consts.USAGE_UPDATE;
+			}
 			try{
-				lineNumber = Integer.parseInt(splittedString[0]);
 				Task newTask = parser.decompose(splittedString[1]);
-				if(lineNumber>=taskNo){
-					return logic.update(floatingList.get(lineNumber-taskNo), newTask);
-				}
-				else{
-					return logic.update(timedList.get(lineNumber-1), newTask);
-				}
-			}catch(NumberFormatException e){
+				//calculate whether task is in timed or floating
+				return logic.update(lineNumber >= taskNo?floatingList.get(lineNumber-taskNo):timedList.get(lineNumber-1), newTask);
+			} catch(NumberFormatException e) {
 				return Consts.USAGE_UPDATE;
 			}
-		}else{
+		} else {
 			return Consts.USAGE_UPDATE;
 		}
 	}
@@ -648,15 +617,13 @@ public class UIController {
 
 	public String delete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
-			int lineNumber;
+			int lineNumber = Integer.parseInt(lineNo);;
+			if(lineNumber > taskNo + floatingList.size()){
+				return Consts.USAGE_DELETE;
+			}
 			try {
-				lineNumber = Integer.parseInt(lineNo);
-				if(lineNumber>=taskNo){
-					return logic.delete(floatingList.get(lineNumber-taskNo));
-				}
-				else{
-					return logic.delete(timedList.get(lineNumber-1));
-				}
+				//calculate whether task is in timed or floating
+				return logic.delete(lineNumber >= taskNo?floatingList.get(lineNumber-taskNo):timedList.get(lineNumber-1));
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_DELETE;
 			}
@@ -666,8 +633,7 @@ public class UIController {
 	}
 
 	public String clear() {
-		boolean isCleared = logic.clear();
-		if (isCleared) {
+		if (logic.clear()) {
 			return String.format(Consts.STRING_CLEAR, logic.getFileName());
 		} else {
 			return Consts.ERROR_UNKNOWN;
@@ -682,7 +648,7 @@ public class UIController {
 
 	private void sortTimedList() {
 		Collections.sort(timedList, new Comparator<JSONObject>() {
-			@Override public int compare(JSONObject t1, JSONObject t2) {
+			public int compare(JSONObject t1, JSONObject t2) {
 				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 				Date date1 = null;
 				Date date2 = null;
@@ -724,15 +690,10 @@ public class UIController {
 
 	private static String checkFileName(String fileName) {
 		String[] parts = fileName.split("\\.(?=[^\\.]+$)");
-		if (parts.length != Consts.FILE_VALID_LENGTH
-				|| !parts[Consts.FILE_TYPE_POSITION].equalsIgnoreCase("txt")) {
+		if (parts.length != Consts.FILE_VALID_LENGTH || !parts[Consts.FILE_TYPE_POSITION].equalsIgnoreCase("txt")) {
 			fileName = fileName + ".txt";
 		}
 		return fileName;
-	}
-
-	private void printWelcomeMsg(String fileName) {
-		updateStatusIndicator(String.format(Consts.STRING_WELCOME, fileName));
 	}
 
 	private CommandEnum getCommandType(String firstWord) {
@@ -748,7 +709,7 @@ public class UIController {
 
 	private void renderTasks() {
 		taskNo = 1;
-		if(timedInnerComposite != null){
+		if(timedInnerComposite != null) {
 			timedInnerComposite.dispose();
 		}
 		floatingTaskTable.removeAll();
@@ -757,13 +718,13 @@ public class UIController {
 	}
 
 	private void updateStatusIndicator(String str) {
-		if(!SHELL.isDisposed()){
+		if(!SHELL.isDisposed()) {
 			statusInd.setText(str);
 			statusComposite.layout();
 		}
 	}
 
-	private void updateTimedTask(){
+	private void updateTimedTask() {
 		int noOfDays = 0;
 		String currentDateString = "";
 		timedInnerComposite = new Composite(timedTaskComposite, SWT.NONE);
@@ -771,7 +732,7 @@ public class UIController {
 		FormToolkit toolkit = null;
 		Form form = null;
 
-		for(;taskNo<timedList.size()+1;taskNo++){
+		for(;taskNo<timedList.size()+1;taskNo++) {
 			JSONObject o = timedList.get(taskNo-1);
 			String start = o.get(Consts.STARTDATE).toString();
 			String startTime = start.substring(11, start.length()-3)+" hr";
@@ -785,7 +746,7 @@ public class UIController {
 			String shortenedTaskName = ellipsize(taskName, 28);
 			String dateString = start.compareTo(end)==0?startTime:(startTime.compareTo("00:00 hr")==0 && endTime.compareTo("23:59 hr")==0?"Full Day Event":startTime+" to "+endTime);
 
-			if(currentDateString.compareTo(startDate)!=0){
+			if(currentDateString.compareTo(startDate)!=0) {
 				noOfDays++;
 				toolkit = new FormToolkit(timedInnerComposite.getDisplay());
 				currentDateString = startDate;
@@ -796,14 +757,15 @@ public class UIController {
 				cl.maxNumColumns = 1;
 				form.getBody().setLayout(cl);
 			}
-			//Section section = null;
+			
 			final Section section = toolkit.createSection(form.getBody(), Section.TREE_NODE | Section.COMPACT | Section.TITLE_BAR);
 
 			section.setText(taskNo+". "+shortenedTaskName);
 
-			if(priority == 1){
+			if(priority == 1) {
 				//section.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
 				//section.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
+				//section.setBackground(new Color(DISPLAY, 255,165,0));
 				section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_RED));
 			}
 
@@ -812,7 +774,7 @@ public class UIController {
 			FormText text;
 
 			//full name
-			if(taskName.compareTo(shortenedTaskName)!=0){
+			if(taskName.compareTo(shortenedTaskName)!=0) {
 				text = toolkit.createFormText(sectionClient, false);
 				text.setText(taskName, false, false);
 			}
@@ -821,37 +783,24 @@ public class UIController {
 			text = toolkit.createFormText(sectionClient, false);
 			text.setText(dateString, false, false);
 			// description
-			if(!desc.isEmpty()){
+			if(!desc.isEmpty()) {
 				text = toolkit.createFormText(sectionClient, false);
 				text.setText(desc, false, false);
 			}
 			//repeats
-			if(frequency > 0 && frequency < 4){
+			if(frequency > 0 && frequency < 4) {
 				String freString = frequency==1?"daily":(frequency==2?"weekly":(frequency==3?"monthly":"-"));
 				text = toolkit.createFormText(sectionClient, false);
 				text.setText("Repeats "+freString, false, false);
 			}
 
 			section.setClient(sectionClient);
-			section.addFocusListener(new FocusListener() {
-				public void focusGained(FocusEvent event) {
-					section.setExpanded(false);
-				}
-				public void focusLost(FocusEvent event) {
-					section.setExpanded(false);
-				}
-			});
 			section.addControlListener(new ControlAdapter() {
 				public void controlMoved(ControlEvent event) {
 					section.setExpanded(false);
 				}
-				public void controlResized(ControlEvent event){
-					if(section.isExpanded()==false){
-						section.setExpanded(false);
-					}
-				}
 			});
-//			section.addExpansionListener(listener);
+			//section.addExpansionListener(listener);
 		}
 		timedTaskComposite.setContent(timedInnerComposite);
 		timedTaskComposite.setMinHeight(timedList.size()*35 + noOfDays*40);
@@ -862,7 +811,6 @@ public class UIController {
 	}
 
 	public static String ellipsize(String text, int max) {
-
 		if (textWidth(text) <= max)
 			return text;
 
@@ -890,21 +838,21 @@ public class UIController {
 	}
 
 	private void updatefloatingTask() {
-		for(int i=0;i<floatingList.size();i++){
+		for(int i=0;i<floatingList.size();i++) {
 			TableItem item = new TableItem(floatingTaskTable, 0);
 			item.setText((i+taskNo)+". "+floatingList.get(i).get(Consts.NAME).toString());
 			item.setForeground(getColorWithPriority(Integer.parseInt(floatingList.get(i).get(Consts.PRIORITY).toString())));
 		}
 	}
 
-	public Color getColorWithPriority(int p){
-		if(p==Consts.TASK_IMPORTANT){
+	public Color getColorWithPriority(int p) {
+		if(p==Consts.TASK_IMPORTANT) {
 			return DISPLAY.getSystemColor(SWT.COLOR_RED);
 		}
-		//		else if(p==Consts.TASK_NORMAL){
+		//		else if(p==Consts.TASK_NORMAL) {
 		//			return new Color(DISPLAY, 255,165,0);
 		//		}
-		else{
+		else {
 			//return new Color(display, 204,204,204);
 			return DISPLAY.getSystemColor(SWT.COLOR_BLACK);
 		}
