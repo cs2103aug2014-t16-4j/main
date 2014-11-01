@@ -229,9 +229,12 @@ public class LogicController {
 		return gCal.syncGCal(code);
 	}
 
-	public void undo(){
+	public boolean undo(){
 		if (!opStack.isEmpty()) {
 			opStack.pop().undo();
+			return true;
+		}else{
+			return false;
 		}
 	}
 

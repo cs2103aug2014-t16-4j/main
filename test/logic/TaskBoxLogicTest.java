@@ -1,5 +1,6 @@
 package logic;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Calendar;
@@ -109,6 +110,29 @@ public class TaskBoxLogicTest {
 		//System.out.println(expectedString);
 		assertEquals(expectedString,returnString);
 	}
+	
+	@Test
+	public void testDeleteAndUndo() {
+		System.out.println("=== Testing delete function ===");
+		logic.clear();
+		Task soonToBeDeletedTask = parser.decompose("Second line");
+		Task first = parser.decompose("First line");
+		Task third = parser.decompose("Third line");
+		Task fourth = parser.decompose("Fourth line");
+		logic.add(first,true);
+		logic.add(soonToBeDeletedTask, true);
+		logic.add(third,true);
+		logic.add(fourth,true);
+		//String expectedString = String.format(Consts.STRING_DELETE, fileName[0],soonToBeDeletedTask.getName());
+		//String returnString = logic.delete(Converter.taskToJSON(soonToBeDeletedTask));
+		logic.delete(Converter.taskToJSON(soonToBeDeletedTask),true);
+		boolean returnBoolean = logic.undo();
+		//System.out.println(returnString);
+		//System.out.println(expectedString);
+		//assertEquals(expectedString,returnString);
+		assertTrue(returnBoolean);
+	}
+
 
 	@Test
 	public void testDeleteLineNotFound(){
@@ -141,17 +165,20 @@ public class TaskBoxLogicTest {
 	public void testAdd() {
 		System.out.println("=== Testing add function ===");
 		logic.clear();
-		Boolean returnBoolean = logic.add(parser.decompose("To eat"),false);
+		Task newTask = parser.decompose("To eat");
+		String returnString= logic.add(newTask,false);
+		String expectedString = String.format(Consts.STRING_ADD, newTask.getName(), newTask.getStartDate(), newTask.getEndDate());
 		//System.out.println(returnString); //debugging
-		assertEquals(true,returnBoolean);
+		assertEquals(expectedString,returnString);
 	}
 	
 	@Test
 	public void testAddWithBlankTask(){
 		System.out.println("=== Testing add function with blank todo ===");
 		logic.clear();
-		Boolean returnBoolean = logic.add(parser.decompose(" "),false);
+		String returnString = logic.add(parser.decompose(" "),false);
+		String expectedString = Consts.ERROR_ADD;
 		//System.out.println(returnBoolean); //debugging
-		assertEquals(false,returnBoolean);
+		assertEquals(expectedString,returnString);
 	}
 }
