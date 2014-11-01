@@ -398,30 +398,13 @@ public class UIController {
 	}
 
 	private void renderTrayIcon() {
-		Image image = new Image (DISPLAY, 16, 16);
-		Image image2 = new Image (DISPLAY, 16, 16);
-		GC gc = new GC(image2);
-		gc.setBackground(DISPLAY.getSystemColor(SWT.COLOR_BLACK));
-		gc.fillRectangle(image2.getBounds());
-		gc.dispose();
-		tray = DISPLAY.getSystemTray ();
+		Image image = new Image(SHELL.getDisplay(),"resource/1box.png");
+		tray = DISPLAY.getSystemTray();
 		if (tray == null) {
 			System.out.println ("The system tray is not available");
 		} else {
 			final TrayItem item = new TrayItem (tray, SWT.NONE);
 			item.setToolTipText("SWT TrayItem");
-			item.addListener (SWT.Show, new Listener () {
-				@Override
-				public void handleEvent (Event event) {
-					System.out.println("show");
-				}
-			});
-			item.addListener (SWT.Hide, new Listener () {
-				@Override
-				public void handleEvent (Event event) {
-					System.out.println("hide");
-				}
-			});
 			item.addListener (SWT.Selection, new Listener () {
 				@Override
 				public void handleEvent (Event event) {
@@ -439,28 +422,28 @@ public class UIController {
 					}
 				}
 			});
-			item.addListener (SWT.DefaultSelection, new Listener () {
-				@Override
-				public void handleEvent (Event event) {
-					System.out.println("default selection");
-				}
-			});
-			final Menu menu = new Menu (SHELL, SWT.POP_UP);
-			MenuItem mi = new MenuItem (menu, SWT.PUSH);
-			mi.setText ("Item");
-			mi.addListener (SWT.Selection, new Listener () {
-				@Override
-				public void handleEvent (Event event) {
-					System.out.println("selection " + event.widget);
-				}
-			});
-			item.addListener (SWT.MenuDetect, new Listener () {
-				@Override
-				public void handleEvent (Event event) {
-					menu.setVisible (true);
-				}
-			});
-			item.setImage (image2);
+//			item.addListener (SWT.DefaultSelection, new Listener () {
+//				@Override
+//				public void handleEvent (Event event) {
+//					System.out.println("default selection");
+//				}
+//			});
+//			final Menu menu = new Menu (SHELL, SWT.POP_UP);
+//			MenuItem mi = new MenuItem (menu, SWT.PUSH);
+//			mi.setText ("Item");
+//			mi.addListener (SWT.Selection, new Listener () {
+//				@Override
+//				public void handleEvent (Event event) {
+//					System.out.println("selection " + event.widget);
+//				}
+//			});
+//			item.addListener (SWT.MenuDetect, new Listener () {
+//				@Override
+//				public void handleEvent (Event event) {
+//					menu.setVisible (true);
+//				}
+//			});
+			item.setImage (image);
 			item.setHighlightImage (image);
 		}
 	}
@@ -814,34 +797,26 @@ public class UIController {
 				form.getBody().setLayout(cl);
 			}
 			//Section section = null;
-			Section section = toolkit.createSection(form.getBody(), Section.TREE_NODE | Section.COMPACT | Section.TITLE_BAR);
-
-			//			if(desc.isEmpty()){
-			//				section = toolkit.createSection(form.getBody(), Section.TREE_NODE | Section.COMPACT);
-			//			}
-			//			else{
-			//				section = toolkit.createSection(form.getBody(), Section.DESCRIPTION | Section.TREE_NODE | Section.COMPACT);
-			//				section.setDescription(desc);
-			//			}
+			final Section section = toolkit.createSection(form.getBody(), Section.TREE_NODE | Section.COMPACT | Section.TITLE_BAR);
 
 			section.setText(taskNo+". "+shortenedTaskName);
-			
+
 			if(priority == 1){
 				//section.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
 				//section.setBackground(SWTResourceManager.getColor(SWT.COLOR_RED));
 				section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_RED));
 			}
-			
+
 			Composite sectionClient = toolkit.createComposite(section);
 			sectionClient.setLayout(new GridLayout());
 			FormText text;
-			
+
 			//full name
 			if(taskName.compareTo(shortenedTaskName)!=0){
 				text = toolkit.createFormText(sectionClient, false);
 				text.setText(taskName, false, false);
 			}
-			
+
 			// time
 			text = toolkit.createFormText(sectionClient, false);
 			text.setText(dateString, false, false);
@@ -858,9 +833,28 @@ public class UIController {
 			}
 
 			section.setClient(sectionClient);
+			section.addFocusListener(new FocusListener() {
+				public void focusGained(FocusEvent event) {
+					section.setExpanded(false);
+				}
+				public void focusLost(FocusEvent event) {
+					section.setExpanded(false);
+				}
+			});
+			section.addControlListener(new ControlAdapter() {
+				public void controlMoved(ControlEvent event) {
+					section.setExpanded(false);
+				}
+				public void controlResized(ControlEvent event){
+					if(section.isExpanded()==false){
+						section.setExpanded(false);
+					}
+				}
+			});
+//			section.addExpansionListener(listener);
 		}
 		timedTaskComposite.setContent(timedInnerComposite);
-		timedTaskComposite.setMinHeight(timedList.size()*32 + noOfDays*35);
+		timedTaskComposite.setMinHeight(timedList.size()*35 + noOfDays*40);
 	}
 
 	private static int textWidth(String str) {
