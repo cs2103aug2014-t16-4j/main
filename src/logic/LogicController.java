@@ -86,7 +86,7 @@ public class LogicController {
 	public ArrayList<JSONObject> getTimedTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
-			if (!jTask.containsValue("BLOCK") && !jTask.get(Consts.STARTDATE).toString().equals(Consts.floatingDateString)) {
+			if (!jTask.containsValue("BLOCK") && !jTask.get(Consts.STARTDATE).toString().equals(Consts.FLOATING_DATE_STRING)) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
@@ -99,7 +99,7 @@ public class LogicController {
 	public ArrayList<JSONObject> getFloatingTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
-			if (!jTask.containsValue("BLOCK") && jTask.get(Consts.STARTDATE).toString().equals(Consts.floatingDateString)) {
+			if (!jTask.containsValue("BLOCK") && jTask.get(Consts.STARTDATE).toString().equals(Consts.FLOATING_DATE_STRING)) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
@@ -285,7 +285,14 @@ public class LogicController {
 		return true;
 	}
 	
-	public ArrayList<JSONObject> search(String keyword) throws IOException {
+	public ArrayList<JSONObject> search(String keyword, boolean isTimed) throws IOException {
+		//tasksBuffer inside is different from outside
+		ArrayList <JSONObject> tasksBuffer;
+		if (isTimed) {
+			tasksBuffer = getTimedTasksBuffer();
+		} else {
+			tasksBuffer = getFloatingTasksBuffer();
+		}
 		List<DateGroup> dateGrp = dateParser.parse(keyword);
 		Date date1 = null;
 		Date date2 = null;

@@ -22,12 +22,8 @@ public class LogicParser {
 	// PRIORITY CONSTANT
 	private static final String PRIORITY_IMPORTANT = "important";
 	private static final String PRIORITY_NORMAL = "normal";
-	private static final String PRIORITY_CUSTOM = "priority";
 	private static final int PRIORITY_IMPORTANT_VALUE = 1;
-	private static final int PRIORITY_NORMAL_VALUE = 2;
 	
-
-	private static final String FREQUENCY_CUSTOM = "frequency";
 	private static final int TIME_EPS = 2;
 	
 	private static final String IGNORE_LIST = "important normal the at in on from to";
@@ -76,14 +72,6 @@ public class LogicParser {
 				//nameSeparator = Math.min(nameSeparator, i - 1);
 				return PRIORITY_IMPORTANT_VALUE;
 			}
-			if (words.get(i).compareTo(PRIORITY_CUSTOM) == 0) {
-				if (i + 1 < words.size())
-				{
-					//check valid integer
-					//nameSeparator = Math.min(nameSeparator, i - 1);
-					return Integer.parseInt(words.get(i + 1));
-				}
-			}
 		}
 		return 0;
 	}
@@ -104,14 +92,6 @@ public class LogicParser {
 				words.remove(i);
 				nameSeparator = Math.min(nameSeparator, i - 1);
 				return Consts.FREQUENCY_MONTHLY_VALUE;
-			}
-			if (words.get(i).compareTo(FREQUENCY_CUSTOM) == 0) {
-				if (i + 1 < words.size())
-				{
-					//check valid integer
-					nameSeparator = Math.min(nameSeparator, i - 1);
-					return Integer.parseInt(words.get(i + 1));
-				}
 			}
 		}
 		return 0;
@@ -151,11 +131,11 @@ public class LogicParser {
 		List<DateGroup> dateGroupFull = dateParser.parse(fullString);
 		if (dateGroupFull.isEmpty()) {
 			if (isDefaultTime(date[0])) {
-				date[0] = Consts.floatingDate;
+				date[0] = Consts.FLOATING_DATE;
 			}
 
 			if (isDefaultTime(date[1])) {
-				date[1] = Consts.floatingDate;
+				date[1] = Consts.FLOATING_DATE;
 			}
 			return date;
 		}
