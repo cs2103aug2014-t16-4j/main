@@ -153,7 +153,7 @@ public class LogicController {
 			opStack.add(logicAdd);
 		}
 		if (logicAdd.executeCommand()) {
-			return String.format(Consts.STRING_ADD, task.getName(), task.getStartDate(), task.getEndDate());
+			return String.format(Consts.STRING_ADD, Consts.FORMAT_PRINT_DATE.format(task.getStartDate()), Consts.FORMAT_PRINT_DATE.format(task.getEndDate()));
 		} else {
 			return Consts.ERROR_ADD;
 		}
@@ -229,7 +229,7 @@ public class LogicController {
 		if(!dateGrp.isEmpty() && dateGrp.get(0).getDates().size() == 2) {
 			Date startDate = dateGrp.get(0).getDates().get(0);
 			Date endDate = dateGrp.get(0).getDates().get(1);			
-			Task task = new Task("Blocked " + startDate + " > " + endDate, "", startDate, endDate, 0, 0, Consts.STATUS_BLOCK_TASK);
+			Task task = new Task("Blocked " + Consts.FORMAT_PRINT_TIME.format(startDate) + " > " +  Consts.FORMAT_PRINT_TIME.format(endDate), "", startDate, endDate, 0, 0, Consts.STATUS_BLOCK_TASK);
 			add(task);
 			return "BLOCK " + startDate.toString() + " -> " + endDate.toString();
 		} else {

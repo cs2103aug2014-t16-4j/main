@@ -19,7 +19,7 @@ public final class Consts {
     public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, undo, exit, sync";
     public static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
     public static final String STRING_ENTER_COMMAND = "Command: ";
-    public static final String STRING_ADD = "added \"%s\" from %s to %s";
+    public static final String STRING_ADD = "added from %s to %s";
     public static final String STRING_CLEAR = "All content deleted from %1$s";
     public static final String STRING_FOUND_LINE = "=== Found line ===";
     public static final String STRING_NOT_FOUND = "No item found.";
@@ -39,7 +39,7 @@ public final class Consts {
 	// DATE FORMAT
     public static final DateFormat FORMAT_DATE = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
 	public static final DateFormat FORMAT_COMPARE_DATE = new SimpleDateFormat("yyyyMMdd");
-	public static final DateFormat FORMAT_PRINT_DATE = new SimpleDateFormat("MM/dd/yyyy");
+	public static final DateFormat FORMAT_PRINT_DATE = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
 	public static final DateFormat FORMAT_PRINT_TIME = new SimpleDateFormat("HH:mm:ss");
 	
     
