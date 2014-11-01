@@ -125,7 +125,7 @@ public class LogicParser {
 					tempString = words.get(j);
 				else
 					tempString = tempString + " " + words.get(j); 
-				if (words.get(i).charAt(0) == '(' && words.get(j).charAt(words.get(j).length() - 1) == ')') {
+				if (words.get(i).length() >= 2 && words.get(i).charAt(0) == '(' && words.get(j).charAt(words.get(j).length() - 1) == ')') {
 					tempString = tempString.replace("(", "");
 					tempString = tempString.replace(")", "");
 					for (int k = i; k <= j; k++) {
