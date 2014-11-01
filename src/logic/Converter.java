@@ -27,9 +27,9 @@ public class Converter {
 			temp.setDescription(obj.get(Consts.DESCRIPTION).toString());
 			temp.setStartDate(Consts.formatter.parse(obj.get(Consts.STARTDATE).toString()));
 			temp.setEndDate(Consts.formatter.parse(obj.get(Consts.ENDDATE).toString()));
-			temp.setFrequency((int) obj.get(Consts.FREQUENCY));
-			temp.setPriority((int) obj.get(Consts.PRIORITY));
-			temp.setStatus((int) obj.get(Consts.STATUS));
+			temp.setFrequency((int) Integer.parseInt(obj.get(Consts.FREQUENCY).toString()));
+			temp.setPriority((int) Integer.parseInt(obj.get(Consts.PRIORITY).toString()));
+			temp.setStatus((int) Integer.parseInt(obj.get(Consts.STATUS).toString()));
 		}catch(Exception e){
 			e.printStackTrace();
 		}
