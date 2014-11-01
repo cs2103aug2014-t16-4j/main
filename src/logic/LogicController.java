@@ -29,8 +29,8 @@ public class LogicController {
 
 	Parser dateParser = new Parser();
 	public static ArrayList <JSONObject> tasksBuffer;
+	public static String fileName;
 	ArrayList <Task> blockBuffer;
-	String fileName;
 	Add logicAdd;
 	Clear logicClear;
 	Delete logicDelete;
@@ -46,6 +46,7 @@ public class LogicController {
 		if (singleton == null)
 		{
 			singleton = new LogicController();
+			
 		}
 		return singleton;
 	}
@@ -56,7 +57,7 @@ public class LogicController {
 	}
 	
 	public void setFileName(String fileName) {
-		this.fileName = fileName;
+		LogicController.fileName = fileName;
 	}
 	
 	public String getFileName() {
@@ -66,7 +67,7 @@ public class LogicController {
 	//Fetch all tasks from file in the beginning.	
 	public void init(String fileName) throws IOException
 	{
-		this.fileName = fileName;
+		LogicController.fileName = fileName;
 		JSONParser jsonParser = new JSONParser();
 		String line;
 		try {
@@ -133,8 +134,9 @@ public class LogicController {
 		logicAdd = new Add();
 		logicAdd.setFileName(fileName);
 		logicAdd.setTask(task);
-		if (addToStack.length == 0 || (addToStack.length > 0 && addToStack[0] == true))
-		opStack.add(logicAdd);
+		if (addToStack.length == 0 || (addToStack.length > 0 && addToStack[0] == true)){
+			opStack.add(logicAdd);
+		}
 		if (logicAdd.executeCommand()) {
 			return String.format(Consts.STRING_ADD, task.getName(), task.getStartDate(), task.getEndDate());
 		} else {
@@ -197,8 +199,9 @@ public class LogicController {
 		logicDelete = new Delete();
 		logicDelete.setFileName(fileName);
 		logicDelete.setTask(task);
-		if (addToStack.length == 0 || (addToStack.length > 0 && addToStack[0] == true))
-		opStack.add(logicDelete);
+		if (addToStack.length == 0 || (addToStack.length > 0 && addToStack[0] == true)){
+			opStack.add(logicDelete);
+		}
 		if(logicDelete.executeCommand()){
 			return String.format(Consts.STRING_DELETE, fileName,task.get(Consts.NAME));
 		}else{
