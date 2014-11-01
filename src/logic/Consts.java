@@ -65,13 +65,14 @@ public final class Consts {
 	public static final int FREQUENCY_DAILY_VALUE = 1;
 	public static final int FREQUENCY_WEEKLY_VALUE = 2;
 	public static final int FREQUENCY_MONTHLY_VALUE = 3;
-	
-	//TIMED TASK
-	public static final boolean TIMED_TASK = true;
-	public static final boolean FLOATING_TASK = false;
-	
+		
     // DATE CONSTANT
-	@SuppressWarnings("deprecation")
-	public static final Date FLOATING_DATE = new Date(1,1,1); 
-    public static final String FLOATING_DATE_STRING = "01/2/1901 00:00:00";
+	//@SuppressWarnings("deprecation")
+	//public static final Date FLOATING_DATE = new Date(1,1,1); 
+    //public static final String FLOATING_DATE_STRING = "01/2/1901 00:00:00";
+	
+	// STATUS CONSTANT (Task type)
+	public static final int STATUS_TIMED_TASK = 1;
+	public static final int STATUS_FLOATING_TASK = 2;
+	public static final int STATUS_BLOCK_TASK = 3;
 }

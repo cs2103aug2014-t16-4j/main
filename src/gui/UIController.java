@@ -562,7 +562,7 @@ public class UIController {
 	public void search(String keyword) {
 		if(keyword != null && !keyword.isEmpty()) {
 			try {
-				timedList = logic.search(keyword, Consts.TIMED_TASK);
+				timedList = logic.search(keyword, Consts.STATUS_TIMED_TASK);
 				if(timedList.isEmpty()) {
 					updateStatusIndicator(Consts.STRING_NOT_FOUND);
 				} else {

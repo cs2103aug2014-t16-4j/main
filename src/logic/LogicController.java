@@ -90,7 +90,7 @@ public class LogicController {
 	public ArrayList<JSONObject> getTimedTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
-			if (!isBlock(jTask) && !jTask.get(Consts.STARTDATE).toString().equals(Consts.FLOATING_DATE_STRING)) {
+			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_TIMED_TASK) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
@@ -103,7 +103,7 @@ public class LogicController {
 	public ArrayList<JSONObject> getFloatingTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
-			if (!isBlock(jTask) && jTask.get(Consts.STARTDATE).toString().equals(Consts.FLOATING_DATE_STRING)) {
+			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_FLOATING_TASK) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
@@ -116,7 +116,7 @@ public class LogicController {
 	public ArrayList<JSONObject> getBlockTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
-			if (isBlock(jTask)) {
+			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_BLOCK_TASK) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
@@ -304,13 +304,13 @@ public class LogicController {
 		return true;
 	}
 	
-	public ArrayList<JSONObject> search(String keyword, boolean isTimed) throws IOException {
+	public ArrayList<JSONObject> search(String keyword, int statusType) throws IOException {
 		//tasksBuffer inside is different from outside
 		ArrayList <JSONObject> tasksBuffer;
 		
-		if (isTimed) {
+		if (statusType == Consts.STATUS_BLOCK_TASK) {
 			tasksBuffer = getTimedTasksBuffer();
-			if (keyword.trim().toLowerCase().contentEquals("block")) {
+			if (keyword.trim().toLowerCase().equals("block")) {
 				return getBlockTasksBuffer();
 			}
 		} else {

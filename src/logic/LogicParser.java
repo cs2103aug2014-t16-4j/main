@@ -28,6 +28,7 @@ public class LogicParser {
 	
 	private static final String IGNORE_LIST = "important normal the at in on from to";
 	int nameSeparator;
+	int taskType;
 	Parser dateParser = new Parser();
 	
 	@SuppressWarnings("deprecation")
@@ -130,13 +131,7 @@ public class LogicParser {
 		}
 		List<DateGroup> dateGroupFull = dateParser.parse(fullString);
 		if (dateGroupFull.isEmpty()) {
-			if (isDefaultTime(date[0])) {
-				date[0] = Consts.FLOATING_DATE;
-			}
-
-			if (isDefaultTime(date[1])) {
-				date[1] = Consts.FLOATING_DATE;
-			}
+			taskType = Consts.STATUS_FLOATING_TASK;
 			return date;
 		}
 		List<Date> fullDate = dateGroupFull.get(0).getDates();
@@ -210,6 +205,7 @@ public class LogicParser {
 	
 	public Task decompose(String task)
 	{		
+		taskType = Consts.STATUS_TIMED_TASK;
 		Task resultTask = new Task();
 		ArrayList<String> words = new ArrayList<String>(Arrays.asList(task.split(" ")));
 		nameSeparator = words.size() - 1;
@@ -231,7 +227,7 @@ public class LogicParser {
 			nameSeparator--;
 		}
 		resultTask.setName(decomposeName(words, nameSeparator));
-		resultTask.setStatus(0);
+		resultTask.setStatus(taskType);
 		return resultTask;
 	}
 
