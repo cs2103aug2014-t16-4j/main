@@ -60,9 +60,9 @@ public class Delete extends Command {
 		try {
 			temp = new Task(obj.get(Consts.NAME).toString());
 			temp.setDescription(obj.get(Consts.DESCRIPTION).toString());
-			temp.setStartDate(Consts.formatter.parse(obj.get(Consts.STARTDATE)
+			temp.setStartDate(Consts.FORMAT_DATE.parse(obj.get(Consts.STARTDATE)
 					.toString()));
-			temp.setEndDate(Consts.formatter.parse(obj.get(Consts.ENDDATE)
+			temp.setEndDate(Consts.FORMAT_DATE.parse(obj.get(Consts.ENDDATE)
 					.toString()));
 			temp.setFrequency((int) obj.get(Consts.FREQUENCY));
 			temp.setPriority((int) obj.get(Consts.PRIORITY));

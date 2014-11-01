@@ -358,6 +358,6 @@ public class LogicController {
 	}
 	
 	public Boolean dateBefore(Date x, Date y){
-		return Consts.cmpFormatter.format(x).compareTo(Consts.cmpFormatter.format(y)) <= 0;
+		return Consts.FORMAT_COMPARE_DATE.format(x).compareTo(Consts.FORMAT_COMPARE_DATE.format(y)) <= 0;
 	}
 }

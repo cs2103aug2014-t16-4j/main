@@ -12,8 +12,8 @@ public class Converter {
 		JSONObject jTask=new JSONObject();
 		jTask.put(Consts.NAME, task.getName());
 		jTask.put(Consts.DESCRIPTION, task.getDescription());
-		jTask.put(Consts.STARTDATE, task.getStartDate()!=null?Consts.formatter.format(task.getStartDate()):"");
-		jTask.put(Consts.ENDDATE, task.getEndDate()!=null?Consts.formatter.format(task.getEndDate()):"");
+		jTask.put(Consts.STARTDATE, task.getStartDate()!=null?Consts.FORMAT_DATE.format(task.getStartDate()):"");
+		jTask.put(Consts.ENDDATE, task.getEndDate()!=null?Consts.FORMAT_DATE.format(task.getEndDate()):"");
 		jTask.put(Consts.PRIORITY, task.getPriority());
 		jTask.put(Consts.FREQUENCY, task.getFrequency());
 		jTask.put(Consts.STATUS, task.getStatus());
@@ -25,8 +25,8 @@ public class Converter {
 		try{
 			temp = new Task(obj.get(Consts.NAME).toString());
 			temp.setDescription(obj.get(Consts.DESCRIPTION).toString());
-			temp.setStartDate(Consts.formatter.parse(obj.get(Consts.STARTDATE).toString()));
-			temp.setEndDate(Consts.formatter.parse(obj.get(Consts.ENDDATE).toString()));
+			temp.setStartDate(Consts.FORMAT_DATE.parse(obj.get(Consts.STARTDATE).toString()));
+			temp.setEndDate(Consts.FORMAT_DATE.parse(obj.get(Consts.ENDDATE).toString()));
 			temp.setFrequency((int) Integer.parseInt(obj.get(Consts.FREQUENCY).toString()));
 			temp.setPriority((int) Integer.parseInt(obj.get(Consts.PRIORITY).toString()));
 			temp.setStatus((int) Integer.parseInt(obj.get(Consts.STATUS).toString()));

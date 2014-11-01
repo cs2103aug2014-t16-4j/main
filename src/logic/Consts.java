@@ -35,8 +35,13 @@ public final class Consts {
 	public static final String STRING_SYNC_COMPLETE = "Synchronization is complete";
 	public static final String STRING_SYNC_NOT_COMPLETE = "Synchronization is not complete";
 	public static final String STRING_USER_NOT_ONLINE = "Please check your internet connection.";
-    public static final DateFormat formatter = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
-	public static final SimpleDateFormat cmpFormatter = new SimpleDateFormat("yyyyMMdd");
+	
+	// DATE FORMAT
+    public static final DateFormat FORMAT_DATE = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
+	public static final DateFormat FORMAT_COMPARE_DATE = new SimpleDateFormat("yyyyMMdd");
+	public static final DateFormat FORMAT_PRINT_DATE = new SimpleDateFormat("MM/dd/yyyy");
+	public static final DateFormat FORMAT_PRINT_TIME = new SimpleDateFormat("HH:mm:ss");
+	
     
     // ERRORS
     public static final String ERROR_ADD = "Task cannot be blank.";
