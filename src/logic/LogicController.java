@@ -42,6 +42,10 @@ public class LogicController {
 	private static LogicController singleton = null;
    /* Static 'instance' method */
 	
+	boolean isBlock(JSONObject jTask) {
+		return jTask.get(Consts.DESCRIPTION).toString().equals("BLOCK") && jTask.get(Consts.NAME).toString().isEmpty();
+	}
+	
 	public static LogicController getInstance( ) {
 		if (singleton == null)
 		{
@@ -86,7 +90,7 @@ public class LogicController {
 	public ArrayList<JSONObject> getTimedTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
-			if (!jTask.containsValue("BLOCK") && !jTask.get(Consts.STARTDATE).toString().equals(Consts.FLOATING_DATE_STRING)) {
+			if (!isBlock(jTask) && !jTask.get(Consts.STARTDATE).toString().equals(Consts.FLOATING_DATE_STRING)) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
@@ -99,7 +103,20 @@ public class LogicController {
 	public ArrayList<JSONObject> getFloatingTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
-			if (!jTask.containsValue("BLOCK") && jTask.get(Consts.STARTDATE).toString().equals(Consts.FLOATING_DATE_STRING)) {
+			if (!isBlock(jTask) && jTask.get(Consts.STARTDATE).toString().equals(Consts.FLOATING_DATE_STRING)) {
+				//System.out.println(jTask);// For Debuging
+				displayTasksBuffer.add(jTask);
+			}
+		}
+		//System.out.println(); For Debuging
+		return displayTasksBuffer;
+	}
+	
+	//TasksBuffer with Block task (Timed)
+	public ArrayList<JSONObject> getBlockTasksBuffer() {
+		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
+		for (JSONObject jTask: tasksBuffer) {
+			if (isBlock(jTask)) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
@@ -118,16 +135,18 @@ public class LogicController {
 		
 	public String add(Task task, boolean...addToStack){
 		
-		if (task.getName().compareTo("") == 0) {
-			return Consts.ERROR_ADD;
-		}
-		
-		for (JSONObject jtask: tasksBuffer) {
-			if (jtask.containsValue("BLOCK")) {
-				Task temp = Converter.jsonToTask(jtask);
-				//intersect
-				if (intersectTime(temp, task)) {
-					return Consts.ERROR_ADD_BLOCK;
+		if (!isBlock(Converter.taskToJSON(task))) { 
+			if (task.getName().compareTo("") == 0) {
+				return Consts.ERROR_ADD;
+			}
+			
+			for (JSONObject jTask: tasksBuffer) {
+				if (isBlock(jTask)) {
+					Task temp = Converter.jsonToTask(jTask);
+					//intersect
+					if (intersectTime(temp, task)) {
+						return Consts.ERROR_ADD_BLOCK;
+					}
 				}
 			}
 		}
@@ -288,8 +307,12 @@ public class LogicController {
 	public ArrayList<JSONObject> search(String keyword, boolean isTimed) throws IOException {
 		//tasksBuffer inside is different from outside
 		ArrayList <JSONObject> tasksBuffer;
+		
 		if (isTimed) {
 			tasksBuffer = getTimedTasksBuffer();
+			if (keyword.trim().toLowerCase().contentEquals("block")) {
+				return getBlockTasksBuffer();
+			}
 		} else {
 			tasksBuffer = getFloatingTasksBuffer();
 		}
