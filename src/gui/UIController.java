@@ -625,7 +625,12 @@ public class UIController {
 			try{
 				lineNumber = Integer.parseInt(splittedString[0]);
 				Task newTask = parser.decompose(splittedString[1]);
-				return logic.update(logic.getFloatingTasksBuffer().get(lineNumber-1),newTask);
+				if(lineNumber>=taskNo){
+					return logic.update(floatingList.get(lineNumber-taskNo), newTask);
+				}
+				else{
+					return logic.update(timedList.get(lineNumber-1), newTask);
+				}
 			}catch(NumberFormatException e){
 				return Consts.USAGE_UPDATE;
 			}
@@ -657,7 +662,12 @@ public class UIController {
 			int lineNumber;
 			try {
 				lineNumber = Integer.parseInt(lineNo);
-				return logic.delete(logic.getFloatingTasksBuffer().get(lineNumber-1));
+				if(lineNumber>=taskNo){
+					return logic.delete(floatingList.get(lineNumber-taskNo));
+				}
+				else{
+					return logic.delete(timedList.get(lineNumber-1));
+				}
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_DELETE;
 			}
@@ -765,6 +775,7 @@ public class UIController {
 	}
 
 	private void updateTimedTask(){
+		int noOfDays = 0;
 		String currentDateString = "";
 		timedInnerComposite = new Composite(timedTaskComposite, SWT.NONE);
 		timedInnerComposite.setLayout(new GridLayout(1, true));
@@ -774,16 +785,17 @@ public class UIController {
 		for(;taskNo<timedList.size()+1;taskNo++){
 			JSONObject o = timedList.get(taskNo-1);
 			String start = o.get(Consts.STARTDATE).toString();
-			String startTime = start.substring(10, start.length()-3)+" hr";
+			String startTime = start.substring(11, start.length()-3)+" hr";
 			String startDate = start.substring(0,10);
 			String end = o.get(Consts.ENDDATE).toString();
 			String endTime = end.substring(11, end.length()-3)+" hr";
 			String desc = o.get(Consts.DESCRIPTION).toString();
 			String taskName = o.get(Consts.NAME).toString();
 			String shortenedTaskName = ellipsize(taskName, 30);
-			String dateString = start.compareTo(end)==0?startTime:startTime+" to "+endTime;
+			String dateString = start.compareTo(end)==0?startTime:(startTime.compareTo("00:00 hr")==0 && endTime.compareTo("23:59 hr")==0?"Full Day Event":startTime+" to "+endTime);
 
 			if(currentDateString.compareTo(startDate)!=0){
+				noOfDays++;
 				toolkit = new FormToolkit(timedInnerComposite.getDisplay());
 				currentDateString = startDate;
 				form = toolkit.createForm(timedInnerComposite);
@@ -803,20 +815,14 @@ public class UIController {
 				section = toolkit.createSection(form.getBody(), Section.DESCRIPTION | Section.TREE_NODE | Section.COMPACT);
 				section.setDescription(desc);
 			}
-
+			
 			section.setText(taskNo+". "+shortenedTaskName);
-
 			FormText text = toolkit.createFormText(section, false);
 			text.setText(dateString, false, false);
-			text.setVisible(false);
 			section.setClient(text);
 		}
-		System.out.println(taskNo);
 		timedTaskComposite.setContent(timedInnerComposite);
-		timedTaskComposite.setMinHeight(timedList.size()*44);
-
-		//		timedTaskComposite.setExpandHorizontal(false);
-		//		timedTaskComposite.setExpandVertical(true);
+		timedTaskComposite.setMinHeight(timedList.size()*32 + noOfDays*35);
 	}
 
 	private final static String NON_THIN = "[^iIl1\\.,']";
