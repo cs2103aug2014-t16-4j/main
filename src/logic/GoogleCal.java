@@ -55,11 +55,7 @@ public class GoogleCal {
 		}
 	}
 
-	public void setUp() {
-
-	}
-
-	public String getURL() {
+	public GoogleCal() {
 		httpTransport = new NetHttpTransport();
 		jsonFactory = new JacksonFactory();
 		String appName = "TaskBox";
@@ -70,31 +66,19 @@ public class GoogleCal {
 		flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport,
 				jsonFactory, clientId, clientSecret,
 				Arrays.asList(CalendarScopes.CALENDAR)).build();
+	}
 
+	public String getURL() {
 		String url = flow.newAuthorizationUrl().setRedirectUri(redirectUrl)
 				.build();
 
 		return url;
-		/*
-		 * System.out.println(
-		 * "Please open the following URL in your browser then type the authorization code:"
-		 * ); System.out.println("  " + url);
-		 * System.out.println("What is the authorization code?"); String code =
-		 * new Scanner(System.in).nextLine();
-		 * 
-		 * AuthorizationCodeTokenRequest tokenRequest =
-		 * flow.newTokenRequest(code) .setRedirectUri(redirectUrl);
-		 * TokenResponse tokenRes = null; try { tokenRes =
-		 * tokenRequest.execute(); } catch (IOException e) {
-		 * System.err.println("Token request failed"); } if (tokenRes != null) {
-		 * writeFile(tokenRes.getAccessToken()); return
-		 * tokenRes.getAccessToken(); } else { return "Couldn't get token"; }
-		 */
 	}
 
 	public boolean withExistingToken() {
 		TokenResponse tokenRes = new TokenResponse();
 		if (validFile()) {
+			System.out.println(readFile());
 			tokenRes.setAccessToken(readFile());
 			try {
 				Credential credential = flow.createAndStoreCredential(tokenRes,
@@ -106,6 +90,7 @@ public class GoogleCal {
 				client = builder.build();
 				return true;
 			} catch (Exception e) {
+				e.printStackTrace();
 				return false;
 			}
 		} else {
@@ -138,9 +123,11 @@ public class GoogleCal {
 			com.google.api.services.calendar.model.Calendar calendar = client
 					.calendars().get("primary").execute();
 			//System.out.println(calendar.getId());
+			/*
 			for(JSONObject i:LogicController.tasksBuffer){
 				createEvent(Converter.jsonToTask(i),calendar.getId());
 			}
+			*/
 			return Consts.STRING_SYNC_COMPLETE;
 	}
 
