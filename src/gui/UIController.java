@@ -28,6 +28,8 @@ import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormText;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
+import org.eclipse.ui.forms.widgets.TableWrapData;
+import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.*;
@@ -772,12 +774,16 @@ public class UIController {
 				form.setText(currentDateString);
 				ColumnLayout cl = new ColumnLayout();
 				cl.maxNumColumns = 1;
-				form.getBody().setLayout(cl);
+				TableWrapLayout twl = new TableWrapLayout();
+				twl.numColumns = 1;
+				form.getBody().setLayout(twl);
 			}
 			
 			final Section section = toolkit.createSection(form.getBody(), Section.TREE_NODE | Section.COMPACT | Section.TITLE_BAR);
 
 			section.setText(taskNo+". "+shortenedTaskName);
+			section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 			if(priority == 1) {
 				//section.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
@@ -787,7 +793,9 @@ public class UIController {
 			}
 
 			Composite sectionClient = toolkit.createComposite(section);
-			sectionClient.setLayout(new GridLayout());
+			TableWrapLayout twl = new TableWrapLayout();
+			twl.numColumns = 1;
+			sectionClient.setLayout(twl);
 			FormText text;
 
 			//full name
