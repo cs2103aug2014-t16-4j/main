@@ -38,7 +38,7 @@ public class LogicParser {
 	
 	public boolean isDefaultTime(Date date) {
 		Date dateNow = new Date();
-		return (getTimeFromDate(dateNow) - getTimeFromDate(date) <= TIME_EPS);
+		return (Math.abs(getTimeFromDate(dateNow) - getTimeFromDate(date)) <= TIME_EPS);
 	}
 	
 	public Date getEndOfDay(Date date) {
