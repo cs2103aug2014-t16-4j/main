@@ -23,6 +23,8 @@ import logic.LogicController;
 import logic.LogicParser;
 import model.Task;
 
+import org.eclipse.ui.forms.events.ExpansionAdapter;
+import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ColumnLayout;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormText;
@@ -577,7 +579,7 @@ public class UIController {
 			updateStatusIndicator(Consts.STRING_NOT_FOUND);
 		}
 	}
-	
+
 	public void searchFloating(String keyword) {
 		if(keyword != null && !keyword.isEmpty()) {
 			try {
@@ -778,7 +780,7 @@ public class UIController {
 				twl.numColumns = 1;
 				form.getBody().setLayout(twl);
 			}
-			
+
 			final Section section = toolkit.createSection(form.getBody(), Section.TREE_NODE | Section.COMPACT | Section.TITLE_BAR);
 
 			section.setText(taskNo+". "+shortenedTaskName);
@@ -792,10 +794,13 @@ public class UIController {
 				section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_RED));
 			}
 
-			Composite sectionClient = toolkit.createComposite(section);
+			final Composite sectionClient = toolkit.createComposite(section);
 			TableWrapLayout twl = new TableWrapLayout();
 			twl.numColumns = 1;
 			sectionClient.setLayout(twl);
+			TableWrapData td = new TableWrapData(); 
+			td.colspan = 1;
+			sectionClient.setLayoutData(td);
 			FormText text;
 
 			//full name
@@ -825,7 +830,12 @@ public class UIController {
 					section.setExpanded(false);
 				}
 			});
-			//section.addExpansionListener(listener);
+			section.addExpansionListener(new ExpansionAdapter() {
+				public void expansionStateChanged(ExpansionEvent e) {
+					section.layout();
+					sectionClient.layout();
+				}
+			});
 		}
 		timedTaskComposite.setContent(timedInnerComposite);
 		timedTaskComposite.setMinHeight(timedList.size()*35 + noOfDays*40);
