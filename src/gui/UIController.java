@@ -78,7 +78,7 @@ public class UIController {
 	Composite timedInnerComposite;
 
 	public UIController(String[] args) {
-		String fileName = args.length>0?args[0]:"mytextfile.txt"; 
+		String fileName = args.length>0?args[0]:"mytext.txt"; 
 		fileName = checkFileName(fileName);
 		try {
 			init(fileName);
@@ -293,7 +293,13 @@ public class UIController {
 		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
 				if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == '/')) {
-					helpWindow.setVisible(true);
+					if(helpWindow.isVisible()){ 
+						helpWindow.setVisible(false); 
+					}
+					else {
+						helpWindow.setVisible(true);
+						helpWindow.setFocus();
+					}
 				}
 			}
 		});
