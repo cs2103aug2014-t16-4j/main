@@ -10,6 +10,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import model.Task;
 
@@ -28,6 +30,7 @@ import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.calendar.model.Events;
 
 public class GoogleCal {
 	GoogleAuthorizationCodeFlow flow;
@@ -36,7 +39,20 @@ public class GoogleCal {
 	HttpTransport httpTransport;
 	JacksonFactory jsonFactory;
 	private static Calendar client;
+	
+	public GoogleCal() {
+		httpTransport = new NetHttpTransport();
+		jsonFactory = new JacksonFactory();
+		String appName = "TaskBox";
+		String clientId = "743259209106-g4qtcmneg0dhi9efos04d46bnnjiiich.apps.googleusercontent.com";
+		String clientSecret = "AyJjPfMtT0gQPki-eArk4xKG";
+		// String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
 
+		flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport,
+				jsonFactory, clientId, clientSecret,
+				Arrays.asList(CalendarScopes.CALENDAR)).build();
+	}
+	
 	public static boolean isOnline() {
 		Socket sock = new Socket();
 		InetSocketAddress addr = new InetSocketAddress("www.google.com", 80);
@@ -53,19 +69,6 @@ public class GoogleCal {
 			} catch (IOException e) {
 			}
 		}
-	}
-
-	public GoogleCal() {
-		httpTransport = new NetHttpTransport();
-		jsonFactory = new JacksonFactory();
-		String appName = "TaskBox";
-		String clientId = "743259209106-g4qtcmneg0dhi9efos04d46bnnjiiich.apps.googleusercontent.com";
-		String clientSecret = "AyJjPfMtT0gQPki-eArk4xKG";
-		// String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
-
-		flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport,
-				jsonFactory, clientId, clientSecret,
-				Arrays.asList(CalendarScopes.CALENDAR)).build();
 	}
 
 	public String getURL() {
@@ -123,8 +126,27 @@ public class GoogleCal {
 			com.google.api.services.calendar.model.Calendar calendar = client
 					.calendars().get("primary").execute();
 			//System.out.println(calendar.getId());
-			for(JSONObject i:timeTasks){
-				createEvent(Converter.jsonToTask(i),calendar.getId());
+			Calendar.Events.List request = client.events().list("primary");
+			List<Event> events = request.execute().getItems();
+			System.out.println(events.toString());
+			/*
+			for(int i=0;i<timeTasks.size();i++){
+				for(Event event:events){
+					if(Converter.jsonToTask(timeTasks.get(i)).getName().equals(event.getSummary())){
+						//System.out.println("Found it!" + event.getId());
+						client.events().delete("primary", event.getId()).execute();
+						System.out.println(event.getId() + " is deleted");
+					}
+				}
+				
+			}
+			*/
+			for(Event event:events){
+				client.events().delete("primary", event.getId()).execute();
+				System.out.println(event.getId() + " is deleted");
+			}
+			for(JSONObject obj:timeTasks){
+				createEvent(Converter.jsonToTask(obj),calendar.getId());
 			}
 			return Consts.STRING_SYNC_COMPLETE;
 	}
@@ -189,5 +211,16 @@ public class GoogleCal {
 		} else {
 			return false;
 		}
+	}
+	
+	public ArrayList<JSONObject> getTimedTasksBuffer() {
+		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
+		for (JSONObject jTask: LogicController.tasksBuffer) {
+			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_TIMED_TASK) {
+				//System.out.println(jTask);// For Debuging
+				displayTasksBuffer.add(jTask);
+			}
+		}
+		return displayTasksBuffer;
 	}
 }

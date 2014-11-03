@@ -38,6 +38,7 @@ public class LogicController {
 	Update logicUpdate;
 	SaveCache saveCache;
 	GoogleCal gCal;
+	GoogleCalService gCalServ;
 	Stack<Command> opStack = new Stack<Command>();
 	String authToken = "";
    
@@ -56,6 +57,8 @@ public class LogicController {
 	public LogicController() {
 		tasksBuffer = new ArrayList<JSONObject>();
 		gCal = new GoogleCal();
+		gCalServ = new GoogleCalService();
+		new Thread(gCalServ).start();
 	}
 	
 	public void setFileName(String fileName) {
