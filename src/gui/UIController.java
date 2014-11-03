@@ -158,7 +158,7 @@ public class UIController {
 			};
 
 			provider.reset();
-			provider.register(KeyStroke.getKeyStroke(VK_H,InputEvent.CTRL_DOWN_MASK), listener);
+			provider.register(KeyStroke.getKeyStroke(VK_H,InputEvent.SHIFT_DOWN_MASK), listener);
 		}
 		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
@@ -175,21 +175,6 @@ public class UIController {
 				//sync
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 's')) {
 					showAuthPopup();
-				}
-				//hide or show
-				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'h')){
-					if(!SHELL.isVisible()){
-						System.out.println("showing window");
-						SHELL.setVisible(true);
-						SHELL.setMinimized(false); 
-						input.setFocus();
-						SHELL.forceActive();
-					}
-					else{
-						System.out.println("hiding window");
-						SHELL.setMinimized(true);
-						SHELL.setVisible(false);
-					}
 				}
 				//prepare input to add
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'a')) {
