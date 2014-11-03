@@ -45,7 +45,7 @@ public final class Consts {
     
     // ERRORS
     public static final String ERROR_ADD = "Task cannot be blank.";
-    public static final String ERROR_ADD_BLOCK = "Added to a block.";
+    public static final String ERROR_ADD_BLOCK = "The time frame is blocked.";
     public static final String ERROR_UNKNOWN = "Unknown error occured!";
 
     // USAGE

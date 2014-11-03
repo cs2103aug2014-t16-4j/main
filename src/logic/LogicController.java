@@ -36,6 +36,7 @@ public class LogicController {
 	Clear logicClear;
 	Delete logicDelete;
 	Update logicUpdate;
+	SaveCache saveCache;
 	GoogleCal gCal;
 	Stack<Command> opStack = new Stack<Command>();
 	String authToken = "";
@@ -252,6 +253,11 @@ public class LogicController {
 	
 	public String syncWithGoogle() throws IOException{
 		return gCal.syncGCal(getTimedTasksBuffer());
+	}
+	
+	public void saveCache(){
+		saveCache = new SaveCache(getTimedTasksBuffer());
+		saveCache.executeCommand();
 	}
 
 	public boolean undo(){

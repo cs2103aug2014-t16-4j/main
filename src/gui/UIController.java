@@ -371,6 +371,7 @@ public class UIController {
 				authShell.setVisible(true);
 			}
 		} else {
+			logic.saveCache();
 			updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
 		}
 	}
