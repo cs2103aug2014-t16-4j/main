@@ -76,7 +76,7 @@ public class UIController {
 	Composite timedInnerComposite;
 
 	public UIController(String[] args) {
-		String fileName = args.length>0?args[0]:"mytext.txt"; 
+		String fileName = args.length>0?args[0]:"mytextfile.txt"; 
 		fileName = checkFileName(fileName);
 		try {
 			init(fileName);
@@ -173,6 +173,21 @@ public class UIController {
 				//sync
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 's')) {
 					showAuthPopup();
+				}
+				//hide or show
+				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'h')){
+					if(!SHELL.isVisible()){
+						System.out.println("showing window");
+						SHELL.setVisible(true);
+						SHELL.setMinimized(false); 
+						input.setFocus();
+						SHELL.forceActive();
+					}
+					else{
+						System.out.println("hiding window");
+						SHELL.setMinimized(true);
+						SHELL.setVisible(false);
+					}
 				}
 				//prepare input to add
 				else if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == 'a')) {
@@ -305,23 +320,6 @@ public class UIController {
 						authShell.close();
 					}
 				}
-//				if (event.title != null && event.title.length() > 0) {
-//					authShell.setText(event.title);
-//					if(event.title.contains("Success")) {
-//						try {
-//							if(!logic.sycnWithGoogleExistingToken()) {
-//								logic.generateNewToken(event.title.substring(13));
-//							}
-//							showNotification("Syncing Success!", logic.syncWithGoogle());
-//						} catch (IOException e) {
-//							if(GoogleCal.isOnline()) {
-//							} else {
-//								updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
-//							}
-//						}
-//						authShell.close();
-//					}
-//				}
 			}
 		});
 	}
@@ -360,7 +358,7 @@ public class UIController {
 		floatingTaskComposite.setContent(floatingTaskTable);
 		floatingTaskComposite.setMinSize(floatingTaskTable.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 		TableColumn taskNames = new TableColumn(floatingTaskTable, SWT.LEFT);
-		taskNames.setWidth(ISMAC?261:271);
+		taskNames.setWidth(ISMAC?276:271);
 	}
 
 	static void initialize(final Display display, Browser browser) {
@@ -692,6 +690,7 @@ public class UIController {
 	public void updateTaskList() {
 		timedList = logic.getTimedTasksBuffer();
 		floatingList = logic.getFloatingTasksBuffer();
+		//need to check through 
 		sortTimedList();
 	}
 
@@ -806,14 +805,14 @@ public class UIController {
 				cl.maxNumColumns = 1;
 				TableWrapLayout twl = new TableWrapLayout();
 				twl.numColumns = 1;
-				form.getBody().setLayout(twl);
+				form.getBody().setLayout(cl);
 			}
 
 			final Section section = toolkit.createSection(form.getBody(), Section.TREE_NODE | Section.COMPACT | Section.TITLE_BAR);
 
 			section.setText(taskNo+". "+shortenedTaskName);
-			section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-			section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			//section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			//section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 			if(priority == 1) {
 				//section.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
