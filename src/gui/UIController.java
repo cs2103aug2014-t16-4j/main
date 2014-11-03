@@ -295,28 +295,56 @@ public class UIController {
 			public void changed(TitleEvent event) {
 				if (event.title != null && event.title.length() > 0) {
 					authShell.setText(event.title);
-					if(event.title.contains("Success")) {
+					if(event.title.contains("Success")){
 						try {
-							if(!logic.sycnWithGoogleExistingToken()) {
-								logic.generateNewToken(event.title.substring(13));
-							}
-							showNotification("Syncing Success!", logic.syncWithGoogle());
+							logic.generateNewToken(event.title.substring(13));
+							updateStatusIndicator(logic.syncWithGoogle());
 						} catch (IOException e) {
-							if(GoogleCal.isOnline()) {
-							} else {
-								updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
-							}
+							e.printStackTrace();
 						}
 						authShell.close();
 					}
 				}
+//				if (event.title != null && event.title.length() > 0) {
+//					authShell.setText(event.title);
+//					if(event.title.contains("Success")) {
+//						try {
+//							if(!logic.sycnWithGoogleExistingToken()) {
+//								logic.generateNewToken(event.title.substring(13));
+//							}
+//							showNotification("Syncing Success!", logic.syncWithGoogle());
+//						} catch (IOException e) {
+//							if(GoogleCal.isOnline()) {
+//							} else {
+//								updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
+//							}
+//						}
+//						authShell.close();
+//					}
+//				}
 			}
 		});
 	}
 
 	private void showAuthPopup() {
-		browser.setUrl(logic.getUrl());
-		authShell.setVisible(true);
+		boolean isOkWithExistingToken = false;
+		if(logic.sycnWithGoogleExistingToken()){
+			try {
+				updateStatusIndicator(logic.syncWithGoogle());
+				isOkWithExistingToken = true;
+			} catch (IOException e) {
+				e.printStackTrace();
+				isOkWithExistingToken = false;
+			}
+		}
+		if(!isOkWithExistingToken){
+			if(GoogleCal.isOnline()){
+				browser.setUrl(logic.getUrl());
+				authShell.setVisible(true);
+			}else{
+				updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
+			}
+		}
 	}
 
 	private void renderFloatingTaskContainer() {
