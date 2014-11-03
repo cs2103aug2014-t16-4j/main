@@ -36,6 +36,8 @@ import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.*;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.*;
 import org.eclipse.swt.layout.FillLayout;
@@ -253,13 +255,29 @@ public class UIController {
 
 		final Shell helpWindow = new Shell(SHELL, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
 		helpWindow.setText("Help");
-		helpWindow.setSize(250, 300);
+		helpWindow.setSize(600, 300);
 		helpWindow.open();
 		helpWindow.setVisible(false);
+		helpWindow.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
-		final Label helpText = new Label(helpWindow, SWT.NONE);
-		helpText.setText("Supported commands:\nadd\ndisplay\ndelete\nupdate\nclear\nsort\nsearch\nblock\nundo\nexit\nsync");
-		helpText.setBounds(20, 15, 200, 250);
+		final StyledText helpText = new StyledText(helpWindow, SWT.NONE);
+		helpText.setText("Supported commands:\n\nadd [task title] ([task description]) [task date && time] [task priority] [repeat frequency]"+
+		"\ndelete [line #]"+
+		"\nupdate [line #]"+
+		"\nclear"+
+		"\nsort"+
+		"\nsearch [task date && time]/[keyword]"+
+		"\nblock [task start and end date && time]"+
+		"\nundo"+
+		"\nsync"+
+		"\nexit");
+		StyleRange styleRange = new StyleRange();
+		styleRange.start = 0;
+		styleRange.length = 19;
+		styleRange.fontStyle = SWT.BOLD;
+		helpText.setStyleRange(styleRange);
+		helpText.setBounds(20, 15, 550, 250);
+		helpText.setEditable(false);
 
 		helpWindow.addListener(SWT.Close, new Listener() {
 			public void handleEvent(Event event) {
