@@ -158,7 +158,7 @@ public class UIController {
 			};
 
 			provider.reset();
-			provider.register(KeyStroke.getKeyStroke(VK_H,InputEvent.SHIFT_DOWN_MASK), listener);
+			provider.register(KeyStroke.getKeyStroke(VK_H,InputEvent.ALT_DOWN_MASK), listener);
 		}
 		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
@@ -240,13 +240,13 @@ public class UIController {
 
 		final Shell helpWindow = new Shell(SHELL, SWT.APPLICATION_MODAL | SWT.DIALOG_TRIM);
 		helpWindow.setText("Help");
-		helpWindow.setSize(600, 300);
+		helpWindow.setSize(600, 410);
 		helpWindow.open();
 		helpWindow.setVisible(false);
 		helpWindow.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 		final StyledText helpText = new StyledText(helpWindow, SWT.NONE);
-		helpText.setText("Supported commands:\n\nadd [task title] ([task description]) [task date && time] [task priority] [repeat frequency]"+
+		helpText.setText("TaskBox Commands:\n\nadd [task title] ([task description]) [task date && time] [task priority] [repeat frequency]"+
 		"\ndelete [line #]"+
 		"\nupdate [line #]"+
 		"\nclear"+
@@ -255,13 +255,20 @@ public class UIController {
 		"\nblock [task start and end date && time]"+
 		"\nundo"+
 		"\nsync"+
-		"\nexit");
-		StyleRange styleRange = new StyleRange();
-		styleRange.start = 0;
-		styleRange.length = 19;
-		styleRange.fontStyle = SWT.BOLD;
-		helpText.setStyleRange(styleRange);
-		helpText.setBounds(20, 15, 550, 250);
+		"\nexit"+
+		"\n\nHotkeys:"+
+		"\n\nShift + h: Hide/Show TaskBox"+
+		"\nCtrl + /: Help"+
+		"\nCtrl + z: undo"+
+		"\nCtrl + y: redo"+
+		"\nCtrl + a: quick add"+
+		"\nCtrl + d: quick delete"+
+		"\nCtrl + s: sync"+
+		"\nCtrl + q: quit"
+		);
+		helpText.setStyleRange(new StyleRange(0, 19, null, null, SWT.BOLD));
+		helpText.setStyleRange(new StyleRange(248, 8, null, null, SWT.BOLD));
+		helpText.setBounds(20, 10, 560, 380);
 		helpText.setEditable(false);
 
 		helpWindow.addListener(SWT.Close, new Listener() {
