@@ -178,6 +178,7 @@ public class LogicController {
 		logicUpdate.setFileName(fileName);
 		logicUpdate.setOldObj(oldTask);
 		logicUpdate.setNewTask(newTask);
+		System.out.println(newTask.getStatus());
 		opStack.add(logicUpdate);
 		if(logicUpdate.executeCommand()){
 			return String.format(Consts.STRING_UPDATE,oldTask.get(Consts.NAME));

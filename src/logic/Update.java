@@ -42,6 +42,7 @@ public class Update extends Command{
 			FileWriter fstream = new FileWriter(fileName);
 			BufferedWriter bw = new BufferedWriter(fstream);
 			LogicController.tasksBuffer.remove(oldObj);
+			System.out.println(newTask.getStatus());
 			LogicController.tasksBuffer.add(taskToJSON(newTask));
 			for (JSONObject jTask: LogicController.tasksBuffer) {
 				bw.write(jTask.toString()+"\r\n");
@@ -70,6 +71,7 @@ public class Update extends Command{
 		jTask.put(Consts.ENDDATE, Consts.FORMAT_DATE.format(task.getEndDate()));
 		jTask.put(Consts.PRIORITY, task.getPriority());
 		jTask.put(Consts.FREQUENCY, task.getFrequency());
+		jTask.put(Consts.STATUS,task.getStatus());
 		return jTask;
 	}
 
