@@ -43,7 +43,6 @@ public class GoogleCal {
 	public GoogleCal() {
 		httpTransport = new NetHttpTransport();
 		jsonFactory = new JacksonFactory();
-		String appName = "TaskBox";
 		String clientId = "743259209106-g4qtcmneg0dhi9efos04d46bnnjiiich.apps.googleusercontent.com";
 		String clientSecret = "AyJjPfMtT0gQPki-eArk4xKG";
 		// String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
@@ -81,8 +80,8 @@ public class GoogleCal {
 	public boolean withExistingToken() {
 		TokenResponse tokenRes = new TokenResponse();
 		if (validFile()) {
-			System.out.println(readFile());
-			tokenRes.setAccessToken(readFile());
+			System.out.println(readFile(Consts.GOOGLETOKEN));
+			tokenRes.setAccessToken(readFile(Consts.GOOGLETOKEN));
 			try {
 				Credential credential = flow.createAndStoreCredential(tokenRes,
 						appName);
@@ -122,6 +121,11 @@ public class GoogleCal {
 		}
 	}
 
+	public void syncGCalService(ArrayList<JSONObject> timeTasks) throws IOException{
+		Calendar.Events.List request = client.events().list("primary");
+		List<Event> events = request.execute().getItems();
+	}
+	
 	public String syncGCal(ArrayList<JSONObject> timeTasks) throws IOException {
 			com.google.api.services.calendar.model.Calendar calendar = client
 					.calendars().get("primary").execute();
@@ -165,7 +169,7 @@ public class GoogleCal {
 
 	public static boolean writeFile(String token) {
 		try {
-			FileWriter fstream = new FileWriter("GoogleToken", false);
+			FileWriter fstream = new FileWriter(Consts.GOOGLETOKEN, false);
 			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
 			bufferedWriter.write(token);
 			bufferedWriter.close();
@@ -178,7 +182,7 @@ public class GoogleCal {
 
 	public static void clearFile() {
 		try {
-			FileWriter fstream = new FileWriter("GoogleToken", false);
+			FileWriter fstream = new FileWriter(Consts.GOOGLETOKEN, false);
 			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
 			bufferedWriter.write("");
 			bufferedWriter.close();
@@ -187,11 +191,11 @@ public class GoogleCal {
 		}
 	}
 
-	public static String readFile() {
+	public static String readFile(String fileName) {
 		String token = "";
 		try {
 			BufferedReader in = new BufferedReader(
-					new FileReader("GoogleToken"));
+					new FileReader(fileName));
 			token = in.readLine();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -201,9 +205,9 @@ public class GoogleCal {
 	}
 
 	public static boolean validFile() {
-		File f = new File("GoogleToken");
+		File f = new File(Consts.GOOGLETOKEN);
 		if (f.exists()) {
-			if (readFile().equals("")) {
+			if (readFile(Consts.GOOGLETOKEN).equals("")) {
 				return false;
 			} else {
 				return true;
