@@ -587,6 +587,9 @@ public class UIController {
 			case SYNC:
 				showAuthPopup();
 				break;
+			case SHOW:
+				statusString = show(task);
+				break;
 			case EXIT:
 				systemExit();
 			default:
@@ -656,7 +659,7 @@ public class UIController {
 				return Consts.USAGE_UPDATE;
 			}
 			int lineNumber = Integer.parseInt(splittedString[0]);
-			if (lineNumber > taskNo + floatingList.size()-1) {
+			if (lineNumber > taskNo + floatingList.size()-1 && lineNumber > 0) {
 				return Consts.USAGE_UPDATE;
 			}
 			try {
@@ -696,7 +699,7 @@ public class UIController {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber = Integer.parseInt(lineNo);
 			;
-			if (lineNumber > taskNo + floatingList.size()-1) {
+			if (lineNumber > taskNo + floatingList.size()-1 && lineNumber > 0) {
 				return Consts.USAGE_DELETE;
 			}
 			try {
@@ -804,6 +807,29 @@ public class UIController {
 			statusComposite.layout();
 		}
 	}
+	
+	private String show(String lineNo){
+		if (lineNo != null && !lineNo.isEmpty()) {
+			int lineNumber = Integer.parseInt(lineNo);
+			;
+			if (lineNumber > taskNo) {
+				return Consts.USAGE_SHOW;
+			}
+			try {
+				taskNo = 1;
+				for (Control control : timedTaskComposite.getChildren()) {
+			        control.dispose();
+			    }
+				timedTaskComposite.redraw();
+//				updateTimedTask();
+				return "";
+			} catch (NumberFormatException e) {
+				return Consts.USAGE_SHOW;
+			}
+		} else {
+			return Consts.USAGE_SHOW;
+		}
+	}
 
 	private void updateTimedTask() {
 		int noOfDays = 0;
@@ -844,10 +870,9 @@ public class UIController {
 				twl.numColumns = 1;
 				form.getBody().setLayout(cl);
 			}
-
 			final Section section = toolkit.createSection(form.getBody(),
-					Section.TREE_NODE | Section.COMPACT | Section.TITLE_BAR);
-
+					Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE);
+			
 			section.setText(taskNo + ". " + shortenedTaskName);
 			// section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 			// section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));

@@ -16,7 +16,7 @@ public final class Consts {
 
     // FEEDBACK STRINGS
     public static final String STRING_WELCOME = "Welcome to TaskBox. %1$s is ready for use.\n";
-    public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, undo, exit, sync";
+    public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, undo, exit, sync, show";
     public static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
     public static final String STRING_ENTER_COMMAND = "Command: ";
     public static final String STRING_ADD = "added from %s to %s";
@@ -50,8 +50,9 @@ public final class Consts {
 
     // USAGE
     public static final String USAGE_ADD = "Usage: add <todo>";
-    public static final String USAGE_DELETE = "Usage: delete <lineno>";
-    public static final String USAGE_UPDATE = "Usage: update <lineno> <updated string>";
+    public static final String USAGE_SHOW = "Usage: show <task #>";
+    public static final String USAGE_DELETE = "Usage: delete <task #>";
+    public static final String USAGE_UPDATE = "Usage: update <task #> <updated string>";
     public static final String USAGE_BLOCK = "Usage: block <start date/time> <end date/time>";
 
     // NUMBER CONSTANT
@@ -82,6 +83,7 @@ public final class Consts {
 	public static final int STATUS_FLOATING_TASK = 2;
 	public static final int STATUS_BLOCK_TASK = 3;
 	
+	// HELP TEXT
 	public static final String HELP_TEXT = "TaskBox Commands:\n\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
 			+ "\ndelete [line #]"
 			+ "\nupdate [line #]"
