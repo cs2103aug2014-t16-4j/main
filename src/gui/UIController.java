@@ -261,24 +261,7 @@ public class UIController {
 		helpWindow.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 		final StyledText helpText = new StyledText(helpWindow, SWT.NONE);
-		helpText.setText("TaskBox Commands:\n\nadd [task title] ([task description]) [task date && time] [task priority] [repeat frequency]"
-				+ "\ndelete [line #]"
-				+ "\nupdate [line #]"
-				+ "\nclear"
-				+ "\nsort"
-				+ "\nsearch [task date && time]/[keyword]"
-				+ "\nblock [task start and end date && time]"
-				+ "\nundo"
-				+ "\nsync"
-				+ "\nexit"
-				+ "\n\nHotkeys:"
-				+ "\n\nShift + h: Hide/Show TaskBox"
-				+ "\nCtrl + /: Help"
-				+ "\nCtrl + z: undo"
-				+ "\nCtrl + y: redo"
-				+ "\nCtrl + a: quick add"
-				+ "\nCtrl + d: quick delete"
-				+ "\nCtrl + s: sync" + "\nCtrl + q: quit");
+		helpText.setText(Consts.HELP_TEXT);
 		helpText.setStyleRange(new StyleRange(0, 19, null, null, SWT.BOLD));
 		helpText.setStyleRange(new StyleRange(248, 8, null, null, SWT.BOLD));
 		helpText.setBounds(20, 10, 560, 380);
@@ -369,6 +352,7 @@ public class UIController {
 			if (!isOkWithExistingToken) {
 				browser.setUrl(logic.getUrl());
 				authShell.setVisible(true);
+				authShell.setFocus();
 			}
 		} else {
 			//logic.saveCache();
