@@ -90,8 +90,11 @@ public class LogicController {
 	//TasksBuffer without Block task (Timed)
 	public ArrayList<JSONObject> getTimedTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
+		Date curDate = new Date();
 		for (JSONObject jTask: tasksBuffer) {
-			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_TIMED_TASK) {
+			
+			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_TIMED_TASK && 
+					Consts.FORMAT_COMPARE_DATE.format(Converter.jsonToTask(jTask).getStartDate()).compareTo(Consts.FORMAT_COMPARE_DATE.format(curDate)) >= 0) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
