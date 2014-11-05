@@ -656,7 +656,7 @@ public class UIController {
 				return Consts.USAGE_UPDATE;
 			}
 			int lineNumber = Integer.parseInt(splittedString[0]);
-			if (lineNumber > taskNo + floatingList.size()) {
+			if (lineNumber > taskNo + floatingList.size()-1) {
 				return Consts.USAGE_UPDATE;
 			}
 			try {
@@ -696,7 +696,7 @@ public class UIController {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber = Integer.parseInt(lineNo);
 			;
-			if (lineNumber > taskNo + floatingList.size()) {
+			if (lineNumber > taskNo + floatingList.size()-1) {
 				return Consts.USAGE_DELETE;
 			}
 			try {

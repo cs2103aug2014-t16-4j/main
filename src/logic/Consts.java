@@ -2,7 +2,6 @@ package logic;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public final class Consts {
 	//Json key strings
@@ -83,13 +82,13 @@ public final class Consts {
 	public static final int STATUS_FLOATING_TASK = 2;
 	public static final int STATUS_BLOCK_TASK = 3;
 	
-	public static final String HELP_TEXT = "TaskBox Commands:\n\nadd [task title] ([task description]) [task date && time] [task priority] [repeat frequency]"
+	public static final String HELP_TEXT = "TaskBox Commands:\n\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
 			+ "\ndelete [line #]"
 			+ "\nupdate [line #]"
 			+ "\nclear"
 			+ "\nsort"
-			+ "\nsearch [task date && time]/[keyword]"
-			+ "\nblock [task start and end date && time]"
+			+ "\nsearch [task date & time]/[keyword]"
+			+ "\nblock [task start and end date & time]"
 			+ "\nundo"
 			+ "\nsync"
 			+ "\nexit"
