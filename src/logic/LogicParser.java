@@ -21,7 +21,6 @@ public class LogicParser {
 
 	// PRIORITY CONSTANT
 	private static final String PRIORITY_IMPORTANT = "important";
-	private static final String PRIORITY_NORMAL = "normal";
 	private static final int PRIORITY_IMPORTANT_VALUE = 1;
 	
 	private static final int TIME_EPS = 2;
@@ -68,11 +67,6 @@ public class LogicParser {
 				//nameSeparator = Math.min(nameSeparator, i - 1);
 				return PRIORITY_IMPORTANT_VALUE;
 			}
-			if (words.get(i).compareTo(PRIORITY_NORMAL) == 0) {
-				//words.remove(i);
-				//nameSeparator = Math.min(nameSeparator, i - 1);
-				return PRIORITY_IMPORTANT_VALUE;
-			}
 		}
 		return 0;
 	}
@@ -109,6 +103,28 @@ public class LogicParser {
 				if (words.get(i).length() >= 2 && words.get(i).charAt(0) == '(' && words.get(j).charAt(words.get(j).length() - 1) == ')') {
 					tempString = tempString.replace("(", "");
 					tempString = tempString.replace(")", "");
+					for (int k = i; k <= j; k++) {
+						words.remove(i);						
+					}
+					nameSeparator = Math.min(nameSeparator, i - 1);
+					return tempString.trim();
+				}
+			}
+		}
+		return "";
+	}
+	
+	public String decomposeOptionalName(ArrayList<String> words) {
+		for (int i = 0; i < words.size(); i++) {
+			String tempString = "";
+			for (int j = i; j < words.size(); j++) {
+				if (i == j)
+					tempString = words.get(j);
+				else
+					tempString = tempString + " " + words.get(j); 
+				if (words.get(i).length() >= 2 && words.get(i).charAt(0) == '"' && words.get(j).charAt(words.get(j).length() - 1) == '"') {
+					tempString = tempString.replace("\"", "");
+					tempString = tempString.replace("\"", "");
 					for (int k = i; k <= j; k++) {
 						words.remove(i);						
 					}
@@ -209,6 +225,7 @@ public class LogicParser {
 		Task resultTask = new Task();
 		ArrayList<String> words = new ArrayList<String>(Arrays.asList(task.split(" ")));
 		nameSeparator = words.size() - 1;
+		String sName = decomposeOptionalName(words);
 		resultTask.setDescription(decomposeDescription(words));
 		resultTask.setPriority(decomposePriority(words));
 		resultTask.setFrequency(decomposeFrequency(words));
@@ -221,12 +238,16 @@ public class LogicParser {
 		}
 		resultTask.setStartDate(date[0]);
 		resultTask.setEndDate(date[1]);
-		nameSeparator = Math.min(nameSeparator, words.size() - 1);
-		while (nameSeparator > 0 && IGNORE_LIST.contains(words.get(nameSeparator)))
-		{
-			nameSeparator--;
+		if (sName.isEmpty()) {
+			nameSeparator = Math.min(nameSeparator, words.size() - 1);
+			while (nameSeparator > 0 && IGNORE_LIST.contains(words.get(nameSeparator)))
+			{
+				nameSeparator--;
+			}
+			resultTask.setName(decomposeName(words, nameSeparator));
+		} else {
+			resultTask.setName(sName);
 		}
-		resultTask.setName(decomposeName(words, nameSeparator));
 		resultTask.setStatus(taskType);
 		return resultTask;
 	}
