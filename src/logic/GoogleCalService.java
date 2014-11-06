@@ -1,6 +1,8 @@
 package logic;
 
 import java.io.IOException;
+import java.text.ParseException;
+
 
 public class GoogleCalService implements Runnable{
 
@@ -13,8 +15,10 @@ public class GoogleCalService implements Runnable{
 			if (GoogleCal.isOnline()) {
 				if (gCal.withExistingToken()) {
 					try {
-						gCal.syncGCal(gCal.getTimedTasksBuffer());
-					} catch (IOException e) {
+						gCal.syncGCalService(gCal.getTimedTasksBuffer());
+					} catch (IOException | ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
 			}
