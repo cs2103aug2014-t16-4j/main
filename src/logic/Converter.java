@@ -17,14 +17,8 @@ public class Converter {
 		JSONObject jTask = new JSONObject();
 		jTask.put(Consts.NAME, task.getName());
 		jTask.put(Consts.DESCRIPTION, task.getDescription());
-		jTask.put(
-				Consts.STARTDATE,
-				task.getStartDate() != null ? Consts.FORMAT_DATE.format(task
-						.getStartDate()) : "");
-		jTask.put(
-				Consts.ENDDATE,
-				task.getEndDate() != null ? Consts.FORMAT_DATE.format(task
-						.getEndDate()) : "");
+		jTask.put(Consts.STARTDATE,task.getStartDate() != null ? Consts.FORMAT_DATE.format(task.getStartDate()) : "");
+		jTask.put(Consts.ENDDATE,task.getEndDate() != null ? Consts.FORMAT_DATE.format(task.getEndDate()) : "");
 		jTask.put(Consts.PRIORITY, task.getPriority());
 		jTask.put(Consts.FREQUENCY, task.getFrequency());
 		jTask.put(Consts.STATUS, task.getStatus());
@@ -56,11 +50,9 @@ public class Converter {
 	public static JSONObject eventToJSON(Event event) throws ParseException {
 		JSONObject temp = new JSONObject();
 		temp.put(Consts.NAME, event.getSummary());
-		temp.put(Consts.DESCRIPTION, event.getDescription());
-		temp.put(Consts.STARTDATE, convertDate(event.getStart().getDateTime()
-				.toString()));
-		temp.put(Consts.ENDDATE, convertDate(event.getEnd().getDateTime()
-				.toString()));
+		temp.put(Consts.DESCRIPTION, event.getDescription()!=null?event.getDescription():"");
+		temp.put(Consts.STARTDATE, convertDate(event.getStart().getDateTime().toString()));
+		temp.put(Consts.ENDDATE, convertDate(event.getEnd().getDateTime().toString()));
 		temp.put(Consts.PRIORITY, event.getSequence());
 		if(event.getRecurrence() == null){
 			temp.put(Consts.FREQUENCY,0);
