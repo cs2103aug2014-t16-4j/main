@@ -23,8 +23,6 @@ import logic.LogicController;
 import logic.LogicParser;
 import model.Task;
 
-import org.eclipse.ui.forms.events.ExpansionAdapter;
-import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ColumnLayout;
 import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormText;
@@ -212,12 +210,20 @@ public class UIController {
 
 	private void renderTimedTaskContainer() {
 		timedTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER
-				| SWT.H_SCROLL | SWT.V_SCROLL);
+				| SWT.V_SCROLL);
 		timedTaskComposite.setBackground(SWTResourceManager
 				.getColor(SWT.COLOR_WHITE));
 		timedTaskComposite.setBounds(10, 35, 280, 405);
 		timedTaskComposite.setExpandHorizontal(true);
 		timedTaskComposite.setExpandVertical(true);
+
+		timedTaskComposite.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				if (e.keyCode == SWT.ARROW_DOWN) {
+					timedTaskComposite.setOrigin(0, 10);
+				}
+			}
+		});
 	}
 
 	private void renderStatusIndicator() {
@@ -355,7 +361,7 @@ public class UIController {
 				authShell.setFocus();
 			}
 		} else {
-			//logic.saveCache();
+			// logic.saveCache();
 			updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
 		}
 	}
@@ -435,6 +441,7 @@ public class UIController {
 			item.addListener(SWT.Selection, new Listener() {
 				@Override
 				public void handleEvent(Event event) {
+					SHELL.forceFocus();
 					if (!SHELL.isVisible()) {
 						System.out.println("showing window");
 						SHELL.setVisible(true);
@@ -659,7 +666,7 @@ public class UIController {
 				return Consts.USAGE_UPDATE;
 			}
 			int lineNumber = Integer.parseInt(splittedString[0]);
-			if (lineNumber > taskNo + floatingList.size()-1 && lineNumber > 0) {
+			if (lineNumber > taskNo + floatingList.size() - 1 && lineNumber > 0) {
 				return Consts.USAGE_UPDATE;
 			}
 			try {
@@ -668,7 +675,7 @@ public class UIController {
 				return logic.update(
 						lineNumber >= taskNo ? floatingList.get(lineNumber
 								- taskNo) : timedList.get(lineNumber - 1),
-						newTask);
+								newTask);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_UPDATE;
 			}
@@ -699,7 +706,7 @@ public class UIController {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber = Integer.parseInt(lineNo);
 			;
-			if (lineNumber > taskNo + floatingList.size()-1 && lineNumber > 0) {
+			if (lineNumber > taskNo + floatingList.size() - 1 && lineNumber > 0) {
 				return Consts.USAGE_DELETE;
 			}
 			try {
@@ -797,7 +804,7 @@ public class UIController {
 			timedInnerComposite.dispose();
 		}
 		floatingTaskTable.removeAll();
-		updateTimedTask();
+		updateTimedTask(-1);
 		updatefloatingTask();
 	}
 
@@ -807,8 +814,8 @@ public class UIController {
 			statusComposite.layout();
 		}
 	}
-	
-	private String show(String lineNo){
+
+	private String show(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber = Integer.parseInt(lineNo);
 			;
@@ -817,11 +824,20 @@ public class UIController {
 			}
 			try {
 				taskNo = 1;
-				for (Control control : timedTaskComposite.getChildren()) {
-			        control.dispose();
-			    }
+
+				timedInnerComposite.dispose();
+				timedTaskComposite.dispose();
+				renderTimedTaskContainer();
+
+				// timedInnerComposite.dispose();
+				// for (Control kid : timedInnerComposite.getChildren()) {
+				// kid.dispose();
+				// }
+				updateTimedTask(lineNumber);
+				timedInnerComposite.layout();
+				timedInnerComposite.redraw();
+				timedTaskComposite.layout();
 				timedTaskComposite.redraw();
-//				updateTimedTask();
 				return "";
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_SHOW;
@@ -831,7 +847,7 @@ public class UIController {
 		}
 	}
 
-	private void updateTimedTask() {
+	private void updateTimedTask(int line) {
 		int noOfDays = 0;
 		String currentDateString = "";
 		timedInnerComposite = new Composite(timedTaskComposite, SWT.NONE);
@@ -854,7 +870,7 @@ public class UIController {
 			String shortenedTaskName = ellipsize(taskName, 28);
 			String dateString = start.compareTo(end) == 0 ? startTime
 					: (startTime.compareTo("00:00 hr") == 0
-							&& endTime.compareTo("23:59 hr") == 0 ? "Full Day Event"
+					&& endTime.compareTo("23:59 hr") == 0 ? "Full Day Event"
 							: startTime + " to " + endTime);
 
 			if (currentDateString.compareTo(startDate) != 0) {
@@ -870,9 +886,20 @@ public class UIController {
 				twl.numColumns = 1;
 				form.getBody().setLayout(cl);
 			}
-			final Section section = toolkit.createSection(form.getBody(),
-					Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE);
-			
+			Section section = toolkit.createSection(form.getBody(),
+					Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE
+					| Section.EXPANDED);
+			// Section section;
+			// if(taskNo == line){
+			// section= toolkit.createSection(form.getBody(),
+			// Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE |
+			// Section.EXPANDED);
+			// }
+			// else{
+			// section= toolkit.createSection(form.getBody(),
+			// Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE);
+			// }
+
 			section.setText(taskNo + ". " + shortenedTaskName);
 			// section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 			// section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
@@ -918,20 +945,20 @@ public class UIController {
 			}
 
 			section.setClient(sectionClient);
-			section.addControlListener(new ControlAdapter() {
-				public void controlMoved(ControlEvent event) {
-					section.setExpanded(false);
-				}
-			});
-			section.addExpansionListener(new ExpansionAdapter() {
-				public void expansionStateChanged(ExpansionEvent e) {
-					section.layout();
-					sectionClient.layout();
-				}
-			});
+			// section.addControlListener(new ControlAdapter() {
+			// public void controlMoved(ControlEvent event) {
+			// section.setExpanded(false);
+			// }
+			// });
+			// section.addExpansionListener(new ExpansionAdapter() {
+			// public void expansionStateChanged(ExpansionEvent e) {
+			// section.layout();
+			// sectionClient.layout();
+			// }
+			// });
 		}
 		timedTaskComposite.setContent(timedInnerComposite);
-		timedTaskComposite.setMinHeight(timedList.size() * 35 + noOfDays * 40);
+		timedTaskComposite.setMinHeight(timedList.size() * 70 + noOfDays * 40);
 	}
 
 	private static int textWidth(String str) {
