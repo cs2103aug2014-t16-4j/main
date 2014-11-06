@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.TreeMap;
 
+import org.joda.time.DateTime;
+import org.joda.time.Days;
 import model.Task;
 
 import org.json.simple.JSONObject;
@@ -307,11 +309,38 @@ public class LogicController {
 	}
 	
 	private boolean checkWeekly(Date dateStart1, Date dateEnd1, Date dateStart2, Date dateEnd2) {
-		return true;
+		DateTime dS1 = new DateTime(dateStart1);
+		DateTime dE1 = new DateTime(dateEnd1);
+		if (dE1.isAfter(dS1.plusDays(6))) {
+			dE1 = dS1.plusDays(6);
+		}
+		DateTime dS2 = new DateTime(dateStart2);
+		DateTime dE2 = new DateTime(dateEnd2);
+		if (dE2.isAfter(dS2.plusDays(6))) {
+			dE2 = dS2.plusDays(6);
+		}
+		for (DateTime curDate1 = dS1; curDate1.isBefore(dE1); curDate1 = curDate1.plusDays(1)) {
+			for (DateTime curDate2 = dS2; curDate2.isBefore(dE2); curDate2 = curDate2.plusDays(1)) {
+				if (Days.daysBetween(curDate1, curDate2).getDays() % 7 == 0) { 
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	private boolean checkMonthly(Date dateStart1, Date dateEnd1, Date dateStart2, Date dateEnd2) {
-		return true;
+		int dayStart1 = (new DateTime(dateStart1)).getDayOfMonth();
+		int dayEnd1 = (new DateTime(dateEnd1)).getDayOfMonth();
+		int dayStart2 = (new DateTime(dateStart2)).getDayOfMonth();
+		int dayEnd2 = (new DateTime(dateEnd2)).getDayOfMonth();
+		if (Math.max(dayStart1, dayStart2) <= Math.min(dayEnd1, dayEnd2)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+		
 	}
 	
 	public ArrayList<JSONObject> search(String keyword, int statusType) throws IOException {
