@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +28,9 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.Calendar.CalendarList;
 import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
@@ -39,7 +42,8 @@ public class GoogleCal {
 	HttpTransport httpTransport;
 	JacksonFactory jsonFactory;
 	private static Calendar client;
-	
+	private String fileName;
+
 	public GoogleCal() {
 		httpTransport = new NetHttpTransport();
 		jsonFactory = new JacksonFactory();
@@ -51,7 +55,7 @@ public class GoogleCal {
 				jsonFactory, clientId, clientSecret,
 				Arrays.asList(CalendarScopes.CALENDAR)).build();
 	}
-	
+
 	public static boolean isOnline() {
 		Socket sock = new Socket();
 		InetSocketAddress addr = new InetSocketAddress("www.google.com", 80);
@@ -71,9 +75,7 @@ public class GoogleCal {
 	}
 
 	public String getURL() {
-		String url = flow.newAuthorizationUrl().setRedirectUri(redirectUrl)
-				.build();
-
+		String url = flow.newAuthorizationUrl().setRedirectUri(redirectUrl).build();
 		return url;
 	}
 
@@ -83,11 +85,9 @@ public class GoogleCal {
 			System.out.println(readFile(Consts.GOOGLETOKEN));
 			tokenRes.setAccessToken(readFile(Consts.GOOGLETOKEN));
 			try {
-				Credential credential = flow.createAndStoreCredential(tokenRes,
-						appName);
+				Credential credential = flow.createAndStoreCredential(tokenRes,appName);
 				HttpRequestInitializer initializer = credential;
-				Calendar.Builder builder = new Calendar.Builder(httpTransport,
-						jsonFactory, initializer);
+				Calendar.Builder builder = new Calendar.Builder(httpTransport,jsonFactory, initializer);
 				builder.setApplicationName(appName);
 				client = builder.build();
 				return true;
@@ -103,15 +103,12 @@ public class GoogleCal {
 	public boolean generateNewToken(String code) throws IOException {
 		try {
 			TokenResponse tokenRes = new TokenResponse();
-			AuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code)
-					.setRedirectUri(redirectUrl);
+			AuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code).setRedirectUri(redirectUrl);
 			tokenRes = tokenRequest.execute();
-			writeFile(tokenRes.getAccessToken());
-			Credential credential = flow
-					.createAndStoreCredential(tokenRes, appName);
+			writeFile(Consts.GOOGLETOKEN,tokenRes.getAccessToken(),false);
+			Credential credential = flow.createAndStoreCredential(tokenRes,appName);
 			HttpRequestInitializer initializer = credential;
-			Calendar.Builder builder = new Calendar.Builder(httpTransport,
-					jsonFactory, initializer);
+			Calendar.Builder builder = new Calendar.Builder(httpTransport,jsonFactory,initializer);
 			builder.setApplicationName(appName);
 			client = builder.build();
 			return true;
@@ -121,57 +118,74 @@ public class GoogleCal {
 		}
 	}
 
-	public void syncGCalService(ArrayList<JSONObject> timeTasks) throws IOException{
-		Calendar.Events.List request = client.events().list("primary");
-		List<Event> events = request.execute().getItems();
-	}
-	
-	public String syncGCal(ArrayList<JSONObject> timeTasks) throws IOException {
-			com.google.api.services.calendar.model.Calendar calendar = client
-					.calendars().get("primary").execute();
-			//System.out.println(calendar.getId());
-			Calendar.Events.List request = client.events().list("primary");
-			List<Event> events = request.execute().getItems();
-			System.out.println(events.toString());
-			/*
-			for(int i=0;i<timeTasks.size();i++){
-				for(Event event:events){
-					if(Converter.jsonToTask(timeTasks.get(i)).getName().equals(event.getSummary())){
-						//System.out.println("Found it!" + event.getId());
-						client.events().delete("primary", event.getId()).execute();
-						System.out.println(event.getId() + " is deleted");
+	public void syncGCalService(ArrayList<JSONObject> timeTasks) throws IOException, ParseException {
+		String pageToken = null;
+		String str = "";
+		do {
+		  Events events = client.events().list("primary").setPageToken(pageToken).execute();
+		  List<Event> items = events.getItems();
+		  if(pageToken != null) {
+			for (Event event : items) {
+				boolean found = false;
+				for (int i = 0; i < timeTasks.size(); i++) {
+					if (event.getSummary().equals(Converter.jsonToTask(timeTasks.get(i)).getName())) {
+						found = true;
 					}
 				}
-				
+				if (!found) {
+					System.out.println("Not match found: " + event.getSummary());
+					str += Converter.eventToJSON(event).toString() + "\r\n";
+					System.out.println("writing to file");
+				}
 			}
-			*/
-			for(Event event:events){
-				client.events().delete("primary", event.getId()).execute();
-				System.out.println(event.getId() + " is deleted");
-			}
-			for(JSONObject obj:timeTasks){
-				createEvent(Converter.jsonToTask(obj),calendar.getId());
-			}
-			return Consts.STRING_SYNC_COMPLETE;
+		}
+		pageToken = events.getNextPageToken();
+		} while (pageToken != null);
+		//writeFile(LogicController.fileName, str, true);
+		//System.out.println(str);
 	}
 
-	public String createEvent(Task tsk,String calId) throws IOException {
+	public String syncGCal(ArrayList<JSONObject> timeTasks) throws IOException {
+		//com.google.api.services.calendar.model.Calendar calendar = client.calendars().get("primary").execute();
+		String pageToken = null;
+		do {
+			Events events = client.events().list("primary")
+					.setPageToken(pageToken).execute();
+			List<Event> items = events.getItems();
+			if(pageToken!=null) {
+				for (int i = 0; i < timeTasks.size(); i++) {
+					boolean found = false;
+					for (Event event : items) {
+						if (Converter.jsonToTask(timeTasks.get(i)).getName().equals(event.getSummary())) {
+							found = true;
+						}
+					}
+					if(!found){
+						//createEvent(Converter.jsonToTask(timeTasks.get(i)),"primary");
+						System.out.println("Creating event");
+					}
+				}
+			}
+		pageToken = events.getNextPageToken();
+		} while (pageToken != null);
+		return Consts.STRING_SYNC_COMPLETE;
+	}
+
+	public String createEvent(Task tsk, String calId) throws IOException {
 		Event event = new Event();
 		event.setSummary(tsk.getName());
 		event.setDescription(tsk.getDescription());
-		event.setStart(new EventDateTime().setDateTime(new DateTime(tsk
-				.getStartDate())));
-		event.setEnd(new EventDateTime().setDateTime(new DateTime(tsk
-				.getEndDate())));
+		event.setStart(new EventDateTime().setDateTime(new DateTime(tsk.getStartDate())));
+		event.setEnd(new EventDateTime().setDateTime(new DateTime(tsk.getEndDate())));
 		client.events().insert(calId, event).execute();
 		return event.getId();
 	}
 
-	public static boolean writeFile(String token) {
+	public static boolean writeFile(String fileName,String str,boolean flag) {
 		try {
-			FileWriter fstream = new FileWriter(Consts.GOOGLETOKEN, false);
+			FileWriter fstream = new FileWriter(fileName, flag);
 			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
-			bufferedWriter.write(token);
+			bufferedWriter.write(str);
 			bufferedWriter.close();
 			return true;
 		} catch (Exception e) {
@@ -194,8 +208,7 @@ public class GoogleCal {
 	public static String readFile(String fileName) {
 		String token = "";
 		try {
-			BufferedReader in = new BufferedReader(
-					new FileReader(fileName));
+			BufferedReader in = new BufferedReader(new FileReader(fileName));
 			token = in.readLine();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -216,12 +229,12 @@ public class GoogleCal {
 			return false;
 		}
 	}
-	
+
 	public ArrayList<JSONObject> getTimedTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
-		for (JSONObject jTask: LogicController.tasksBuffer) {
+		for (JSONObject jTask : LogicController.tasksBuffer) {
 			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_TIMED_TASK) {
-				//System.out.println(jTask);// For Debuging
+				// System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
 		}
