@@ -8,9 +8,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import logic.command.Add;
@@ -18,6 +16,7 @@ import logic.command.Clear;
 import logic.command.Command;
 import logic.command.Delete;
 import logic.command.Update;
+import logic.google.CacheMap;
 import logic.google.GoogleCal;
 import logic.google.GoogleCalService;
 import logic.google.SaveCache;
@@ -40,6 +39,7 @@ public class LogicController {
 	Parser dateParser = new Parser();
 	public static ArrayList <JSONObject> tasksBuffer;
 	public static String fileName;
+	public static CacheMap cacheMap;
 	ArrayList <Task> blockBuffer;
 	Add logicAdd;
 	Clear logicClear;
@@ -48,7 +48,6 @@ public class LogicController {
 	SaveCache saveCache;
 	GoogleCal gCal;
 	GoogleCalService gCalServ;
-	Map<String,JSONObject> toSync;
 	Stack<Command> opStack = new Stack<Command>();
 	String authToken = "";
    
@@ -66,7 +65,7 @@ public class LogicController {
 	
 	public LogicController() {
 		tasksBuffer = new ArrayList<JSONObject>();
-		toSync = new HashMap<String,JSONObject>();
+		cacheMap = new CacheMap();
 		gCal = new GoogleCal();
 		gCalServ = new GoogleCalService();
 		new Thread(gCalServ).start();
@@ -84,6 +83,10 @@ public class LogicController {
 	public void init(String fileName) throws IOException
 	{
 		LogicController.fileName = fileName;
+		loadBuffer(fileName);
+	}
+
+	public void loadBuffer(String fileName) throws IOException {
 		JSONParser jsonParser = new JSONParser();
 		String line;
 		try {
@@ -179,7 +182,7 @@ public class LogicController {
 					e.printStackTrace();
 				}
 			}else{
-				toSync.put("ADD",Converter.taskToJSON(task));
+				cacheMap.put("ADD",Converter.taskToJSON(task));
 			}
 			return String.format(Consts.STRING_ADD, Consts.FORMAT_PRINT_DATE.format(task.getStartDate()), Consts.FORMAT_PRINT_DATE.format(task.getEndDate()));
 		} else {
@@ -199,8 +202,6 @@ public class LogicController {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}else{
-			toSync.put("CLEAR",null);
 		}
 		return logicClear.executeCommand();
 	}
@@ -250,7 +251,7 @@ public class LogicController {
 					e.printStackTrace();
 				}
 			}else{
-				toSync.put("DELETE", task);
+				cacheMap.put("DELETE", task);
 			}
 			return String.format(Consts.STRING_DELETE, fileName,task.get(Consts.NAME));
 		}else{
@@ -288,7 +289,7 @@ public class LogicController {
 	}
 	
 	public void saveCache(){
-		saveCache = new SaveCache(toSync);
+		saveCache = new SaveCache();
 		saveCache.executeCommand();
 	}
 	

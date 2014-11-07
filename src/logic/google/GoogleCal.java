@@ -192,7 +192,7 @@ public class GoogleCal {
 			Events events = client.events().list("primary").setPageToken(pageToken).execute();
 			List<Event> items = events.getItems();
 			for(Event event:items){
-				client.events().delete("primary", event.getId());
+				client.events().delete("primary", event.getId()).execute();
 			}
 			pageToken = events.getNextPageToken();
 		}while(pageToken != null);
@@ -205,8 +205,7 @@ public class GoogleCal {
 			List<Event> items = events.getItems();
 			for(Event event:items){
 				if(event.getSummary().equals(name)){
-					System.out.println("Found it");
-					client.events().delete("primary", event.getId());
+					client.events().delete("primary", event.getId()).execute();
 				}
 			}
 			pageToken = events.getNextPageToken();
