@@ -1,7 +1,8 @@
-package logic;
+package logic.google;
 
 import java.io.IOException;
 import java.text.ParseException;
+
 
 
 public class GoogleCalService implements Runnable{

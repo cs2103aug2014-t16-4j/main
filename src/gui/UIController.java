@@ -18,9 +18,9 @@ import javax.swing.KeyStroke;
 import static java.awt.event.KeyEvent.*;
 import logic.CommandEnum;
 import logic.Consts;
-import logic.GoogleCal;
 import logic.LogicController;
 import logic.LogicParser;
+import logic.google.GoogleCal;
 import model.Task;
 
 import org.eclipse.ui.forms.widgets.ColumnLayout;
@@ -592,6 +592,7 @@ public class UIController {
 				updateTaskList();
 				break;
 			case SYNC:
+				updateStatusIndicator(Consts.STRING_SYNC);
 				showAuthPopup();
 				break;
 			case SHOW:
@@ -672,10 +673,7 @@ public class UIController {
 			try {
 				Task newTask = parser.decompose(splittedString[1]);
 				// calculate whether task is in timed or floating
-				return logic.update(
-						lineNumber >= taskNo ? floatingList.get(lineNumber
-								- taskNo) : timedList.get(lineNumber - 1),
-								newTask);
+				return logic.update(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1),newTask);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_UPDATE;
 			}
@@ -711,9 +709,7 @@ public class UIController {
 			}
 			try {
 				// calculate whether task is in timed or floating
-				return logic.delete(lineNumber >= taskNo ? floatingList
-						.get(lineNumber - taskNo) : timedList
-						.get(lineNumber - 1));
+				return logic.delete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1));
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_DELETE;
 			}

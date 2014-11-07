@@ -1,4 +1,4 @@
-package logic;
+package logic.google;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import logic.Consts;
+import logic.Converter;
+import logic.LogicController;
 import model.Task;
 
 import org.json.simple.JSONObject;

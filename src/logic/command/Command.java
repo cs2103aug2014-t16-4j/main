@@ -1,4 +1,4 @@
-package logic;
+package logic.command;
 
 public abstract class Command {
 

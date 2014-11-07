@@ -1,4 +1,4 @@
-package logic;
+package logic.command;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -6,6 +6,8 @@ import java.io.IOException;
 
 import org.json.simple.JSONObject;
 
+import logic.Converter;
+import logic.LogicController;
 import model.Task;
 
 public class Add extends Command {

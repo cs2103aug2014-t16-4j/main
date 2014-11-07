@@ -1,9 +1,11 @@
-package logic;
+package logic.command;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import logic.LogicController;
 
 import org.json.simple.JSONObject;
 

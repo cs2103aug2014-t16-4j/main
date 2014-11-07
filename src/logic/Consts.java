@@ -34,6 +34,7 @@ public final class Consts {
 	public static final String STRING_CRE_NOT_CORRECT = "The credentials are not correct.";
 	public static final String STRING_SYNC_COMPLETE = "Synchronization is complete";
 	public static final String STRING_SYNC_NOT_COMPLETE = "Synchronization is not complete";
+	public static final String STRING_SYNC = "TaskBox is synchronizing";
 	public static final String STRING_USER_NOT_ONLINE = "Please check your internet connection.";
 	
 	// DATE FORMAT
