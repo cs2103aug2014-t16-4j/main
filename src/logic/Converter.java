@@ -2,13 +2,18 @@ package logic;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import model.Task;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import com.google.api.services.calendar.model.Event;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class Converter {
 
@@ -46,6 +51,24 @@ public class Converter {
 		return temp;
 	}
 
+	public static String jsonListToString(List<JSONObject> objList) {
+		String res = "";
+		for (JSONObject obj : objList) {
+			res = res + obj.toString() + '~';
+		}
+		return res;
+	}
+	
+	public static List<JSONObject> stringToJSONList(String strListRaw) throws org.json.simple.parser.ParseException{
+		JSONParser jsonParser = new JSONParser();
+		List<String> strList = Arrays.asList(strListRaw.split("~"));
+		List<JSONObject> res = new ArrayList<JSONObject>(strList.size());
+		for (String objStr : strList) {
+			res.add((JSONObject) jsonParser.parse(objStr));
+		}
+		return res;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public static JSONObject eventToJSON(Event event) throws ParseException {
 		JSONObject temp = new JSONObject();
