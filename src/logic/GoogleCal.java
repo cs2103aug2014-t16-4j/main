@@ -135,13 +135,14 @@ public class GoogleCal {
 				if (!found) {
 					System.out.println("Not match found: " + event.getSummary());
 					str += Converter.eventToJSON(event).toString() + "\r\n";
+					LogicController.tasksBuffer.add(Converter.eventToJSON(event));
 					System.out.println("writing to file");
 				}
 			}
 		}
 		pageToken = events.getNextPageToken();
 		} while (pageToken != null);
-		//writeFile(LogicController.fileName, str, true);
+		writeFile(LogicController.fileName, str, true);
 		//System.out.println(str);
 	}
 
@@ -161,7 +162,7 @@ public class GoogleCal {
 						}
 					}
 					if(!found){
-						//createEvent(Converter.jsonToTask(timeTasks.get(i)),"primary");
+						createEvent(Converter.jsonToTask(timeTasks.get(i)),"primary");
 						System.out.println("Creating event");
 					}
 				}
