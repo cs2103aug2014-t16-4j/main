@@ -8,7 +8,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import logic.command.Add;
@@ -46,6 +48,7 @@ public class LogicController {
 	SaveCache saveCache;
 	GoogleCal gCal;
 	GoogleCalService gCalServ;
+	Map<String,JSONObject> toSync;
 	Stack<Command> opStack = new Stack<Command>();
 	String authToken = "";
    
@@ -63,6 +66,7 @@ public class LogicController {
 	
 	public LogicController() {
 		tasksBuffer = new ArrayList<JSONObject>();
+		toSync = new HashMap<String,JSONObject>();
 		gCal = new GoogleCal();
 		gCalServ = new GoogleCalService();
 		new Thread(gCalServ).start();
@@ -168,6 +172,15 @@ public class LogicController {
 			opStack.add(logicAdd);
 		}
 		if (logicAdd.executeCommand()) {
+			if(GoogleCal.isOnline()){
+				try {
+					gCal.createEvent(task, "primary");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}else{
+				toSync.put("ADD",Converter.taskToJSON(task));
+			}
 			return String.format(Consts.STRING_ADD, Consts.FORMAT_PRINT_DATE.format(task.getStartDate()), Consts.FORMAT_PRINT_DATE.format(task.getEndDate()));
 		} else {
 			return Consts.ERROR_ADD;
@@ -180,6 +193,15 @@ public class LogicController {
 		logicClear.setFileName(fileName);
 		logicClear.setOldTaskBuffer(tasksBuffer);
 		opStack.add(logicClear);
+		if(GoogleCal.isOnline()){
+			try {
+				gCal.deleteAllEntries();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}else{
+			toSync.put("CLEAR",null);
+		}
 		return logicClear.executeCommand();
 	}
 	
@@ -206,19 +228,6 @@ public class LogicController {
 	}
 	
 	public void sort(){
-		/*Map<String, JSONObject> map = new TreeMap<String, JSONObject>();
-		String sortKey = "";
-		for(int i=0;i<tasksBuffer.size();i++){
-			JSONObject obj = tasksBuffer.get(i);
-			sortKey = obj.get(Consts.NAME).toString();
-			map.put(sortKey, obj);
-		}
-		clear();
-		Task tempTask;
-		for(JSONObject taskObj : map.values()){
-			tempTask = Converter.jsonToTask(taskObj);
-			add(tempTask);
-		}*/
 		try {
 			Collections.sort(tasksBuffer, new NameComparator());
 		} catch (Exception e) {
@@ -234,6 +243,15 @@ public class LogicController {
 			opStack.add(logicDelete);
 		}
 		if(logicDelete.executeCommand()){
+			if(GoogleCal.isOnline()) {
+				try {
+					gCal.deleteEvent(Converter.jsonToTask(task).getName());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}else{
+				toSync.put("DELETE", task);
+			}
 			return String.format(Consts.STRING_DELETE, fileName,task.get(Consts.NAME));
 		}else{
 			return Consts.USAGE_DELETE;
@@ -270,8 +288,12 @@ public class LogicController {
 	}
 	
 	public void saveCache(){
-		saveCache = new SaveCache(getTimedTasksBuffer());
+		saveCache = new SaveCache(toSync);
 		saveCache.executeCommand();
+	}
+	
+	public void loadCache(){
+		
 	}
 
 	public boolean undo(){

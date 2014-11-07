@@ -143,7 +143,7 @@ public class GoogleCal {
 				}
 			}
 		}
-		pageToken = events.getNextPageToken();
+		  pageToken = events.getNextPageToken();
 		} while (pageToken != null);
 		writeFile(LogicController.fileName, str, true);
 		//System.out.println(str);
@@ -170,7 +170,7 @@ public class GoogleCal {
 					}
 				}
 			}
-		pageToken = events.getNextPageToken();
+			pageToken = events.getNextPageToken();
 		} while (pageToken != null);
 		return Consts.STRING_SYNC_COMPLETE;
 	}
@@ -181,8 +181,36 @@ public class GoogleCal {
 		event.setDescription(tsk.getDescription());
 		event.setStart(new EventDateTime().setDateTime(new DateTime(tsk.getStartDate())));
 		event.setEnd(new EventDateTime().setDateTime(new DateTime(tsk.getEndDate())));
+		event.setSequence(tsk.getPriority());
 		client.events().insert(calId, event).execute();
 		return event.getId();
+	}
+	
+	public void deleteAllEntries() throws IOException{
+		String pageToken = null;
+		do{
+			Events events = client.events().list("primary").setPageToken(pageToken).execute();
+			List<Event> items = events.getItems();
+			for(Event event:items){
+				client.events().delete("primary", event.getId());
+			}
+			pageToken = events.getNextPageToken();
+		}while(pageToken != null);
+	}
+
+	public void deleteEvent(String name) throws IOException{
+		String pageToken = null;
+		do{
+			Events events = client.events().list("primary").setPageToken(pageToken).execute();
+			List<Event> items = events.getItems();
+			for(Event event:items){
+				if(event.getSummary().equals(name)){
+					System.out.println("Found it");
+					client.events().delete("primary", event.getId());
+				}
+			}
+			pageToken = events.getNextPageToken();
+		}while(pageToken != null);
 	}
 
 	public static boolean writeFile(String fileName,String str,boolean flag) {

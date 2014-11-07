@@ -1013,6 +1013,7 @@ public class UIController {
 	}
 
 	private void systemExit() {
+		logic.saveCache();
 		updateStatusIndicator(Consts.STRING_EXIT);
 		provider.reset();
 		provider.stop();
