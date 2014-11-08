@@ -30,6 +30,7 @@ import logic.google.GoogleCal;
 import logic.google.GoogleCalService;
 import logic.google.LoadCache;
 import logic.google.SaveCache;
+import model.SearchResult;
 import model.Task;
 
 import org.joda.time.DateTime;
@@ -456,14 +457,16 @@ public class LogicController {
 		return false;
 	}
 	
-	public ArrayList<JSONObject> search(String keyword, int statusType) throws IOException {
+	public SearchResult search(String keyword, int statusType) throws IOException {
 		//tasksBuffer inside is different from outside
 		ArrayList <JSONObject> tasksBuffer;
+		Date sDate = Consts.DATE_DEFAULT;
+		Date eDate = Consts.DATE_DEFAULT;
 		
 		if (statusType == Consts.STATUS_TIMED_TASK) {
 			tasksBuffer = getTimedTasksBuffer();
 			if (keyword.trim().toLowerCase().equals("block")) {
-				return getBlockTasksBuffer();
+				return new SearchResult(getBlockTasksBuffer(), sDate, eDate);
 			}
 		} else {
 			tasksBuffer = getFloatingTasksBuffer();
@@ -510,7 +513,7 @@ public class LogicController {
 			}
 		}
 		logger.log(Level.INFO,foundLine.toString());
-		return foundLine;
+		return new SearchResult(foundLine, sDate, eDate);
 	}
 	
 	public Boolean dateBefore(Date x, Date y){

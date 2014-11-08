@@ -2,6 +2,7 @@ package logic;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 // Constant Class 
 public final class Consts {
@@ -92,6 +93,10 @@ public final class Consts {
 	public static final int STATUS_BLOCK_TASK = 3;
 	public static final int STATUS_COMPLETED_TIMED_TASK = 4;
 	public static final int STATUS_COMPLETED_FLOATING_TASK = 5;
+	
+	// DATE CONSTANT
+	@SuppressWarnings("deprecation")
+	public static final Date DATE_DEFAULT = new Date(1,1,1);
 	
 	// HELP TEXT
 	public static final String HELP_TEXT = "TaskBox Commands:\n\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"

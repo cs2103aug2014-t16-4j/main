@@ -23,6 +23,7 @@ import logic.Consts;
 import logic.LogicController;
 import logic.LogicParser;
 import logic.google.GoogleCal;
+import model.SearchResult;
 import model.Task;
 
 import org.eclipse.ui.forms.widgets.ColumnLayout;
@@ -667,7 +668,12 @@ public class UIController {
 	public void searchTimed(String keyword) {
 		if (keyword != null && !keyword.isEmpty()) {
 			try {
-				timedList = logic.search(keyword, Consts.STATUS_TIMED_TASK);
+				SearchResult searchResult = logic.search(keyword, Consts.STATUS_TIMED_TASK);
+				timedList = searchResult.getTasksBuffer();
+				
+				//Modify date range by searchResult.getStartDate(), searchResult.getEndDate()
+				//for search command without date specification (like search with desc)
+				//startDate and endDate = Consts.DATE_DEFAULT
 				updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
 			} catch (IOException e) {
 			}
@@ -679,8 +685,9 @@ public class UIController {
 	public void searchFloating(String keyword) {
 		if (keyword != null && !keyword.isEmpty()) {
 			try {
-				floatingList = logic.search(keyword,
+				SearchResult searchResult = logic.search(keyword,
 						Consts.STATUS_FLOATING_TASK);
+				timedList = searchResult.getTasksBuffer();
 				updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
 			} catch (IOException e) {
 			}
