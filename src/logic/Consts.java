@@ -29,7 +29,7 @@ public final class Consts {
     public static final String STRING_ENTER_COMMAND = "Command: ";
     public static final String STRING_ADD = "added from %s to %s";
     public static final String STRING_CLEAR = "All content deleted from %1$s";
-    public static final String STRING_FOUND_LINE = "=== Found line ===";
+    public static final String STRING_SEARCH_COMPLETE = "Search completed";
     public static final String STRING_NOT_FOUND = "No item found.";
     public static final String STRING_FOUND = "%d item(s) found.";
     public static final String STRING_SORTED = "List Sorted";

@@ -656,12 +656,7 @@ public class UIController {
 		if (keyword != null && !keyword.isEmpty()) {
 			try {
 				timedList = logic.search(keyword, Consts.STATUS_TIMED_TASK);
-				if (timedList.isEmpty()) {
-					updateStatusIndicator(Consts.STRING_NOT_FOUND);
-				} else {
-					updateStatusIndicator(String.format(Consts.STRING_FOUND,
-							timedList.size()));
-				}
+				updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
 			} catch (IOException e) {
 			}
 		} else {
@@ -674,12 +669,7 @@ public class UIController {
 			try {
 				floatingList = logic.search(keyword,
 						Consts.STATUS_FLOATING_TASK);
-				if (floatingList.isEmpty()) {
-					updateStatusIndicator(Consts.STRING_NOT_FOUND);
-				} else {
-					updateStatusIndicator(String.format(Consts.STRING_FOUND,
-							floatingList.size()));
-				}
+				updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
 			} catch (IOException e) {
 			}
 		} else {
