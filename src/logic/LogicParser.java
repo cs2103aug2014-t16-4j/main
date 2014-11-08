@@ -1,6 +1,5 @@
 package logic;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -137,20 +136,29 @@ public class LogicParser {
 		date[0] = new Date();
 		date[1] = new Date();
 		
+		List<Integer> valid = new ArrayList<Integer>();
 		String fullString = "";
 		for (String s : words) {
+			valid.add(fullString.length() + 1);
 			fullString = fullString + " " + s;
 		}
-		List<DateGroup> dateGroupFull = dateParser.parse(fullString);
-		if (dateGroupFull.isEmpty()) {
-			taskType = Consts.STATUS_FLOATING_TASK;
-			return date;
+		List<DateGroup> dateGroupFull;
+		int l = 0;
+		while (true) {
+			dateGroupFull = dateParser.parse(fullString.substring(l, fullString.length()));
+			if (dateGroupFull.isEmpty()) {
+				taskType = Consts.STATUS_FLOATING_TASK;
+				return date;
+			}
+			l = l + dateGroupFull.get(0).getPosition() + 1;
+			if (valid.contains(l)) break;
+			l++;
 		}
 		List<Date> fullDate = dateGroupFull.get(0).getDates();
 
 		//determine nameSeparator
 		if (!words.isEmpty()) {
-			int l = dateGroupFull.get(0).getPosition();
+			//int l = dateGroupFull.get(0).getPosition();
 			
 			for (int i = 0; i < words.size(); i++) {
 				l -= words.get(i).length() + 1;
@@ -160,33 +168,6 @@ public class LogicParser {
 				}
 			}			
 			
-			/*
-			String tempString = "";
-			for (int i = (int)words.size() - 1; i >= 0; i--) {
-				if (i == words.size() - 1) {
-					tempString = words.get(i);
-				} else {
-					tempString = words.get(i) + " " + tempString;
-				}
-				List<DateGroup> dateGroup = dateParser.parse(tempString);
-				if (dateGroup.size() != 0) {
-					List<Date> tempDate = dateGroup.get(0).getDates();
-					if (tempDate.size() == fullDate.size())
-					{
-						Boolean ok = true;
-						for (int j = 0; j < tempDate.size(); j++) {
-							if (!DateUtils.isSameDay(tempDate.get(j),fullDate.get(j))) {
-								ok = false;
-								break;
-							}
-						}
-						if (ok) {
-							nameSeparator = Math.min(nameSeparator, i - 1);
-							break;
-						}
-					}
-				}	
-			}*/
 			if (fullDate.size() == 0) {
 			} else if (fullDate.size() == 1) {
 				date[0] = fullDate.get(0);
