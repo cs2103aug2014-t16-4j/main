@@ -200,6 +200,11 @@ public class UIController {
 							"Hi There! I'm a notification widget!",
 							"Today we are creating a widget that allows us to show notifications that fade in and out!");
 				}
+				//refresh list
+				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
+						&& (e.keyCode == 'r')) {
+					renderTasks();
+				}
 			}
 		});
 

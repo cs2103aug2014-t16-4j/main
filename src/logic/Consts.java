@@ -111,6 +111,7 @@ public final class Consts {
 			+ "\nCtrl + y: redo"
 			+ "\nCtrl + a: quick add"
 			+ "\nCtrl + d: quick delete"
+			+ "\nCtrl + r: refresh tasks"
 			+ "\nCtrl + s: sync" + "\nCtrl + q: quit"
 			+ "\nCtrl + down arrow: scroll down"
 			+ "\nCtrl + up arrow: scroll up";
