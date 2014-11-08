@@ -2,9 +2,11 @@
 package logic;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,6 +30,7 @@ import logic.google.GoogleCal;
 import logic.google.GoogleCalService;
 import logic.google.LoadCache;
 import logic.google.SaveCache;
+import model.SearchResult;
 import model.Task;
 
 import org.joda.time.DateTime;
@@ -437,14 +440,33 @@ public class LogicController {
 		
 	}
 	
-	public ArrayList<JSONObject> search(String keyword, int statusType) throws IOException {
+	public boolean Complete(JSONObject jTargetTask, int newStatus) {
+		try {
+			FileWriter fstream = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(fstream);
+			jTargetTask.put(Consts.STATUS, newStatus);
+			bw.write("");
+			for (JSONObject jTask : tasksBuffer) {
+				bw.write(jTask.toString() + "\r\n");
+			}
+
+			bw.close();
+			return true;
+		} catch (IOException e) {
+		}
+		return false;
+	}
+	
+	public SearchResult search(String keyword, int statusType) throws IOException {
 		//tasksBuffer inside is different from outside
 		ArrayList <JSONObject> tasksBuffer;
+		Date sDate = Consts.DATE_DEFAULT;
+		Date eDate = Consts.DATE_DEFAULT;
 		
 		if (statusType == Consts.STATUS_TIMED_TASK) {
 			tasksBuffer = getTimedTasksBuffer();
 			if (keyword.trim().toLowerCase().equals("block")) {
-				return getBlockTasksBuffer();
+				return new SearchResult(getBlockTasksBuffer(), sDate, eDate);
 			}
 		} else {
 			tasksBuffer = getFloatingTasksBuffer();
@@ -491,7 +513,7 @@ public class LogicController {
 			}
 		}
 		logger.log(Level.INFO,foundLine.toString());
-		return foundLine;
+		return new SearchResult(foundLine, sDate, eDate);
 	}
 	
 	public Boolean dateBefore(Date x, Date y){
