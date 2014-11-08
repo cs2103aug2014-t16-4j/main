@@ -92,30 +92,4 @@ public final class Consts {
 	public static final int STATUS_BLOCK_TASK = 3;
 	public static final int STATUS_COMPLETED_TIMED_TASK = 4;
 	public static final int STATUS_COMPLETED_FLOATING_TASK = 5;
-	
-	// HELP TEXT
-	public static final String HELP_TEXT = "TaskBox Commands:\n\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
-			+ "\ndelete [line #]"
-			+ "\nupdate [line #]"
-			+ "\nclear"
-			+ "\nsort"
-			+ "\nsearch [task date & time]/[keyword]"
-			+ "\nblock [task start and end date & time]"
-			+ "\nundo"
-			+ "\nsync"
-			+ "\nexit"
-			+ "\n\nHotkeys:"
-			+ "\n\nAlt + h: Hide/Show TaskBox"
-			+ "\nCtrl + /: Help"
-			+ "\nCtrl + z: undo"
-			+ "\nCtrl + y: redo"
-			+ "\nCtrl + a: quick add"
-			+ "\nCtrl + d: quick delete"
-			+ "\nCtrl + r: refresh tasks"
-			+ "\nCtrl + s: sync" 
-			+ "\nCtrl + q: quit"
-			+ "\nCtrl + up arrow: scroll up timed tasks"
-			+ "\nCtrl + down arrow: scroll down timed tasks"
-			+ "\nAlt + up arrow: scroll up floating tasks"
-			+ "\nAlt + down arrow: scroll down floating tasks";
 }

@@ -34,6 +34,7 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.*;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -50,7 +51,7 @@ public class UIController {
 	//logic
 	LogicController logic = LogicController.getInstance();
 	private LogicParser parser = new LogicParser();
-	
+
 	//task storage
 	public ArrayList<JSONObject> timedList;
 	public ArrayList<JSONObject> floatingList;
@@ -58,14 +59,14 @@ public class UIController {
 	//constants
 	private final Provider provider = Provider.getCurrentProvider(false);
 	private final static String NON_THIN = "[^iIl1\\.,']";
-	
+
 	//statics
 	private static Boolean BLNMOUSEDOWN = false;
 	private static Boolean MAC = false;
 	private static int XPOS = 0;
 	private static int YPOS = 0;
-	
-	//system settings
+
+	//system Preferences
 	private String SYSTEM_FONT = "MyriadPro-Regular";
 	private int FLOATINGSCROLLSIZE = 5;
 	private int TIMEDSCROLLSIZE = 40;
@@ -77,7 +78,7 @@ public class UIController {
 	private char HELP_HOTKEY = '/';
 	private char QUIT_HOTKEY = 'q';
 	private char SYNC_HOTKEY = 's';
-	
+	private char PREFERENCES_HOTKEY = 'p';
 	//initialize global variables
 	private CommandEnum selectedCommand = CommandEnum.INVALID;
 	private int taskNo = 1;
@@ -95,6 +96,34 @@ public class UIController {
 	Tray tray;
 	Table floatingTaskTable;
 	Composite timedInnerComposite;
+	MenuItem mi;
+
+	// HELP TEXT
+	public String HELP_TEXT = "TaskBox Commands:\n\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
+			+ "\ndelete [line #]"
+			+ "\nupdate [line #]"
+			+ "\nclear"
+			+ "\nsort"
+			+ "\nsearch [task date & time]/[keyword]"
+			+ "\nblock [task start and end date & time]"
+			+ "\nundo"
+			+ "\nsync"
+			+ "\nexit"
+			+ "\n\nHotkeys:"
+			+ "\n\nAlt + h: Hide/Show TaskBox"
+			+ "\nCtrl + "+HELP_HOTKEY+": Help"
+			+ "\nCtrl + "+UNDO_HOTKEY+": Undo"
+			+ "\nCtrl + "+REDO_HOTKEY+": Redo"
+			+ "\nCtrl + "+ADD_HOTKEY+": Quick Add"
+			+ "\nCtrl + "+DELETE_HOTKEY+": Quick Delete"
+			+ "\nCtrl + "+REFRESH_HOTKEY+": Refresh Tasks"
+			+ "\nCtrl + "+SYNC_HOTKEY+": Sync"
+			+ "\nCtrl + "+PREFERENCES_HOTKEY+": Taskbox Preferences"
+			+ "\nCtrl + "+QUIT_HOTKEY+": Quit"
+			+ "\nCtrl + up arrow: Scroll up timed tasks"
+			+ "\nCtrl + down arrow: Scroll down timed tasks"
+			+ "\nAlt + up arrow: Scroll up floating tasks"
+			+ "\nAlt + down arrow: Scroll down floating tasks";
 
 	public UIController(String[] args) {
 		String fileName = args.length > 0 ? args[0] : "mytext.txt";
@@ -138,6 +167,7 @@ public class UIController {
 		renderStatusIndicator();
 		renderTimedTaskContainer();
 		renderAuthPopup();
+		renderPreferencesPopup();
 
 		renderTasks();
 		updateStatusIndicator(String.format(Consts.STRING_WELCOME, fileName));
@@ -146,174 +176,72 @@ public class UIController {
 		disposeDisplay();
 	}
 
-	private void renderDisplay() {
-		DISPLAY = new Display();
-		if (!MAC) {
-			final HotKeyListener listener = new HotKeyListener() {
-				public void onHotKey(final HotKey hotKey) {
-
-					new Thread(new Runnable() {
-						public void run() {
-							Display.getDefault().asyncExec(new Runnable() {
-								public void run() {
-									if (!SHELL.isVisible()
-											|| DISPLAY.getFocusControl() == null) {
-										System.out.println("showing window");
-										SHELL.setVisible(true);
-										SHELL.setMinimized(false);
-										input.setFocus();
-										SHELL.forceActive();
-									} else {
-										System.out.println("hiding window");
-										SHELL.setMinimized(true);
-										SHELL.setVisible(false);
-									}
-								}
-							});
-						}
-					}).start();
-				}
-			};
-
-			provider.reset();
-			provider.register(
-					KeyStroke.getKeyStroke(VK_H, InputEvent.ALT_DOWN_MASK),
-					listener);
-		}
-		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
-			public void handleEvent(Event e) {
-				// undo
-				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == UNDO_HOTKEY)) {
-					undo();
-					updateTaskList();
-					renderTasks();
-				}
-				// quit
-				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == QUIT_HOTKEY)) {
-					systemExit();
-				}
-				// sync
-				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == SYNC_HOTKEY)) {
-					showAuthPopup();
-				}
-				// prepare input to add
-				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == ADD_HOTKEY)) {
-					e.doit = false; // disable select all
-					input.setText("add ");
-					input.setSelection(input.getText().length());
-				}
-				// prepare input to delete
-				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == DELETE_HOTKEY)) {
-					input.setText("delete ");
-					input.setSelection(input.getText().length());
-				}
-				// notification
-				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == 'n')) {
-					showNotification(
-							"Hi There! I'm a notification widget!",
-							"Today we are creating a widget that allows us to show notifications that fade in and out!");
-				}
-				//refresh list
-				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == REFRESH_HOTKEY)) {
-					updateTaskList();
-					renderTasks();
-				}
-			}
-		});
-
-	}
-
-	private void showNotification(String title, String text) {
-		NotifierDialog.notify(title, text);
-	}
-
-	private void renderTimedTaskContainer() {
-		timedTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER
-				| SWT.V_SCROLL);
-		timedTaskComposite.setBackground(SWTResourceManager
-				.getColor(SWT.COLOR_WHITE));
-		timedTaskComposite.setBounds(10, 35, 280, 405);
-		timedTaskComposite.setExpandHorizontal(true);
-		timedTaskComposite.setExpandVertical(true);
-
-		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
-			public void handleEvent(Event e) {
-				if (((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == SWT.ARROW_DOWN)) {
-					Point p = timedTaskComposite.getOrigin();
-					timedTaskComposite.setOrigin(0, p.y+=TIMEDSCROLLSIZE);
-				}
-				if (((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == SWT.ARROW_UP)) {
-					Point p = timedTaskComposite.getOrigin();
-					timedTaskComposite.setOrigin(0, p.y-=TIMEDSCROLLSIZE);
-				}
-			}
-		});
-	}
-
-	private void renderStatusIndicator() {
-		statusComposite = new Composite(SHELL, SWT.NONE);
-		statusComposite.setBounds(10, 596, 280, 14);
-
-		statusInd = new Label(statusComposite, SWT.NONE);
-		statusInd.setFont(SWTResourceManager.getFont(SYSTEM_FONT,
-				MAC ? 11 : 9, SWT.NORMAL));
-		statusInd.setBounds(0, 0, 280, 14);
-		statusInd.setAlignment(SWT.CENTER);
-	}
-
-	private void renderInputBox() {
-		input = new Text(SHELL, SWT.BORDER);
-		input.setBounds(10, 10, 258, 19);
-
-		// delegate task and reset input
-		input.addKeyListener(new KeyAdapter() {
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == SWT.CR) {
-					delegateTask(input.getText());
-					input.setText("");
-				}
-			}
-		});
-	}
-
-	private void renderHelp() {
-		Label helpButton = new Label(SHELL, SWT.NONE);
-		helpButton.setImage(new Image(SHELL.getDisplay(),
-				"resource/icon_info.gif"));
-		helpButton.setBounds(274, 13, 16, 14);
-
-		final Shell helpWindow = new Shell(SHELL, SWT.APPLICATION_MODAL
+	private void renderPreferencesPopup() {
+		final Shell PreferencesWindow = new Shell(SHELL, SWT.APPLICATION_MODAL
 				| SWT.DIALOG_TRIM);
-		helpWindow.setText("Help");
-		helpWindow.setSize(600, 470);
-		helpWindow.open();
-		helpWindow.setVisible(false);
-		helpWindow.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		PreferencesWindow.setText("TaskBox Preferences");
+		PreferencesWindow.setSize(400, 300);
 
-		final StyledText helpText = new StyledText(helpWindow, SWT.NONE);
-		helpText.setText(Consts.HELP_TEXT);
-		helpText.setStyleRange(new StyleRange(0, 19, null, null, SWT.BOLD));
-		helpText.setStyleRange(new StyleRange(248, 8, null, null, SWT.BOLD));
-		helpText.setBounds(20, 10, 560, 460);
-		helpText.setEditable(false);
+		GridLayout gridLayout = new GridLayout(5, false);
+		gridLayout.verticalSpacing = 8;
+		gridLayout.makeColumnsEqualWidth = true;
 
-		helpWindow.addListener(SWT.Close, new Listener() {
-			public void handleEvent(Event event) {
-				event.doit = false;
-				helpWindow.setVisible(false);
-			}
-		});
+		PreferencesWindow.setLayout(gridLayout);
+		Label label;
+		GridData gridData;
 
-		helpButton.addMouseListener(new MouseListener() {
+		label = new Label(PreferencesWindow, SWT.CENTER);
+		label.setText("Scroll Size");
+		label.setBackground(DISPLAY.getSystemColor(SWT.COLOR_DARK_GRAY));
+		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		gridData.horizontalSpan = 5;
+		label.setLayoutData(gridData);
+
+		label = new Label(PreferencesWindow, SWT.NULL);
+		label.setText("Floating task:");
+
+		final Text fScroll = new Text(PreferencesWindow, SWT.SINGLE | SWT.BORDER);
+		fScroll.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+		fScroll.setText(Integer.toString(FLOATINGSCROLLSIZE));
+
+		label = new Label(PreferencesWindow, SWT.NULL);
+
+		label = new Label(PreferencesWindow, SWT.NULL);
+		label.setText("Timed task:");
+
+		final Text tScroll = new Text(PreferencesWindow, SWT.SINGLE | SWT.BORDER);
+		tScroll.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
+		tScroll.setText(Integer.toString(TIMEDSCROLLSIZE));
+		
+		label = new Label(PreferencesWindow, SWT.CENTER);
+		label.setBackground(DISPLAY.getSystemColor(SWT.COLOR_DARK_GRAY));
+		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		gridData.horizontalSpan = 5;
+		label.setLayoutData(gridData);
+		label.setText("Sync Priority");
+
+	    final Combo rating = new Combo(PreferencesWindow, SWT.READ_ONLY | SWT.CENTER);
+	    gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		gridData.horizontalSpan = 5;
+	    rating.setLayoutData(gridData);
+	    rating.add("Google Calendar");
+	    rating.add("TaskBox");
+		rating.select(0);
+		
+		// Save
+		Button save = new Button(PreferencesWindow, SWT.CENTER);
+		save.setText("Save");
+
+		gridData = new GridData();
+		gridData.horizontalSpan = 5;
+		gridData.horizontalAlignment = GridData.CENTER;
+		save.setLayoutData(gridData);
+
+		save.addMouseListener(new MouseListener() {
 			public void mouseDown(MouseEvent e) {
-				helpWindow.setVisible(true);
+				System.out.println(tScroll.getText());
+				System.out.println(fScroll.getText());
+				System.out.println(rating.getSelectionIndex());
 			}
 
 			public void mouseUp(MouseEvent e) {
@@ -321,723 +249,929 @@ public class UIController {
 
 			public void mouseDoubleClick(MouseEvent e) {
 			}
-
 		});
-		// add ctrl + ? hotkey
+
+		PreferencesWindow.addListener(SWT.Close, new Listener() {
+			public void handleEvent(Event event) {
+				event.doit = false;
+				PreferencesWindow.setVisible(false);
+			}
+		});
+
+		mi.addListener (SWT.Selection, new Listener () {
+			@Override
+			public void handleEvent (Event event) {
+				PreferencesWindow.setVisible(true);
+				PreferencesWindow.setFocus();
+			}
+		});
+
+		// add ctrl + p hotkey
 		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
 				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == HELP_HOTKEY)) {
-					if (helpWindow.isVisible()) {
-						helpWindow.setVisible(false);
+						&& (e.keyCode == PREFERENCES_HOTKEY)) {
+					if (PreferencesWindow.isVisible()) {
+						PreferencesWindow.setVisible(false);
 					} else {
-						helpWindow.setVisible(true);
-						helpWindow.setFocus();
+						PreferencesWindow.setVisible(true);
+						PreferencesWindow.setFocus();
 					}
 				}
 			}
 		});
-		positionWindow(helpWindow);
-	}
-
-	private void renderAuthPopup() {
-		authShell = new Shell(DISPLAY);
-		authShell.setText("Request for Permission");
-		authShell.setLayout(new FillLayout());
-		browser = new Browser(authShell, SWT.NONE);
-		initializeBrowser(DISPLAY, browser);
-		authShell.open();
-		positionWindow(authShell);
-		authShell.setVisible(false);
-		authShell.addListener(SWT.Close, new Listener() {
-			public void handleEvent(Event event) {
-				event.doit = false;
-				authShell.setVisible(false);
-			}
-		});
-		browser.addTitleListener(new TitleListener() {
-			@Override
-			public void changed(TitleEvent event) {
-				if (event.title != null && event.title.length() > 0) {
-					authShell.setText(event.title);
-					if (event.title.contains("Success")) {
-						try {
-							logic.generateNewToken(event.title.substring(13));
-							updateStatusIndicator(logic.syncWithGoogle());
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						authShell.close();
-					}
-				}
-			}
-		});
-	}
-
-	private void showAuthPopup() {
-		if (GoogleCal.isOnline()) {
-			boolean isOkWithExistingToken = false;
-			if (logic.sycnWithGoogleExistingToken()) {
-				try {
-					updateStatusIndicator(logic.syncWithGoogle());
-					isOkWithExistingToken = true;
-				} catch (IOException e) {
-					System.err.println(e.getMessage());
-					isOkWithExistingToken = false;
-				}
-			}
-			if (!isOkWithExistingToken) {
-				browser.setUrl(logic.getUrl());
-				authShell.setVisible(true);
-				authShell.setFocus();
-			}
-		} else {
-			// logic.saveCache();
-			updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
+		positionWindow(PreferencesWindow);
+		PreferencesWindow.open();
+		PreferencesWindow.pack();
+		PreferencesWindow.setVisible(false);
 		}
-	}
 
-	private void renderFloatingTaskContainer() {
-		floatingTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER
-				| SWT.V_SCROLL);
-		floatingTaskComposite.setBounds(10, 446, 280, 144);
-		floatingTaskComposite.setExpandHorizontal(true);
-		floatingTaskComposite.setExpandVertical(true);
+		private void renderDisplay() {
+			DISPLAY = new Display();
+			if (!MAC) {
+				final HotKeyListener listener = new HotKeyListener() {
+					public void onHotKey(final HotKey hotKey) {
 
-		floatingTaskTable = new Table(floatingTaskComposite, SWT.BORDER
-				| SWT.V_SCROLL);
-		floatingTaskTable.setHeaderVisible(false);
-		floatingTaskTable.setLinesVisible(true);
-		
-		floatingTaskComposite.setContent(floatingTaskTable);
-		floatingTaskComposite.setMinSize(floatingTaskTable.computeSize(
-				SWT.DEFAULT, SWT.DEFAULT));
-		TableColumn taskNames = new TableColumn(floatingTaskTable, SWT.LEFT);
-		taskNames.setWidth(MAC ? 276 : 255);
-		
-		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
-			public void handleEvent(Event e) {
-				if (((e.stateMask & SWT.ALT) == SWT.ALT) && (e.keyCode == SWT.ARROW_DOWN)) {
-					floatingTaskTable.setTopIndex(floatingTaskTable.getTopIndex() + FLOATINGSCROLLSIZE);
-				}
-				if (((e.stateMask & SWT.ALT) == SWT.ALT) && (e.keyCode == SWT.ARROW_UP)) {
-					floatingTaskTable.setTopIndex(floatingTaskTable.getTopIndex() - FLOATINGSCROLLSIZE);
-				}
-			}
-		});
-	}
+						new Thread(new Runnable() {
+							public void run() {
+								Display.getDefault().asyncExec(new Runnable() {
+									public void run() {
+										if (!SHELL.isVisible()
+												|| DISPLAY.getFocusControl() == null) {
+											System.out.println("showing window");
+											SHELL.setVisible(true);
+											SHELL.setMinimized(false);
+											input.setFocus();
+											SHELL.forceActive();
+										} else {
+											System.out.println("hiding window");
+											SHELL.setMinimized(true);
+											SHELL.setVisible(false);
+										}
+									}
+								});
+							}
+						}).start();
+					}
+				};
 
-	static void initializeBrowser(final Display display, Browser browser) {
-		browser.addOpenWindowListener(new OpenWindowListener() {
-			@Override
-			public void open(WindowEvent event) {
-				if (!event.required)
-					return; /* only do it if necessary */
-				Shell shell = new Shell(display);
-				shell.setText("Request for Permission");
-				shell.setLayout(new FillLayout());
-				Browser browser = new Browser(shell, SWT.NONE);
-				initializeBrowser(display, browser);
-				event.browser = browser;
+				provider.reset();
+				provider.register(
+						KeyStroke.getKeyStroke(VK_H, InputEvent.ALT_DOWN_MASK),
+						listener);
 			}
-		});
-		browser.addVisibilityWindowListener(new VisibilityWindowListener() {
-			@Override
-			public void hide(WindowEvent event) {
-				Browser browser = (Browser) event.widget;
-				Shell shell = browser.getShell();
-				shell.setVisible(false);
-			}
-
-			@Override
-			public void show(WindowEvent event) {
-				Browser browser = (Browser) event.widget;
-				final Shell shell = browser.getShell();
-				if (event.location != null)
-					shell.setLocation(event.location);
-				if (event.size != null) {
-					Point size = event.size;
-					shell.setSize(shell.computeSize(size.x, size.y));
-				}
-				shell.open();
-			}
-		});
-		browser.addCloseWindowListener(new CloseWindowListener() {
-			@Override
-			public void close(WindowEvent event) {
-				Browser browser = (Browser) event.widget;
-				Shell shell = browser.getShell();
-				shell.close();
-			}
-		});
-	}
-
-	private void renderTrayIcon() {
-		Image image = new Image(SHELL.getDisplay(), "resource/1box.png");
-		tray = DISPLAY.getSystemTray();
-		if (tray == null) {
-			System.out.println("The system tray is not available");
-		} else {
-			final TrayItem item = new TrayItem(tray, SWT.NONE);
-			item.setToolTipText("SWT TrayItem");
-			item.addListener(SWT.Selection, new Listener() {
-				@Override
-				public void handleEvent(Event event) {
-					SHELL.forceFocus();
-					if (!SHELL.isVisible()) {
-						System.out.println("showing window");
-						SHELL.setVisible(true);
-						SHELL.setMinimized(false);
-						input.setFocus();
-						SHELL.forceActive();
-					} else {
-						System.out.println("hiding window");
-						SHELL.setMinimized(true);
-						SHELL.setVisible(false);
+			DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+				public void handleEvent(Event e) {
+					// undo
+					if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
+							&& (e.keyCode == UNDO_HOTKEY)) {
+						undo();
+						updateTaskList();
+						renderTasks();
+					}
+					// quit
+					else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
+							&& (e.keyCode == QUIT_HOTKEY)) {
+						systemExit();
+					}
+					// sync
+					else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
+							&& (e.keyCode == SYNC_HOTKEY)) {
+						showAuthPopup();
+					}
+					// prepare input to add
+					else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
+							&& (e.keyCode == ADD_HOTKEY)) {
+						e.doit = false; // disable select all
+						input.setText("add ");
+						input.setSelection(input.getText().length());
+					}
+					// prepare input to delete
+					else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
+							&& (e.keyCode == DELETE_HOTKEY)) {
+						input.setText("delete ");
+						input.setSelection(input.getText().length());
+					}
+					// notification
+					else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
+							&& (e.keyCode == 'n')) {
+						showNotification(
+								"Hi There! I'm a notification widget!",
+								"Today we are creating a widget that allows us to show notifications that fade in and out!");
+					}
+					//refresh list
+					else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
+							&& (e.keyCode == REFRESH_HOTKEY)) {
+						updateTaskList();
+						renderTasks();
 					}
 				}
 			});
-			// item.addListener (SWT.DefaultSelection, new Listener () {
-			// @Override
-			// public void handleEvent (Event event) {
-			// System.out.println("default selection");
-			// }
-			// });
-			// final Menu menu = new Menu (SHELL, SWT.POP_UP);
-			// MenuItem mi = new MenuItem (menu, SWT.PUSH);
-			// mi.setText ("Item");
-			// mi.addListener (SWT.Selection, new Listener () {
-			// @Override
-			// public void handleEvent (Event event) {
-			// System.out.println("selection " + event.widget);
-			// }
-			// });
-			// item.addListener (SWT.MenuDetect, new Listener () {
-			// @Override
-			// public void handleEvent (Event event) {
-			// menu.setVisible (true);
-			// }
-			// });
-			item.setImage(image);
-			item.setHighlightImage(image);
+
 		}
-	}
 
-	private void renderShell() {
-		SHELL = new Shell(DISPLAY, SWT.MODELESS);
-		SHELL.setSize(300, 620);
-		SHELL.setLayout(null);
-		// allow user to input once shell gets focus
-		SHELL.addFocusListener(new FocusListener() {
-			public void focusGained(FocusEvent event) {
-				input.setFocus();
-			}
+		private void showNotification(String title, String text) {
+			NotifierDialog.notify(title, text);
+		}
 
-			public void focusLost(FocusEvent event) {
-			}
-		});
-		positionWindow(SHELL);
-	}
+		private void renderTimedTaskContainer() {
+			timedTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER
+					| SWT.V_SCROLL);
+			timedTaskComposite.setBackground(SWTResourceManager
+					.getColor(SWT.COLOR_WHITE));
+			timedTaskComposite.setBounds(10, 35, 280, 405);
+			timedTaskComposite.setExpandHorizontal(true);
+			timedTaskComposite.setExpandVertical(true);
 
-	private void disposeDisplay() {
-		while (!SHELL.isDisposed()) {
-			if (!DISPLAY.readAndDispatch()) {
-				DISPLAY.sleep();
+			DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+				public void handleEvent(Event e) {
+					if (((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == SWT.ARROW_DOWN)) {
+						Point p = timedTaskComposite.getOrigin();
+						timedTaskComposite.setOrigin(0, p.y+=TIMEDSCROLLSIZE);
+					}
+					if (((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == SWT.ARROW_UP)) {
+						Point p = timedTaskComposite.getOrigin();
+						timedTaskComposite.setOrigin(0, p.y-=TIMEDSCROLLSIZE);
+					}
+				}
+			});
+		}
+
+		private void renderStatusIndicator() {
+			statusComposite = new Composite(SHELL, SWT.NONE);
+			statusComposite.setBounds(10, 596, 280, 14);
+
+			statusInd = new Label(statusComposite, SWT.NONE);
+			statusInd.setFont(SWTResourceManager.getFont(SYSTEM_FONT,
+					MAC ? 11 : 9, SWT.NORMAL));
+			statusInd.setBounds(0, 0, 280, 14);
+			statusInd.setAlignment(SWT.CENTER);
+		}
+
+		private void renderInputBox() {
+			input = new Text(SHELL, SWT.BORDER);
+			input.setBounds(10, 10, 258, 19);
+
+			// delegate task and reset input
+			input.addKeyListener(new KeyAdapter() {
+				public void keyPressed(KeyEvent e) {
+					if (e.keyCode == SWT.CR) {
+						delegateTask(input.getText());
+						input.setText("");
+					}
+				}
+			});
+		}
+
+		private void renderHelp() {
+			Label helpButton = new Label(SHELL, SWT.NONE);
+			helpButton.setImage(new Image(SHELL.getDisplay(),
+					"resource/icon_info.gif"));
+			helpButton.setBounds(274, 13, 16, 14);
+
+			final Shell helpWindow = new Shell(SHELL, SWT.APPLICATION_MODAL
+					| SWT.DIALOG_TRIM);
+			helpWindow.setText("Help");
+			helpWindow.setSize(600, 480);
+			helpWindow.open();
+			helpWindow.setVisible(false);
+			helpWindow.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+
+			final StyledText helpText = new StyledText(helpWindow, SWT.NONE);
+			helpText.setText(HELP_TEXT);
+			helpText.setStyleRange(new StyleRange(0, 19, null, null, SWT.BOLD));
+			helpText.setStyleRange(new StyleRange(248, 8, null, null, SWT.BOLD));
+			helpText.setBounds(20, 10, 560, 460);
+			helpText.setEditable(false);
+
+			helpWindow.addListener(SWT.Close, new Listener() {
+				public void handleEvent(Event event) {
+					event.doit = false;
+					helpWindow.setVisible(false);
+				}
+			});
+
+			helpButton.addMouseListener(new MouseListener() {
+				public void mouseDown(MouseEvent e) {
+					helpWindow.setVisible(true);
+				}
+
+				public void mouseUp(MouseEvent e) {
+				}
+
+				public void mouseDoubleClick(MouseEvent e) {
+				}
+
+			});
+			// add ctrl + ? hotkey
+			DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+				public void handleEvent(Event e) {
+					if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
+							&& (e.keyCode == HELP_HOTKEY)) {
+						if (helpWindow.isVisible()) {
+							helpWindow.setVisible(false);
+						} else {
+							helpWindow.setVisible(true);
+							helpWindow.setFocus();
+						}
+					}
+				}
+			});
+			positionWindow(helpWindow);
+		}
+
+		private void renderAuthPopup() {
+			authShell = new Shell(DISPLAY);
+			authShell.setText("Request for Permission");
+			authShell.setLayout(new FillLayout());
+			browser = new Browser(authShell, SWT.NONE);
+			initializeBrowser(DISPLAY, browser);
+			authShell.open();
+			positionWindow(authShell);
+			authShell.setVisible(false);
+			authShell.addListener(SWT.Close, new Listener() {
+				public void handleEvent(Event event) {
+					event.doit = false;
+					authShell.setVisible(false);
+				}
+			});
+			browser.addTitleListener(new TitleListener() {
+				@Override
+				public void changed(TitleEvent event) {
+					if (event.title != null && event.title.length() > 0) {
+						authShell.setText(event.title);
+						if (event.title.contains("Success")) {
+							try {
+								logic.generateNewToken(event.title.substring(13));
+								updateStatusIndicator(logic.syncWithGoogle());
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+							authShell.close();
+						}
+					}
+				}
+			});
+		}
+
+		private void showAuthPopup() {
+			if (GoogleCal.isOnline()) {
+				boolean isOkWithExistingToken = false;
+				if (logic.sycnWithGoogleExistingToken()) {
+					try {
+						updateStatusIndicator(logic.syncWithGoogle());
+						isOkWithExistingToken = true;
+					} catch (IOException e) {
+						System.err.println(e.getMessage());
+						isOkWithExistingToken = false;
+					}
+				}
+				if (!isOkWithExistingToken) {
+					browser.setUrl(logic.getUrl());
+					authShell.setVisible(true);
+					authShell.setFocus();
+				}
+			} else {
+				// logic.saveCache();
+				updateStatusIndicator(Consts.STRING_USER_NOT_ONLINE);
 			}
 		}
-		DISPLAY.dispose();
-		systemExit();
-	}
 
-	private void enableDrag() {
-		SHELL.addMouseListener(new MouseListener() {
-			public void mouseUp(MouseEvent arg0) {
-				BLNMOUSEDOWN = false;
+		private void renderFloatingTaskContainer() {
+			floatingTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER
+					| SWT.V_SCROLL);
+			floatingTaskComposite.setBounds(10, 446, 280, 144);
+			floatingTaskComposite.setExpandHorizontal(true);
+			floatingTaskComposite.setExpandVertical(true);
+
+			floatingTaskTable = new Table(floatingTaskComposite, SWT.BORDER
+					| SWT.V_SCROLL);
+			floatingTaskTable.setHeaderVisible(false);
+			floatingTaskTable.setLinesVisible(true);
+
+			floatingTaskComposite.setContent(floatingTaskTable);
+			floatingTaskComposite.setMinSize(floatingTaskTable.computeSize(
+					SWT.DEFAULT, SWT.DEFAULT));
+			TableColumn taskNames = new TableColumn(floatingTaskTable, SWT.LEFT);
+			taskNames.setWidth(MAC ? 276 : 255);
+
+			DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+				public void handleEvent(Event e) {
+					if (((e.stateMask & SWT.ALT) == SWT.ALT) && (e.keyCode == SWT.ARROW_DOWN)) {
+						floatingTaskTable.setTopIndex(floatingTaskTable.getTopIndex() + FLOATINGSCROLLSIZE);
+					}
+					if (((e.stateMask & SWT.ALT) == SWT.ALT) && (e.keyCode == SWT.ARROW_UP)) {
+						floatingTaskTable.setTopIndex(floatingTaskTable.getTopIndex() - FLOATINGSCROLLSIZE);
+					}
+				}
+			});
+		}
+
+		static void initializeBrowser(final Display display, Browser browser) {
+			browser.addOpenWindowListener(new OpenWindowListener() {
+				@Override
+				public void open(WindowEvent event) {
+					if (!event.required)
+						return; /* only do it if necessary */
+					Shell shell = new Shell(display);
+					shell.setText("Request for Permission");
+					shell.setLayout(new FillLayout());
+					Browser browser = new Browser(shell, SWT.NONE);
+					initializeBrowser(display, browser);
+					event.browser = browser;
+				}
+			});
+			browser.addVisibilityWindowListener(new VisibilityWindowListener() {
+				@Override
+				public void hide(WindowEvent event) {
+					Browser browser = (Browser) event.widget;
+					Shell shell = browser.getShell();
+					shell.setVisible(false);
+				}
+
+				@Override
+				public void show(WindowEvent event) {
+					Browser browser = (Browser) event.widget;
+					final Shell shell = browser.getShell();
+					if (event.location != null)
+						shell.setLocation(event.location);
+					if (event.size != null) {
+						Point size = event.size;
+						shell.setSize(shell.computeSize(size.x, size.y));
+					}
+					shell.open();
+				}
+			});
+			browser.addCloseWindowListener(new CloseWindowListener() {
+				@Override
+				public void close(WindowEvent event) {
+					Browser browser = (Browser) event.widget;
+					Shell shell = browser.getShell();
+					shell.close();
+				}
+			});
+		}
+
+		private void renderTrayIcon() {
+			Image image = new Image(SHELL.getDisplay(), "resource/1box.png");
+			tray = DISPLAY.getSystemTray();
+			if (tray == null) {
+				System.out.println("The system tray is not available");
+			} else {
+				final TrayItem item = new TrayItem(tray, SWT.NONE);
+				item.setToolTipText("SWT TrayItem");
+				item.addListener(SWT.Selection, new Listener() {
+					@Override
+					public void handleEvent(Event event) {
+						SHELL.forceFocus();
+						if (!SHELL.isVisible()) {
+							System.out.println("showing window");
+							SHELL.setVisible(true);
+							SHELL.setMinimized(false);
+							input.setFocus();
+							SHELL.forceActive();
+						} else {
+							System.out.println("hiding window");
+							SHELL.setMinimized(true);
+							SHELL.setVisible(false);
+						}
+					}
+				});
+				item.addListener (SWT.DefaultSelection, new Listener () {
+					@Override
+					public void handleEvent (Event event) {
+						System.out.println("default selection");
+					}
+				});
+				final Menu menu = new Menu (SHELL, SWT.POP_UP);
+				mi = new MenuItem (menu, SWT.PUSH);
+				mi.setText ("TaskBox Preferences");
+				item.addListener (SWT.MenuDetect, new Listener () {
+					@Override
+					public void handleEvent (Event event) {
+						menu.setVisible (true);
+					}
+				});
+				item.setImage(image);
+				item.setHighlightImage(image);
 			}
-			public void mouseDown(MouseEvent e) {
-				BLNMOUSEDOWN = true;
-				XPOS = e.x;
-				YPOS = e.y;
-			}
-			public void mouseDoubleClick(MouseEvent arg0) {
-			}
-		});
-		
-		SHELL.addMouseMoveListener(new MouseMoveListener() {
-			public void mouseMove(MouseEvent e) {
-				if (BLNMOUSEDOWN) {
-					SHELL.setLocation(SHELL.getLocation().x + (e.x - XPOS),
-							SHELL.getLocation().y + (e.y - YPOS));
+		}
+
+		private void renderShell() {
+			SHELL = new Shell(DISPLAY, SWT.MODELESS);
+			SHELL.setSize(300, 620);
+			SHELL.setLayout(null);
+			// allow user to input once shell gets focus
+			SHELL.addFocusListener(new FocusListener() {
+				public void focusGained(FocusEvent event) {
+					input.setFocus();
+				}
+
+				public void focusLost(FocusEvent event) {
+				}
+			});
+			positionWindow(SHELL);
+		}
+
+		private void disposeDisplay() {
+			while (!SHELL.isDisposed()) {
+				if (!DISPLAY.readAndDispatch()) {
+					DISPLAY.sleep();
 				}
 			}
-		});
-	}
-
-	// sets shell position to middle of screen
-	private void positionWindow(Shell sh) {
-		Monitor primary = DISPLAY.getPrimaryMonitor();
-		Rectangle bounds = primary.getBounds();
-		Rectangle rect = sh.getBounds();
-
-		int x = bounds.x + (bounds.width - rect.width) / 2;
-		int y = bounds.y + (bounds.height - rect.height) / 2;
-
-		sh.setLocation(x, y);
-	}
-
-	public void delegateTask(String userInput) {
-		String[] splittedString;
-		String task = "";
-		String statusString = "";
-		splittedString = getSplittedString(userInput);
-		selectedCommand = getCommandType(splittedString[0]);
-		if (splittedString.length > Consts.TASK_POSITION) {
-			task = splittedString[Consts.TASK_POSITION];
+			DISPLAY.dispose();
+			systemExit();
 		}
-		if (selectedCommand != CommandEnum.INVALID) {
-			switch (selectedCommand) {
-			case ADD:
-				statusString = add(task);
-				updateTaskList();
-				break;
-			case DISPLAY:
-				updateTaskList();
-				break;
-			case CLEAR:
-				statusString = clear();
-				updateTaskList();
-				break;
-			case DELETE:
-				statusString = delete(task);
-				updateTaskList();
-				break;
-			case SORT:
-				statusString = sort();
-				updateTaskList();
-				break;
-			case SEARCH:
-				searchTimed(task);
-				searchFloating(task);
-				break;
-			case UPDATE:
-				statusString = update(task);
-				updateTaskList();
-				break;
-			case BLOCK:
-				statusString = block(task);
-				break;
-			case UNDO:
-				undo();
-				updateTaskList();
-				break;
-			case SYNC:
-				updateStatusIndicator(Consts.STRING_SYNC);
-				showAuthPopup();
-				break;
-			case SHOW:
-				statusString = complete(task);
-				break;
-			case EXIT:
-				systemExit();
-			default:
+
+		private void enableDrag() {
+			SHELL.addMouseListener(new MouseListener() {
+				public void mouseUp(MouseEvent arg0) {
+					BLNMOUSEDOWN = false;
+				}
+				public void mouseDown(MouseEvent e) {
+					BLNMOUSEDOWN = true;
+					XPOS = e.x;
+					YPOS = e.y;
+				}
+				public void mouseDoubleClick(MouseEvent arg0) {
+				}
+			});
+
+			SHELL.addMouseMoveListener(new MouseMoveListener() {
+				public void mouseMove(MouseEvent e) {
+					if (BLNMOUSEDOWN) {
+						SHELL.setLocation(SHELL.getLocation().x + (e.x - XPOS),
+								SHELL.getLocation().y + (e.y - YPOS));
+					}
+				}
+			});
+		}
+
+		// sets shell position to middle of screen
+		private void positionWindow(Shell sh) {
+			Monitor primary = DISPLAY.getPrimaryMonitor();
+			Rectangle bounds = primary.getBounds();
+			Rectangle rect = sh.getBounds();
+
+			int x = bounds.x + (bounds.width - rect.width) / 2;
+			int y = bounds.y + (bounds.height - rect.height) / 2;
+
+			sh.setLocation(x, y);
+		}
+
+		public void delegateTask(String userInput) {
+			String[] splittedString;
+			String task = "";
+			String statusString = "";
+			splittedString = getSplittedString(userInput);
+			selectedCommand = getCommandType(splittedString[0]);
+			if (splittedString.length > Consts.TASK_POSITION) {
+				task = splittedString[Consts.TASK_POSITION];
+			}
+			if (selectedCommand != CommandEnum.INVALID) {
+				switch (selectedCommand) {
+				case ADD:
+					statusString = add(task);
+					updateTaskList();
+					break;
+				case DISPLAY:
+					updateTaskList();
+					break;
+				case CLEAR:
+					statusString = clear();
+					updateTaskList();
+					break;
+				case DELETE:
+					statusString = delete(task);
+					updateTaskList();
+					break;
+				case SORT:
+					statusString = sort();
+					updateTaskList();
+					break;
+				case SEARCH:
+					searchTimed(task);
+					searchFloating(task);
+					break;
+				case UPDATE:
+					statusString = update(task);
+					updateTaskList();
+					break;
+				case BLOCK:
+					statusString = block(task);
+					break;
+				case UNDO:
+					undo();
+					updateTaskList();
+					break;
+				case SYNC:
+					updateStatusIndicator(Consts.STRING_SYNC);
+					showAuthPopup();
+					break;
+				case SHOW:
+					statusString = complete(task);
+					break;
+				case EXIT:
+					systemExit();
+				default:
+					updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
+					break;
+				}
+				if (!statusString.isEmpty()) {
+					updateStatusIndicator(statusString);
+				}
+				renderTasks();
+			} else {
 				updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
-				break;
 			}
-			if (!statusString.isEmpty()) {
-				updateStatusIndicator(statusString);
-			}
-			renderTasks();
-		} else {
-			updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
 		}
-	}
 
-	public String block(String userInput) {
-		if (userInput != null && !userInput.isEmpty()) {
-			try {
-				return logic.block(userInput);
-			} catch (NumberFormatException e) {
+		public String block(String userInput) {
+			if (userInput != null && !userInput.isEmpty()) {
+				try {
+					return logic.block(userInput);
+				} catch (NumberFormatException e) {
+					return Consts.USAGE_BLOCK;
+				}
+			} else {
 				return Consts.USAGE_BLOCK;
 			}
-		} else {
-			return Consts.USAGE_BLOCK;
 		}
-	}
 
-	public void searchTimed(String keyword) {
-		if (keyword != null && !keyword.isEmpty()) {
-			try {
-				timedList = logic.search(keyword, Consts.STATUS_TIMED_TASK);
-				updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
-			} catch (IOException e) {
-			}
-		} else {
-			updateStatusIndicator(Consts.STRING_NOT_FOUND);
-		}
-	}
-
-	public void searchFloating(String keyword) {
-		if (keyword != null && !keyword.isEmpty()) {
-			try {
-				floatingList = logic.search(keyword,
-						Consts.STATUS_FLOATING_TASK);
-				updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
-			} catch (IOException e) {
-			}
-		} else {
-			updateStatusIndicator(Consts.STRING_NOT_FOUND);
-		}
-	}
-
-	public String update(String userInput) {
-		if (userInput != null && !userInput.isEmpty()) {
-			String[] splittedString = getSplittedString(userInput);
-			if (splittedString.length != Consts.NO_ARGS_UPDATE) {
-				return Consts.USAGE_UPDATE;
-			}
-			int lineNumber = Integer.parseInt(splittedString[0]);
-			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
-				return Consts.USAGE_UPDATE;
-			}
-			try {
-				Task newTask = parser.decompose(splittedString[1]);
-				// calculate whether task is in timed or floating
-				return logic.update(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1),newTask);
-			} catch (NumberFormatException e) {
-				return Consts.USAGE_UPDATE;
-			}
-		} else {
-			return Consts.USAGE_UPDATE;
-		}
-	}
-
-	public String sort() {
-		try {
-			logic.sort();
-			return Consts.STRING_SORTED;
-		} catch (Exception e) {
-		}
-		return null;
-	}
-
-	public String undo() {
-		try {
-			logic.undo();
-			return Consts.STRING_UNDO;
-		} catch (Exception e) {
-		}
-		return null;
-	}
-
-	public String delete(String lineNo) {
-		if (lineNo != null && !lineNo.isEmpty()) {
-			int lineNumber = Integer.parseInt(lineNo);
-
-			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
-				return Consts.USAGE_DELETE;
-			}
-			try {
-				// calculate whether task is in timed or floating
-				return logic.delete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1));
-			} catch (NumberFormatException e) {
-				return Consts.USAGE_DELETE;
-			}
-		} else {
-			return Consts.USAGE_DELETE;
-		}
-	}
-
-	private String complete(String lineNo) {
-		if (lineNo != null && !lineNo.isEmpty()) {
-			int lineNumber = Integer.parseInt(lineNo);
-
-			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
-				return Consts.USAGE_COMPLETE;
-			}
-			try {
-				// lineNumber >= taskNo? 5 : 4
-				// calculate whether task is in timed or floating
-				return logic.delete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1));
-			} catch (NumberFormatException e) {
-				return Consts.USAGE_COMPLETE;
-			}
-		} else {
-			return Consts.USAGE_COMPLETE;
-		}
-	}
-
-	public String clear() {
-		if (logic.clear()) {
-			return String.format(Consts.STRING_CLEAR, logic.getFileName());
-		} else {
-			return Consts.ERROR_UNKNOWN;
-		}
-	}
-
-	public void updateTaskList() {
-		timedList = logic.getTimedTasksBuffer();
-		floatingList = logic.getFloatingTasksBuffer();
-		sortTimedList();
-	}
-
-	private void sortTimedList() {
-		Collections.sort(timedList, new Comparator<JSONObject>() {
-			public int compare(JSONObject t1, JSONObject t2) {
-				SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-				Date date1 = null;
-				Date date2 = null;
+		public void searchTimed(String keyword) {
+			if (keyword != null && !keyword.isEmpty()) {
 				try {
-					date1 = sdf.parse(t1.get(Consts.STARTDATE).toString());
-				} catch (ParseException e) {
-					e.printStackTrace();
+					timedList = logic.search(keyword, Consts.STATUS_TIMED_TASK);
+					updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
+				} catch (IOException e) {
+				}
+			} else {
+				updateStatusIndicator(Consts.STRING_NOT_FOUND);
+			}
+		}
+
+		public void searchFloating(String keyword) {
+			if (keyword != null && !keyword.isEmpty()) {
+				try {
+					floatingList = logic.search(keyword,
+							Consts.STATUS_FLOATING_TASK);
+					updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
+				} catch (IOException e) {
+				}
+			} else {
+				updateStatusIndicator(Consts.STRING_NOT_FOUND);
+			}
+		}
+
+		public String update(String userInput) {
+			if (userInput != null && !userInput.isEmpty()) {
+				String[] splittedString = getSplittedString(userInput);
+				if (splittedString.length != Consts.NO_ARGS_UPDATE) {
+					return Consts.USAGE_UPDATE;
+				}
+				int lineNumber = Integer.parseInt(splittedString[0]);
+				if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
+					return Consts.USAGE_UPDATE;
 				}
 				try {
-					date2 = sdf.parse(t2.get(Consts.STARTDATE).toString());
-				} catch (ParseException e) {
-					e.printStackTrace();
+					Task newTask = parser.decompose(splittedString[1]);
+					// calculate whether task is in timed or floating
+					return logic.update(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1),newTask);
+				} catch (NumberFormatException e) {
+					return Consts.USAGE_UPDATE;
 				}
-				return date1.compareTo(date2);
-			}
-		});
-	}
-
-	public String add(String task) {
-		Task tsk = parser.decompose(task);
-		if (tsk != null && !tsk.isEmpty()) {
-			return logic.add(tsk);
-		} else {
-			return Consts.USAGE_ADD;
-		}
-	}
-
-	private String[] getSplittedString(String userInput) {
-		String[] splittedString = userInput.split(" ", 2);
-		return splittedString;
-	}
-
-	private static String checkFileName(String fileName) {
-		String[] parts = fileName.split("\\.(?=[^\\.]+$)");
-		if (parts.length != Consts.FILE_VALID_LENGTH
-				|| !parts[Consts.FILE_TYPE_POSITION].equalsIgnoreCase("txt")) {
-			fileName = fileName + ".txt";
-		}
-		return fileName;
-	}
-
-	private CommandEnum getCommandType(String firstWord) {
-		if (firstWord != null) {
-			for (CommandEnum cmd : CommandEnum.values()) {
-				if (firstWord.equalsIgnoreCase(cmd.toString())) {
-					return cmd;
-				}
+			} else {
+				return Consts.USAGE_UPDATE;
 			}
 		}
-		return CommandEnum.INVALID;
-	}
 
-	private void renderTasks() {
-		taskNo = 1;
-		if (timedInnerComposite != null) {
-			timedInnerComposite.dispose();
+		public String sort() {
+			try {
+				logic.sort();
+				return Consts.STRING_SORTED;
+			} catch (Exception e) {
+			}
+			return null;
 		}
-		floatingTaskTable.removeAll();
-		updateTimedTask(-1);
-		updatefloatingTask();
-	}
 
-	private void updateStatusIndicator(String str) {
-		if (!SHELL.isDisposed()) {
-			statusInd.setText(str);
-			statusComposite.layout();
+		public String undo() {
+			try {
+				logic.undo();
+				return Consts.STRING_UNDO;
+			} catch (Exception e) {
+			}
+			return null;
 		}
-	}
 
-	private void updateTimedTask(int line) {
-		int noOfDays = 0;
-		String currentDateString = "";
-		timedInnerComposite = new Composite(timedTaskComposite, SWT.NONE);
-		timedInnerComposite.setLayout(new GridLayout(1, true));
-		FormToolkit toolkit = null;
-		Form form = null;
+		public String delete(String lineNo) {
+			if (lineNo != null && !lineNo.isEmpty()) {
+				int lineNumber = Integer.parseInt(lineNo);
 
-		for (; taskNo < timedList.size() + 1; taskNo++) {
-			JSONObject o = timedList.get(taskNo - 1);
-			String start = o.get(Consts.STARTDATE).toString();
-			String startTime = start.substring(11, start.length() - 3) + "hr";
-			String startDate = start.substring(0, 10);
-			startDate = startDate.substring(3,6)+startDate.substring(0,3)+startDate.substring(6);
-			String end = o.get(Consts.ENDDATE).toString();
-			String endTime = end.substring(11, end.length() - 3) + "hr";
-			String desc = o.get(Consts.DESCRIPTION).toString();
-			String taskName = o.get(Consts.NAME).toString();
-			int status = Integer.parseInt(o.get(Consts.STATUS).toString());
-			int priority = Integer.parseInt(o.get(Consts.PRIORITY).toString());
-			int frequency = Integer
-					.parseInt(o.get(Consts.FREQUENCY).toString());
-			String shortenedTaskName = ellipsize(taskName, 24);
+				if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
+					return Consts.USAGE_DELETE;
+				}
+				try {
+					// calculate whether task is in timed or floating
+					return logic.delete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1));
+				} catch (NumberFormatException e) {
+					return Consts.USAGE_DELETE;
+				}
+			} else {
+				return Consts.USAGE_DELETE;
+			}
+		}
 
-			if (currentDateString.compareTo(startDate) != 0) {
-				noOfDays++;
-				toolkit = new FormToolkit(timedInnerComposite.getDisplay());
-				currentDateString = startDate;
-				form = toolkit.createForm(timedInnerComposite);
-				form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-				form.setText(currentDateString);
-				if(!MAC){
-					form.setFont(SWTResourceManager.getFont(SYSTEM_FONT,14, SWT.BOLD, false, true));
+		private String complete(String lineNo) {
+			if (lineNo != null && !lineNo.isEmpty()) {
+				int lineNumber = Integer.parseInt(lineNo);
+
+				if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
+					return Consts.USAGE_COMPLETE;
+				}
+				try {
+					// lineNumber >= taskNo? 5 : 4
+					// calculate whether task is in timed or floating
+					return logic.delete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1));
+				} catch (NumberFormatException e) {
+					return Consts.USAGE_COMPLETE;
+				}
+			} else {
+				return Consts.USAGE_COMPLETE;
+			}
+		}
+
+		public String clear() {
+			if (logic.clear()) {
+				return String.format(Consts.STRING_CLEAR, logic.getFileName());
+			} else {
+				return Consts.ERROR_UNKNOWN;
+			}
+		}
+
+		public void updateTaskList() {
+			timedList = logic.getTimedTasksBuffer();
+			floatingList = logic.getFloatingTasksBuffer();
+			sortTimedList();
+		}
+
+		private void sortTimedList() {
+			Collections.sort(timedList, new Comparator<JSONObject>() {
+				public int compare(JSONObject t1, JSONObject t2) {
+					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+					Date date1 = null;
+					Date date2 = null;
+					try {
+						date1 = sdf.parse(t1.get(Consts.STARTDATE).toString());
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+					try {
+						date2 = sdf.parse(t2.get(Consts.STARTDATE).toString());
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+					return date1.compareTo(date2);
+				}
+			});
+		}
+
+		public String add(String task) {
+			Task tsk = parser.decompose(task);
+			if (tsk != null && !tsk.isEmpty()) {
+				return logic.add(tsk);
+			} else {
+				return Consts.USAGE_ADD;
+			}
+		}
+
+		private String[] getSplittedString(String userInput) {
+			String[] splittedString = userInput.split(" ", 2);
+			return splittedString;
+		}
+
+		private static String checkFileName(String fileName) {
+			String[] parts = fileName.split("\\.(?=[^\\.]+$)");
+			if (parts.length != Consts.FILE_VALID_LENGTH
+					|| !parts[Consts.FILE_TYPE_POSITION].equalsIgnoreCase("txt")) {
+				fileName = fileName + ".txt";
+			}
+			return fileName;
+		}
+
+		private CommandEnum getCommandType(String firstWord) {
+			if (firstWord != null) {
+				for (CommandEnum cmd : CommandEnum.values()) {
+					if (firstWord.equalsIgnoreCase(cmd.toString())) {
+						return cmd;
+					}
+				}
+			}
+			return CommandEnum.INVALID;
+		}
+
+		private void renderTasks() {
+			taskNo = 1;
+			if (timedInnerComposite != null) {
+				timedInnerComposite.dispose();
+			}
+			floatingTaskTable.removeAll();
+			updateTimedTask(-1);
+			updatefloatingTask();
+		}
+
+		private void updateStatusIndicator(String str) {
+			if (!SHELL.isDisposed()) {
+				statusInd.setText(str);
+				statusComposite.layout();
+			}
+		}
+
+		private void updateTimedTask(int line) {
+			int noOfDays = 0;
+			String currentDateString = "";
+			timedInnerComposite = new Composite(timedTaskComposite, SWT.NONE);
+			timedInnerComposite.setLayout(new GridLayout(1, true));
+			FormToolkit toolkit = null;
+			Form form = null;
+
+			for (; taskNo < timedList.size() + 1; taskNo++) {
+				JSONObject o = timedList.get(taskNo - 1);
+				String start = o.get(Consts.STARTDATE).toString();
+				String startTime = start.substring(11, start.length() - 3) + "hr";
+				String startDate = start.substring(0, 10);
+				startDate = startDate.substring(3,6)+startDate.substring(0,3)+startDate.substring(6);
+				String end = o.get(Consts.ENDDATE).toString();
+				String endTime = end.substring(11, end.length() - 3) + "hr";
+				String desc = o.get(Consts.DESCRIPTION).toString();
+				String taskName = o.get(Consts.NAME).toString();
+				int status = Integer.parseInt(o.get(Consts.STATUS).toString());
+				int priority = Integer.parseInt(o.get(Consts.PRIORITY).toString());
+				int frequency = Integer
+						.parseInt(o.get(Consts.FREQUENCY).toString());
+				String shortenedTaskName = ellipsize(taskName, 24);
+
+				if (currentDateString.compareTo(startDate) != 0) {
+					noOfDays++;
+					toolkit = new FormToolkit(timedInnerComposite.getDisplay());
+					currentDateString = startDate;
+					form = toolkit.createForm(timedInnerComposite);
+					form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+					form.setText(currentDateString);
+					if(!MAC){
+						form.setFont(SWTResourceManager.getFont(SYSTEM_FONT,14, SWT.BOLD, false, true));
+					}
+					else{
+						form.setFont(SWTResourceManager.getFont(SYSTEM_FONT,14, SWT.BOLD));
+					}
+					ColumnLayout cl = new ColumnLayout();
+					cl.maxNumColumns = 1;
+					form.getBody().setLayout(cl);
+				}
+
+				Section section = toolkit.createSection(form.getBody(),
+						Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE
+						| Section.EXPANDED);
+				section.setText(taskNo + ". " + shortenedTaskName);
+
+				if(!MAC && status == 4){
+					section.setFont(SWTResourceManager.getFont(SYSTEM_FONT,12, SWT.BOLD, true, false));
 				}
 				else{
-					form.setFont(SWTResourceManager.getFont(SYSTEM_FONT,14, SWT.BOLD));
+					section.setFont(SWTResourceManager.getFont(SYSTEM_FONT,12, SWT.BOLD));
 				}
-				ColumnLayout cl = new ColumnLayout();
-				cl.maxNumColumns = 1;
-				form.getBody().setLayout(cl);
-			}
-			
-			Section section = toolkit.createSection(form.getBody(),
-					Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE
-					| Section.EXPANDED);
-			section.setText(taskNo + ". " + shortenedTaskName);
-			
-			if(!MAC && status == 4){
-				section.setFont(SWTResourceManager.getFont(SYSTEM_FONT,12, SWT.BOLD, true, false));
-			}
-			else{
-				section.setFont(SWTResourceManager.getFont(SYSTEM_FONT,12, SWT.BOLD));
-			}
-			//section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-			//section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+				//section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+				//section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
-			if (priority == 1) {
-				section.setTitleBarBorderColor(SWTResourceManager
-						.getColor(SWT.COLOR_RED));
-			}
+				if (priority == 1) {
+					section.setTitleBarBorderColor(SWTResourceManager
+							.getColor(SWT.COLOR_RED));
+				}
 
-			final Composite sectionClient = toolkit.createComposite(section);
-			TableWrapLayout twl = new TableWrapLayout();
-			twl.numColumns = 1;
-			sectionClient.setLayout(twl);
-			FormText text;
+				final Composite sectionClient = toolkit.createComposite(section);
+				TableWrapLayout twl = new TableWrapLayout();
+				twl.numColumns = 1;
+				sectionClient.setLayout(twl);
+				FormText text;
 
-			// full name
-			if (taskName.compareTo(shortenedTaskName) != 0) {
+				// full name
+				if (taskName.compareTo(shortenedTaskName) != 0) {
+					text = toolkit.createFormText(sectionClient, false);
+					text.setText(taskName, false, false);
+				}
+
+				// time
 				text = toolkit.createFormText(sectionClient, false);
-				text.setText(taskName, false, false);
-			}
+				if(start.compareTo(end) == 0){
+					text.setText("Due by: " + startTime, false, false);
+				}
+				else if(startTime.compareTo("00:00hr") == 0
+						&& endTime.compareTo("23:59hr") == 0){
+					text.setText("Full Day Event", false, false);
+				}
+				else{
+					text.setText("Start: " + startTime, false, false);
+					text = toolkit.createFormText(sectionClient, false);
+					text.setText("End: " + endTime, false, false);
+				}
 
-			// time
-			text = toolkit.createFormText(sectionClient, false);
-			if(start.compareTo(end) == 0){
-				text.setText("Due by: " + startTime, false, false);
-			}
-			else if(startTime.compareTo("00:00hr") == 0
-					&& endTime.compareTo("23:59hr") == 0){
-				text.setText("Full Day Event", false, false);
-			}
-			else{
-				text.setText("Start: " + startTime, false, false);
-				text = toolkit.createFormText(sectionClient, false);
-				text.setText("End: " + endTime, false, false);
-			}
-			
-			// description
-			if (!desc.isEmpty()) {
-				text = toolkit.createFormText(sectionClient, false);
-				text.setText(desc, false, false);
-			}
-			
-			// repeats
-			if (frequency > 0 && frequency < 4) {
-				String freString = frequency == 1 ? "daily"
-						: (frequency == 2 ? "weekly"
-								: (frequency == 3 ? "monthly" : "-"));
-				text = toolkit.createFormText(sectionClient, false);
-				text.setText("Repeats " + freString, false, false);
-			}
+				// description
+				if (!desc.isEmpty()) {
+					text = toolkit.createFormText(sectionClient, false);
+					text.setText(desc, false, false);
+				}
 
-			section.setClient(sectionClient);
+				// repeats
+				if (frequency > 0 && frequency < 4) {
+					String freString = frequency == 1 ? "daily"
+							: (frequency == 2 ? "weekly"
+									: (frequency == 3 ? "monthly" : "-"));
+					text = toolkit.createFormText(sectionClient, false);
+					text.setText("Repeats " + freString, false, false);
+				}
+
+				section.setClient(sectionClient);
+			}
+			timedTaskComposite.setContent(timedInnerComposite);
+			timedTaskComposite.setMinHeight(timedList.size() * 70 + noOfDays * 40);
 		}
-		timedTaskComposite.setContent(timedInnerComposite);
-		timedTaskComposite.setMinHeight(timedList.size() * 70 + noOfDays * 40);
-	}
 
-	private static int textWidth(String str) {
-		return (int) (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
-	}
+		private static int textWidth(String str) {
+			return (int) (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
+		}
 
-	public static String ellipsize(String text, int max) {
-		if (textWidth(text) <= max)
-			return text;
+		public static String ellipsize(String text, int max) {
+			if (textWidth(text) <= max)
+				return text;
 
-		// Start by chopping off at the word before max
-		// This is an over-approximation due to thin-characters...
-		int end = text.lastIndexOf(' ', max - 3);
+			// Start by chopping off at the word before max
+			// This is an over-approximation due to thin-characters...
+			int end = text.lastIndexOf(' ', max - 3);
 
-		// Just one long word. Chop it off.
-		if (end == -1)
-			return text.substring(0, max - 3) + "...";
+			// Just one long word. Chop it off.
+			if (end == -1)
+				return text.substring(0, max - 3) + "...";
 
-		// Step forward as long as textWidth allows.
-		int newEnd = end;
-		do {
-			end = newEnd;
-			newEnd = text.indexOf(' ', end + 1);
+			// Step forward as long as textWidth allows.
+			int newEnd = end;
+			do {
+				end = newEnd;
+				newEnd = text.indexOf(' ', end + 1);
 
-			// No more spaces.
-			if (newEnd == -1)
-				newEnd = text.length();
+				// No more spaces.
+				if (newEnd == -1)
+					newEnd = text.length();
 
-		} while (textWidth(text.substring(0, newEnd) + "...") < max);
+			} while (textWidth(text.substring(0, newEnd) + "...") < max);
 
-		return text.substring(0, end) + "...";
-	}
+			return text.substring(0, end) + "...";
+		}
 
-	private void updatefloatingTask() {
-		for (int i = 0; i < floatingList.size(); i++) {
-			JSONObject o = floatingList.get(i);
-			int status = Integer.parseInt(o.get(Consts.STATUS).toString());
+		private void updatefloatingTask() {
+			for (int i = 0; i < floatingList.size(); i++) {
+				JSONObject o = floatingList.get(i);
+				int status = Integer.parseInt(o.get(Consts.STATUS).toString());
 
-			TableItem item = new TableItem(floatingTaskTable, 0);
-			item.setText((i + taskNo) + ". "
-					+ o.get(Consts.NAME).toString());
-			item.setForeground(getColorWithPriority(Integer
-					.parseInt(o.get(Consts.PRIORITY)
-							.toString())));
+				TableItem item = new TableItem(floatingTaskTable, 0);
+				item.setText((i + taskNo) + ". "
+						+ o.get(Consts.NAME).toString());
+				item.setForeground(getColorWithPriority(Integer
+						.parseInt(o.get(Consts.PRIORITY)
+								.toString())));
 
-			if(!MAC && status == 5){
-				item.setFont(SWTResourceManager.getFont(SYSTEM_FONT,10, SWT.NORMAL, true, false));
-			}
-			else{
-				item.setFont(SWTResourceManager.getFont(SYSTEM_FONT,10, SWT.NORMAL));
+				if(!MAC && status == 5){
+					item.setFont(SWTResourceManager.getFont(SYSTEM_FONT,10, SWT.NORMAL, true, false));
+				}
+				else{
+					item.setFont(SWTResourceManager.getFont(SYSTEM_FONT,10, SWT.NORMAL));
+				}
 			}
 		}
-	}
 
-	public Color getColorWithPriority(int p) {
-		if (p == Consts.TASK_IMPORTANT) {
-			return DISPLAY.getSystemColor(SWT.COLOR_RED);
+		public Color getColorWithPriority(int p) {
+			if (p == Consts.TASK_IMPORTANT) {
+				return DISPLAY.getSystemColor(SWT.COLOR_RED);
+			}
+			else {
+				return DISPLAY.getSystemColor(SWT.COLOR_BLACK);
+			}
 		}
-		else {
-			return DISPLAY.getSystemColor(SWT.COLOR_BLACK);
-		}
-	}
 
-	private void systemExit() {
-		logic.saveCache();
-		updateStatusIndicator(Consts.STRING_EXIT);
-		SHELL.dispose();
-		input.dispose();
-		floatingTaskComposite.dispose();
-		timedTaskComposite.dispose();
-		authShell.dispose();
-		browser.dispose();
-		statusComposite.dispose();
-		statusInd.dispose();
-		floatingTaskTable.dispose();
-		timedInnerComposite.dispose();
-		tray.dispose();
-		provider.reset();
-		provider.stop();
-		System.exit(0);
+		private void systemExit() {
+			logic.saveCache();
+			updateStatusIndicator(Consts.STRING_EXIT);
+			SHELL.dispose();
+			input.dispose();
+			floatingTaskComposite.dispose();
+			timedTaskComposite.dispose();
+			authShell.dispose();
+			browser.dispose();
+			statusComposite.dispose();
+			statusInd.dispose();
+			floatingTaskTable.dispose();
+			timedInnerComposite.dispose();
+			tray.dispose();
+			provider.reset();
+			provider.stop();
+			System.exit(0);
+		}
 	}
-}
