@@ -1,3 +1,4 @@
+//@author A0117993R
 package logic.google;
 
 import java.io.BufferedReader;
@@ -24,10 +25,10 @@ public class LoadCache extends Command{
 				LogicController.cacheMap.put(key, Converter.stringToJSONList(splittedStr[1]));
 			}
 			in.close();
-			System.out.println(line);
+			//System.out.println(line); //debugging
 			return line == null ? true:false;
 		} catch (ParseException | IOException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 			return false;
 		}
 	}

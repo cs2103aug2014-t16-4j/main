@@ -1,3 +1,5 @@
+//@author A0117993R
+
 package logic.google;
 
 import java.io.BufferedReader;
@@ -12,7 +14,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import logic.Consts;
 import logic.Converter;
@@ -31,48 +34,44 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
-import com.google.api.services.calendar.Calendar.CalendarList;
 import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.CalendarListEntry;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
 import com.google.api.services.calendar.model.Events;
 
 public class GoogleCal {
+	private static Calendar client;
+	private static Logger logger = Logger.getLogger("GoogleCal");
+
 	GoogleAuthorizationCodeFlow flow;
 	String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
 	String appName = "TaskBox";
 	HttpTransport httpTransport;
 	JacksonFactory jsonFactory;
-	private static Calendar client;
-	private String fileName;
 
 	public GoogleCal() {
 		httpTransport = new NetHttpTransport();
 		jsonFactory = new JacksonFactory();
 		String clientId = "743259209106-g4qtcmneg0dhi9efos04d46bnnjiiich.apps.googleusercontent.com";
 		String clientSecret = "AyJjPfMtT0gQPki-eArk4xKG";
-		// String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
 
-		flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport,
-				jsonFactory, clientId, clientSecret,
-				Arrays.asList(CalendarScopes.CALENDAR)).build();
+		flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport,jsonFactory, clientId, clientSecret,Arrays.asList(CalendarScopes.CALENDAR)).build();
 	}
 
 	public static boolean isOnline() {
 		Socket sock = new Socket();
-		InetSocketAddress addr = new InetSocketAddress("www.google.com", 80);
+		InetSocketAddress addr = new InetSocketAddress("www.google.com", 80); // Can ping to google?
 		try {
 			sock.connect(addr);
 			return true;
 		} catch (IOException e) {
-			System.err.println("User is offline.");
-			e.printStackTrace();
+			System.err.println("User is offline.\n"+e.getMessage());
 			return false;
 		} finally {
 			try {
 				sock.close();
 			} catch (IOException e) {
+				System.err.println(e.getMessage());
 			}
 		}
 	}
@@ -85,7 +84,7 @@ public class GoogleCal {
 	public boolean withExistingToken() {
 		TokenResponse tokenRes = new TokenResponse();
 		if (validFile()) {
-			System.out.println(readFile(Consts.GOOGLETOKEN));
+			logger.log(Level.CONFIG,readFile(Consts.GOOGLETOKEN));
 			tokenRes.setAccessToken(readFile(Consts.GOOGLETOKEN));
 			try {
 				Credential credential = flow.createAndStoreCredential(tokenRes,appName);
@@ -95,7 +94,7 @@ public class GoogleCal {
 				client = builder.build();
 				return true;
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.err.println(e.getMessage());
 				return false;
 			}
 		} else {
@@ -116,45 +115,44 @@ public class GoogleCal {
 			client = builder.build();
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 			return false;
 		}
 	}
 
+	// Service method running in separate thread
 	public void syncGCalService(ArrayList<JSONObject> timeTasks) throws IOException, ParseException {
 		String pageToken = null;
 		String str = "";
 		do {
-		  Events events = client.events().list("primary").setPageToken(pageToken).execute();
-		  List<Event> items = events.getItems();
-		  if(pageToken != null) {
-			for (Event event : items) {
-				boolean found = false;
-				for (int i = 0; i < timeTasks.size(); i++) {
-					if (event.getSummary().equals(Converter.jsonToTask(timeTasks.get(i)).getName())) {
-						found = true;
+			Events events = client.events().list("primary").setPageToken(pageToken).execute();
+			List<Event> items = events.getItems();
+			if (pageToken != null) {
+				for (Event event : items) {
+					boolean found = false;
+					for (int i = 0; i < timeTasks.size(); i++) {
+						if (event.getSummary().equals(Converter.jsonToTask(timeTasks.get(i)).getName())) {
+							found = true;
+						}
+					}
+					if (!found) {
+						logger.log(Level.INFO,"Not match found: " + event.getSummary());
+						str += Converter.eventToJSON(event).toString() + "\r\n";
+						LogicController.tasksBuffer.add(Converter.eventToJSON(event));
+						logger.log(Level.INFO,"Writing to file " + event.getSummary());
 					}
 				}
-				if (!found) {
-					System.out.println("Not match found: " + event.getSummary());
-					str += Converter.eventToJSON(event).toString() + "\r\n";
-					LogicController.tasksBuffer.add(Converter.eventToJSON(event));
-					System.out.println("writing to file");
-				}
 			}
-		}
-		  pageToken = events.getNextPageToken();
+			pageToken = events.getNextPageToken();
 		} while (pageToken != null);
+		assert (!str.isEmpty());
 		writeFile(LogicController.fileName, str, true);
-		//System.out.println(str);
 	}
 
 	public String syncGCal(ArrayList<JSONObject> timeTasks) throws IOException {
-		//com.google.api.services.calendar.model.Calendar calendar = client.calendars().get("primary").execute();
 		String pageToken = null;
 		do {
-			Events events = client.events().list("primary")
-					.setPageToken(pageToken).execute();
+			Events events = client.events().list("primary").setPageToken(pageToken).execute();
 			List<Event> items = events.getItems();
 			if(pageToken!=null) {
 				for (int i = 0; i < timeTasks.size(); i++) {
@@ -166,7 +164,7 @@ public class GoogleCal {
 					}
 					if(!found){
 						createEvent(Converter.jsonToTask(timeTasks.get(i)),"primary");
-						System.out.println("Creating event");
+						logger.log(Level.INFO,"Creating event.. " + timeTasks.get(i));
 					}
 				}
 			}
@@ -192,6 +190,7 @@ public class GoogleCal {
 			Events events = client.events().list("primary").setPageToken(pageToken).execute();
 			List<Event> items = events.getItems();
 			for(Event event:items){
+				logger.log(Level.INFO,"Deleting " + event.getId());
 				client.events().delete("primary", event.getId()).execute();
 			}
 			pageToken = events.getNextPageToken();
@@ -205,6 +204,7 @@ public class GoogleCal {
 			List<Event> items = events.getItems();
 			for(Event event:items){
 				if(event.getSummary().equals(name)){
+					logger.log(Level.INFO,"Deleting " + event.getId());
 					client.events().delete("primary", event.getId()).execute();
 					return true;
 				}
@@ -222,7 +222,7 @@ public class GoogleCal {
 			bufferedWriter.close();
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 			return false;
 		}
 	}
@@ -234,7 +234,7 @@ public class GoogleCal {
 			bufferedWriter.write("");
 			bufferedWriter.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 	}
 
@@ -244,8 +244,7 @@ public class GoogleCal {
 			BufferedReader in = new BufferedReader(new FileReader(fileName));
 			token = in.readLine();
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Please generate the token again");
+			System.err.println("Please generate the token again " + e.getMessage());
 		}
 		return token;
 	}

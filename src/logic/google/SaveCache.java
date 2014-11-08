@@ -1,3 +1,4 @@
+//@author A0117993R
 package logic.google;
 
 import java.io.BufferedWriter;
@@ -29,7 +30,7 @@ public class SaveCache extends Command {
 			bufferedWriter.close();
 			return true;
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return false;
 	}
