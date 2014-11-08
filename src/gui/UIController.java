@@ -218,13 +218,26 @@ public class UIController {
 		timedTaskComposite.setExpandHorizontal(true);
 		timedTaskComposite.setExpandVertical(true);
 
-		timedTaskComposite.addKeyListener(new KeyAdapter() {
-			public void keyPressed(KeyEvent e) {
-				if (e.keyCode == SWT.ARROW_DOWN) {
-					timedTaskComposite.setOrigin(0, 10);
+		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+			public void handleEvent(Event e) {
+				if (((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == SWT.ARROW_DOWN)) {
+					Point p = timedTaskComposite.getOrigin();
+					timedTaskComposite.setOrigin(0, p.y+=40);
+				}
+				if (((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == SWT.ARROW_UP)) {
+					Point p = timedTaskComposite.getOrigin();
+					timedTaskComposite.setOrigin(0, p.y-=40);
 				}
 			}
 		});
+
+		//		timedTaskComposite.addKeyListener(new KeyAdapter() {
+		//			public void keyPressed(KeyEvent e) {
+		//				if (e.keyCode == SWT.ARROW_DOWN) {
+		//					timedTaskComposite.setOrigin(0, 10);
+		//				}
+		//			}
+		//		});
 	}
 
 	private void renderStatusIndicator() {
@@ -262,7 +275,7 @@ public class UIController {
 		final Shell helpWindow = new Shell(SHELL, SWT.APPLICATION_MODAL
 				| SWT.DIALOG_TRIM);
 		helpWindow.setText("Help");
-		helpWindow.setSize(600, 410);
+		helpWindow.setSize(600, 450);
 		helpWindow.open();
 		helpWindow.setVisible(false);
 		helpWindow.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
@@ -271,7 +284,7 @@ public class UIController {
 		helpText.setText(Consts.HELP_TEXT);
 		helpText.setStyleRange(new StyleRange(0, 19, null, null, SWT.BOLD));
 		helpText.setStyleRange(new StyleRange(248, 8, null, null, SWT.BOLD));
-		helpText.setBounds(20, 10, 560, 380);
+		helpText.setBounds(20, 10, 560, 400);
 		helpText.setEditable(false);
 
 		helpWindow.addListener(SWT.Close, new Listener() {
@@ -369,13 +382,13 @@ public class UIController {
 
 	private void renderFloatingTaskContainer() {
 		floatingTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER
-				| SWT.H_SCROLL | SWT.V_SCROLL);
+				| SWT.V_SCROLL);
 		floatingTaskComposite.setBounds(10, 446, 280, 144);
 		floatingTaskComposite.setExpandHorizontal(true);
 		floatingTaskComposite.setExpandVertical(true);
 
 		floatingTaskTable = new Table(floatingTaskComposite, SWT.BORDER
-				| SWT.V_SCROLL | SWT.H_SCROLL);
+				| SWT.V_SCROLL);
 		floatingTaskTable.setHeaderVisible(false);
 		floatingTaskTable.setLinesVisible(true);
 
@@ -384,6 +397,19 @@ public class UIController {
 				SWT.DEFAULT, SWT.DEFAULT));
 		TableColumn taskNames = new TableColumn(floatingTaskTable, SWT.LEFT);
 		taskNames.setWidth(MAC ? 276 : 255);
+		
+		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+			public void handleEvent(Event e) {
+				if (((e.stateMask & SWT.ALT) == SWT.ALT) && (e.keyCode == SWT.ARROW_DOWN)) {
+					Point p = floatingTaskComposite.getOrigin();
+					floatingTaskComposite.setOrigin(0, p.y+=10);
+				}
+				if (((e.stateMask & SWT.ALT) == SWT.ALT) && (e.keyCode == SWT.ARROW_UP)) {
+					Point p = floatingTaskComposite.getOrigin();
+					floatingTaskComposite.setOrigin(0, p.y-=10);
+				}
+			}
+		});
 	}
 
 	static void initialize(final Display display, Browser browser) {
@@ -704,7 +730,7 @@ public class UIController {
 	public String delete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber = Integer.parseInt(lineNo);
-			
+
 			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
 				return Consts.USAGE_DELETE;
 			}
@@ -718,11 +744,11 @@ public class UIController {
 			return Consts.USAGE_DELETE;
 		}
 	}
-	
+
 	private String complete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber = Integer.parseInt(lineNo);
-			
+
 			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
 				return Consts.USAGE_DELETE;
 			}
@@ -843,6 +869,7 @@ public class UIController {
 			String start = o.get(Consts.STARTDATE).toString();
 			String startTime = start.substring(11, start.length() - 3) + "hr";
 			String startDate = start.substring(0, 10);
+			startDate = startDate.substring(3,6)+startDate.substring(0,3)+startDate.substring(6);
 			String end = o.get(Consts.ENDDATE).toString();
 			String endTime = end.substring(11, end.length() - 3) + "hr";
 			String desc = o.get(Consts.DESCRIPTION).toString();
@@ -998,14 +1025,14 @@ public class UIController {
 		for (int i = 0; i < floatingList.size(); i++) {
 			JSONObject o = floatingList.get(i);
 			int status = Integer.parseInt(o.get(Consts.STATUS).toString());
-			
+
 			TableItem item = new TableItem(floatingTaskTable, 0);
 			item.setText((i + taskNo) + ". "
 					+ o.get(Consts.NAME).toString());
 			item.setForeground(getColorWithPriority(Integer
 					.parseInt(o.get(Consts.PRIORITY)
 							.toString())));
-			
+
 			if(!MAC && status == 5){
 				item.setFont(SWTResourceManager.getFont("MyriadPro-Regular",10, SWT.NORMAL, true, false));
 			}
