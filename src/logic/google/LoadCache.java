@@ -1,36 +1,35 @@
 package logic.google;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
+import logic.Consts;
+import logic.Converter;
 import logic.LogicController;
 import logic.command.Command;
+
+import org.json.simple.parser.ParseException;
 
 public class LoadCache extends Command{
 	
 	@Override
 	public boolean executeCommand() {
-		String line;
-		JSONParser jsonParser = new JSONParser();
+		String line = "";
 		try {
-			BufferedReader in = new BufferedReader(new FileReader("cache.txt"));
+			BufferedReader in = new BufferedReader(new FileReader(Consts.CACHE));
 			while ((line = in.readLine()) != null) {
-				String[] splittedStr = line.split("=");
+				String [] splittedStr = line.split("=");
 				String key = splittedStr[0];
-				String value = splittedStr[1];
-				
-				JSONObject obj = (JSONObject) jsonParser.parse(line);
+				LogicController.cacheMap.put(key, Converter.stringToJSONList(splittedStr[1]));
 			}
 			in.close();
-		} catch (FileNotFoundException | ParseException e) {
+			System.out.println(line);
+			return line == null ? true:false;
+		} catch (ParseException | IOException e) {
 			e.printStackTrace();
+			return false;
 		}
-		return false;
 	}
 
 	@Override

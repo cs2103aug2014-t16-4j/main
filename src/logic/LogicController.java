@@ -126,22 +126,23 @@ public class LogicController {
 			for (JSONObject obj : (List<JSONObject>) pairs.getValue()) {
 				temp.add(obj);
 			}
-			switch (key) {
-			case Consts.ADD:
+			if (key.equals(Consts.ADD)) {
 				System.out.println("ADD is here");
-				//gCal.syncGCal(temp);
-				return true;
-			case Consts.DELETE:
+				gCal.syncGCal(temp);
+			} else if (key.equals(Consts.DELETE)) {
 				System.out.println("DEL is here");
-				for (JSONObject obj:temp){
-					//gCal.deleteEvent((String) obj.get(Consts.NAME));
+				for (JSONObject obj : temp) {
+					gCal.deleteEvent((String)obj.get(Consts.NAME));
 				}
-				return true;
 			}
 			it.remove();
 		}
-		return false;
-		// gCal.syncGCal(temp);
+		if (!temp.isEmpty()) {
+			return true;
+		}else{
+			return false;
+		}
+	// gCal.syncGCal(temp);
 	}
 
 	public void loadBuffer(String fileName) throws IOException {
@@ -343,6 +344,7 @@ public class LogicController {
 	}
 	
 	public String syncWithGoogle() throws IOException{
+		loadCacheBuffer();
 		return gCal.syncGCal(getTimedTasksBuffer());
 	}
 	
@@ -351,10 +353,6 @@ public class LogicController {
 		saveCache.executeCommand();
 	}
 	
-	public void loadCache(){
-		
-	}
-
 	public boolean undo(){
 		if (!opStack.isEmpty()) {
 			opStack.pop().undo();

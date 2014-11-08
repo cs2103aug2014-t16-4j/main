@@ -198,7 +198,7 @@ public class GoogleCal {
 		}while(pageToken != null);
 	}
 
-	public void deleteEvent(String name) throws IOException{
+	public boolean deleteEvent(String name) throws IOException{
 		String pageToken = null;
 		do{
 			Events events = client.events().list("primary").setPageToken(pageToken).execute();
@@ -206,10 +206,12 @@ public class GoogleCal {
 			for(Event event:items){
 				if(event.getSummary().equals(name)){
 					client.events().delete("primary", event.getId()).execute();
+					return true;
 				}
 			}
 			pageToken = events.getNextPageToken();
 		}while(pageToken != null);
+		return false;
 	}
 
 	public static boolean writeFile(String fileName,String str,boolean flag) {
