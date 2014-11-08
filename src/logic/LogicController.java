@@ -1,3 +1,4 @@
+//@author A0117993R
 package logic;
 
 import java.io.BufferedReader;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import logic.command.Add;
 import logic.command.Clear;
@@ -41,10 +44,11 @@ import edu.emory.mathcs.backport.java.util.Collections;
 public class LogicController {
 	private static final int TIME_EPS = 2;
 
-	Parser dateParser = new Parser();
-	public static ArrayList <JSONObject> tasksBuffer;
+	public static ArrayList <JSONObject> tasksBuffer; // main task buffer
 	public static String fileName;
-	public static CacheMap cacheMap;
+	public static CacheMap cacheMap; // for saving cache purpose
+	private static Logger logger = Logger.getLogger("Logic");
+	Parser dateParser = new Parser();
 	ArrayList <Task> blockBuffer;
 	Add logicAdd;
 	Clear logicClear;
@@ -54,7 +58,7 @@ public class LogicController {
 	LoadCache loadCache;
 	GoogleCal gCal;
 	GoogleCalService gCalServ;
-	Stack<Command> opStack = new Stack<Command>();
+	Stack<Command> opStack = new Stack<Command>(); // for redo stuff 
 	String authToken = "";
    
 	private static LogicController singleton = null;
@@ -75,7 +79,7 @@ public class LogicController {
 		gCal = new GoogleCal();
 		gCalServ = new GoogleCalService();
 		loadCacheBuffer();
-		new Thread(gCalServ).start();
+		new Thread(gCalServ).start(); // Thread for google sync 
 	}
 	
 	public void setFileName(String fileName) {
@@ -86,65 +90,64 @@ public class LogicController {
 		return fileName;
 	}
 	
-	//Fetch all tasks from file in the beginning.	
 	public void init(String fileName) throws IOException
 	{
 		LogicController.fileName = fileName;
 		loadBuffer(fileName);
 	}
 	
+	// Loading the entries from cache file 
 	public void loadCacheBuffer(){
 		File f = new File(Consts.CACHE);
 		if (f.exists()) {
 			loadCache = new LoadCache();
 			if(loadCache.executeCommand()){
+				assert(!cacheMap.isEmpty());
 				if(GoogleCal.isOnline() && gCal.withExistingToken()){
 					try {
 						if(initSync()){
 							f.delete();
 						}
 					} catch (IOException e) {
-						e.printStackTrace();
+						System.err.println(e.getMessage());
 					}
 				}
-				System.out.println("Loaded");
-			}else{
-				System.out.println("Not Loaded");
+				logger.log(Level.INFO,"Cache entries are loaded.");
+			}else{ 
+				logger.log(Level.INFO,"Cache entries are not loaded.");
 			}
 		}else{
-			System.out.println("File doesn't exist.");
+			logger.log(Level.INFO,"File doesnt exist.");
 		}
 	}
 	
+	// Trying to sync with google server when the app is open
+	@SuppressWarnings("unchecked")
 	public boolean initSync() throws IOException{
 		Iterator<Entry<String, List<JSONObject>>> it = cacheMap.entrySet().iterator();
-		ArrayList<JSONObject> temp = new ArrayList<JSONObject>();
+		ArrayList<JSONObject> temp = new ArrayList<JSONObject>(); // To store the values from cacheMap
 		while (it.hasNext()) {
 			Map.Entry pairs = (Map.Entry) it.next();
-			System.out.println(pairs.getKey() + " = " + pairs.getValue());
+			logger.log(Level.INFO,pairs.getKey() + " = " + pairs.getValue());
 			String key = (String) pairs.getKey();
 			for (JSONObject obj : (List<JSONObject>) pairs.getValue()) {
 				temp.add(obj);
 			}
 			if (key.equals(Consts.ADD)) {
-				System.out.println("ADD is here");
+				logger.log(Level.INFO,"Adding to google cal - cache file.");
 				gCal.syncGCal(temp);
 			} else if (key.equals(Consts.DELETE)) {
-				System.out.println("DEL is here");
+				logger.log(Level.INFO,"Deleting from google cal - cache file");
 				for (JSONObject obj : temp) {
 					gCal.deleteEvent((String)obj.get(Consts.NAME));
 				}
 			}
 			it.remove();
 		}
-		if (!temp.isEmpty()) {
-			return true;
-		}else{
-			return false;
-		}
-	// gCal.syncGCal(temp);
+		return temp.isEmpty() ? false : true;
 	}
 
+	// Fetching all tasks from file in the beginning.	
 	public void loadBuffer(String fileName) throws IOException {
 		JSONParser jsonParser = new JSONParser();
 		String line;
@@ -156,7 +159,7 @@ public class LogicController {
 			}
 			in.close();
 		} catch (FileNotFoundException | ParseException e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 	}
 	
@@ -166,13 +169,12 @@ public class LogicController {
 		Date curDate = new Date();
 		for (JSONObject jTask: tasksBuffer) {
 			
-			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_TIMED_TASK && 
-					Consts.FORMAT_COMPARE_DATE.format(Converter.jsonToTask(jTask).getStartDate()).compareTo(Consts.FORMAT_COMPARE_DATE.format(curDate)) >= 0) {
+			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_TIMED_TASK && Consts.FORMAT_COMPARE_DATE.format(Converter.jsonToTask(jTask).getStartDate()).compareTo(Consts.FORMAT_COMPARE_DATE.format(curDate)) >= 0) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
 		}
-		//System.out.println(); For Debuging
+		//System.out.println(); // For Debuging
 		return displayTasksBuffer;
 	}
 	
@@ -185,7 +187,7 @@ public class LogicController {
 				displayTasksBuffer.add(jTask);
 			}
 		}
-		//System.out.println(); For Debuging
+		//System.out.println(); // For Debuging
 		return displayTasksBuffer;
 	}
 	
@@ -198,7 +200,7 @@ public class LogicController {
 				displayTasksBuffer.add(jTask);
 			}
 		}
-		//System.out.println(); For Debuging
+		//System.out.println(); // For Debuging
 		return displayTasksBuffer;
 	}
 	
@@ -210,13 +212,13 @@ public class LogicController {
 		return Math.max(startDate1.getTime(), startDate2.getTime()) <= Math.min(endDate1.getTime(), endDate2.getTime());
 	}
 		
+	// Adding task
 	public String add(Task task, boolean...addToStack){
-		
 		if (task.getStatus() == Consts.STATUS_TIMED_TASK) { 
 			if (task.getName().compareTo("") == 0) {
 				return Consts.ERROR_ADD;
 			}
-			
+			assert(!task.getName().isEmpty());
 			for (JSONObject jTask: tasksBuffer) {
 				if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_BLOCK_TASK) {
 					Task temp = Converter.jsonToTask(jTask);
@@ -237,11 +239,13 @@ public class LogicController {
 			if(GoogleCal.isOnline()){
 				try {
 					gCal.createEvent(task, "primary");
+					logger.log(Level.INFO,"Adding - sync with google.");
 				} catch (IOException e) {
-					e.printStackTrace();
+					System.err.println(e.getMessage());
 				}
 			}else{
-				cacheMap.put("ADD",Converter.taskToJSON(task));
+				logger.log(Level.INFO,"Adding - offline [saving to file].");
+				cacheMap.put(Consts.ADD,Converter.taskToJSON(task));
 			}
 			return String.format(Consts.STRING_ADD, Consts.FORMAT_PRINT_DATE.format(task.getStartDate()), Consts.FORMAT_PRINT_DATE.format(task.getEndDate()));
 		} else {
@@ -257,9 +261,10 @@ public class LogicController {
 		opStack.add(logicClear);
 		if(GoogleCal.isOnline()){
 			try {
-				gCal.deleteAllEntries();
+				logger.log(Level.INFO,"Deleting all events - sync with google.");
+				gCal.deleteAllEntries(); // Clearing all events from google calendar
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.err.println(e.getMessage());
 			}
 		}
 		return logicClear.executeCommand();
@@ -270,7 +275,6 @@ public class LogicController {
 		logicUpdate.setFileName(fileName);
 		logicUpdate.setOldObj(oldTask);
 		logicUpdate.setNewTask(newTask);
-		System.out.println(newTask.getStatus());
 		opStack.add(logicUpdate);
 		if(logicUpdate.executeCommand()){
 			return String.format(Consts.STRING_UPDATE,oldTask.get(Consts.NAME));
@@ -291,7 +295,7 @@ public class LogicController {
 		try {
 			Collections.sort(tasksBuffer, new NameComparator());
 		} catch (Exception e) {
-			System.out.println(e);
+			System.err.println(e.getMessage());
 		}
 	}
 	
@@ -305,11 +309,13 @@ public class LogicController {
 		if(logicDelete.executeCommand()){
 			if(GoogleCal.isOnline()) {
 				try {
+					logger.log(Level.INFO,"Deleting- sync with google.");
 					gCal.deleteEvent(Converter.jsonToTask(task).getName());
 				} catch (IOException e) {
-					e.printStackTrace();
+					System.err.println(e.getMessage());
 				}
 			}else{
+				logger.log(Level.INFO,"Deleting- offline [saving to file].");
 				cacheMap.put("DELETE", task);
 			}
 			return String.format(Consts.STRING_DELETE, fileName,task.get(Consts.NAME));
@@ -480,7 +486,7 @@ public class LogicController {
 				} 
 			}
 		}
-		System.out.println(foundLine.toString());
+		logger.log(Level.INFO,foundLine.toString());
 		return foundLine;
 	}
 	
