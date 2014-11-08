@@ -4,7 +4,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 public final class Consts {
-	//Json key strings
+	//JSON KEY STRINGS
 	public static final String NAME = "Name";
     public static final String DESCRIPTION = "Description";
     public static final String PRIORITY = "Priority";
@@ -12,7 +12,14 @@ public final class Consts {
     public static final String STARTDATE = "StartDate";
 	public static final String ENDDATE = "EndDate";
 	public static final String STATUS = "Status";
+	
+	//CACHE FILE KEY CONSTANTS
+	public static final String ADD = "ADD";
+	public static final String DELETE = "DELETE";
+	
+	//FILENAME CONSTANTS
 	public static final String GOOGLETOKEN = "GoogleToken";
+	public static final String CACHE = "Cache";
 
     // FEEDBACK STRINGS
     public static final String STRING_WELCOME = "Welcome to TaskBox. %1$s is ready for use.\n";

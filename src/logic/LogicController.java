@@ -1,6 +1,7 @@
 package logic;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -8,7 +9,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 import logic.command.Add;
@@ -19,6 +23,7 @@ import logic.command.Update;
 import logic.google.CacheMap;
 import logic.google.GoogleCal;
 import logic.google.GoogleCalService;
+import logic.google.LoadCache;
 import logic.google.SaveCache;
 import model.Task;
 
@@ -46,6 +51,7 @@ public class LogicController {
 	Delete logicDelete;
 	Update logicUpdate;
 	SaveCache saveCache;
+	LoadCache loadCache;
 	GoogleCal gCal;
 	GoogleCalService gCalServ;
 	Stack<Command> opStack = new Stack<Command>();
@@ -68,6 +74,7 @@ public class LogicController {
 		cacheMap = new CacheMap();
 		gCal = new GoogleCal();
 		gCalServ = new GoogleCalService();
+		loadCacheBuffer();
 		new Thread(gCalServ).start();
 	}
 	
@@ -84,6 +91,57 @@ public class LogicController {
 	{
 		LogicController.fileName = fileName;
 		loadBuffer(fileName);
+	}
+	
+	public void loadCacheBuffer(){
+		File f = new File(Consts.CACHE);
+		if (f.exists()) {
+			loadCache = new LoadCache();
+			if(loadCache.executeCommand()){
+				if(GoogleCal.isOnline() && gCal.withExistingToken()){
+					try {
+						if(initSync()){
+							f.delete();
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				System.out.println("Loaded");
+			}else{
+				System.out.println("Not Loaded");
+			}
+		}else{
+			System.out.println("File doesn't exist.");
+		}
+	}
+	
+	public boolean initSync() throws IOException{
+		Iterator<Entry<String, List<JSONObject>>> it = cacheMap.entrySet().iterator();
+		ArrayList<JSONObject> temp = new ArrayList<JSONObject>();
+		while (it.hasNext()) {
+			Map.Entry pairs = (Map.Entry) it.next();
+			System.out.println(pairs.getKey() + " = " + pairs.getValue());
+			String key = (String) pairs.getKey();
+			for (JSONObject obj : (List<JSONObject>) pairs.getValue()) {
+				temp.add(obj);
+			}
+			switch (key) {
+			case Consts.ADD:
+				System.out.println("ADD is here");
+				//gCal.syncGCal(temp);
+				return true;
+			case Consts.DELETE:
+				System.out.println("DEL is here");
+				for (JSONObject obj:temp){
+					//gCal.deleteEvent((String) obj.get(Consts.NAME));
+				}
+				return true;
+			}
+			it.remove();
+		}
+		return false;
+		// gCal.syncGCal(temp);
 	}
 
 	public void loadBuffer(String fileName) throws IOException {
