@@ -2,9 +2,11 @@
 package logic;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -435,6 +437,23 @@ public class LogicController {
 			return false;
 		}
 		
+	}
+	
+	public boolean Complete(JSONObject jTargetTask, int newStatus) {
+		try {
+			FileWriter fstream = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(fstream);
+			jTargetTask.put(Consts.STATUS, newStatus);
+			bw.write("");
+			for (JSONObject jTask : tasksBuffer) {
+				bw.write(jTask.toString() + "\r\n");
+			}
+
+			bw.close();
+			return true;
+		} catch (IOException e) {
+		}
+		return false;
 	}
 	
 	public ArrayList<JSONObject> search(String keyword, int statusType) throws IOException {
