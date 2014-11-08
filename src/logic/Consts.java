@@ -112,7 +112,10 @@ public final class Consts {
 			+ "\nCtrl + a: quick add"
 			+ "\nCtrl + d: quick delete"
 			+ "\nCtrl + r: refresh tasks"
-			+ "\nCtrl + s: sync" + "\nCtrl + q: quit"
-			+ "\nCtrl + down arrow: scroll down"
-			+ "\nCtrl + up arrow: scroll up";
+			+ "\nCtrl + s: sync" 
+			+ "\nCtrl + q: quit"
+			+ "\nCtrl + up arrow: scroll up timed tasks"
+			+ "\nCtrl + down arrow: scroll down timed tasks"
+			+ "\nAlt + up arrow: scroll up floating tasks"
+			+ "\nAlt + down arrow: scroll down floating tasks";
 }
