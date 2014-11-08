@@ -18,14 +18,10 @@ import com.joestelmach.natty.Parser;
 import model.Task;
 
 public class LogicParser {
-
-	// PRIORITY CONSTANT
-	private static final String PRIORITY_IMPORTANT = "important";
 	private static final int PRIORITY_IMPORTANT_VALUE = 1;
-	
-	private static final int TIME_EPS = 2;
-	
+	private static final int TIME_EPS = 2;	
 	private static final String IGNORE_LIST = "important normal the at in on from to";
+
 	int nameSeparator;
 	int taskType;
 	Parser dateParser = new Parser();
@@ -62,7 +58,7 @@ public class LogicParser {
 	
 	public int decomposePriority(ArrayList<String> words) {
 		for (int i = 0; i < words.size(); i++) {
-			if (words.get(i).compareTo(PRIORITY_IMPORTANT) == 0) {
+			if (words.get(i).compareTo(Consts.PRIORITY_IMPORTANT) == 0) {
 				//words.remove(i);
 				//nameSeparator = Math.min(nameSeparator, i - 1);
 				return PRIORITY_IMPORTANT_VALUE;

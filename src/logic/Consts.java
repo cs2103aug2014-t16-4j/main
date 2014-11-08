@@ -3,6 +3,7 @@ package logic;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
+// Constant Class 
 public final class Consts {
 	//JSON KEY STRINGS
 	public static final String NAME = "Name";
@@ -80,6 +81,10 @@ public final class Consts {
 	public static final int FREQUENCY_DAILY_VALUE = 1;
 	public static final int FREQUENCY_WEEKLY_VALUE = 2;
 	public static final int FREQUENCY_MONTHLY_VALUE = 3;
+		
+	
+	// PRIORITY CONSTANT
+	public static final String PRIORITY_IMPORTANT = "important";
 		
     // DATE CONSTANT
 	//@SuppressWarnings("deprecation")

@@ -15,6 +15,7 @@ import com.google.api.services.calendar.model.Event;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
+// Converter class for converting different formats 
 public class Converter {
 
 	@SuppressWarnings("unchecked")
@@ -35,18 +36,13 @@ public class Converter {
 		try {
 			temp = new Task(obj.get(Consts.NAME).toString());
 			temp.setDescription(obj.get(Consts.DESCRIPTION).toString());
-			temp.setStartDate(Consts.FORMAT_DATE.parse(obj
-					.get(Consts.STARTDATE).toString()));
-			temp.setEndDate(Consts.FORMAT_DATE.parse(obj.get(Consts.ENDDATE)
-					.toString()));
-			temp.setFrequency((int) Integer.parseInt(obj.get(Consts.FREQUENCY)
-					.toString()));
-			temp.setPriority((int) Integer.parseInt(obj.get(Consts.PRIORITY)
-					.toString()));
-			temp.setStatus((int) Integer.parseInt(obj.get(Consts.STATUS)
-					.toString()));
+			temp.setStartDate(Consts.FORMAT_DATE.parse(obj.get(Consts.STARTDATE).toString()));
+			temp.setEndDate(Consts.FORMAT_DATE.parse(obj.get(Consts.ENDDATE).toString()));
+			temp.setFrequency((int) Integer.parseInt(obj.get(Consts.FREQUENCY).toString()));
+			temp.setPriority((int) Integer.parseInt(obj.get(Consts.PRIORITY).toString()));
+			temp.setStatus((int) Integer.parseInt(obj.get(Consts.STATUS).toString()));
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getMessage());
 		}
 		return temp;
 	}
@@ -89,10 +85,8 @@ public class Converter {
 	private static String convertDate(String str) throws ParseException {
 		String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 		String datedate = str;
-		Date newDate = new SimpleDateFormat(pattern).parse(datedate
-				.split("\\+")[0]);
-		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat(
-				"dd/M/yyyy HH:mm:ss");
+		Date newDate = new SimpleDateFormat(pattern).parse(datedate.split("\\+")[0]);
+		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
 		return DATE_FORMAT.format(newDate);
 	}
 
@@ -102,7 +96,6 @@ public class Converter {
 		} else {
 			String delims = "[:=;]+";
 			String[] splittedStr = str.split(delims);
-			// System.out.println(splittedStr[2].toString());
 			if (splittedStr[2].equalsIgnoreCase(Consts.FREQUENCY_DAILY)) {
 				return Consts.FREQUENCY_DAILY_VALUE;
 			} else if (splittedStr[2].equalsIgnoreCase(Consts.FREQUENCY_WEEKLY)) {
