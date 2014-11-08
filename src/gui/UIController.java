@@ -23,6 +23,7 @@ import logic.Consts;
 import logic.LogicController;
 import logic.LogicParser;
 import logic.google.GoogleCal;
+import model.SearchResult;
 import model.Task;
 
 import org.eclipse.ui.forms.widgets.ColumnLayout;
@@ -97,34 +98,7 @@ public class UIController {
 	Table floatingTaskTable;
 	Composite timedInnerComposite;
 	MenuItem mi;
-
-	// HELP TEXT
-	public String HELP_TEXT = "TaskBox Commands:\n\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
-			+ "\ndelete [line #]"
-			+ "\nupdate [line #]"
-			+ "\nclear"
-			+ "\nsort"
-			+ "\nsearch [task date & time]/[keyword]"
-			+ "\nblock [task start and end date & time]"
-			+ "\nundo"
-			+ "\nsync"
-			+ "\nexit"
-			+ "\n\nHotkeys:"
-			+ "\n\nAlt + h: Hide/Show TaskBox"
-			+ "\nCtrl + "+HELP_HOTKEY+": Help"
-			+ "\nCtrl + "+UNDO_HOTKEY+": Undo"
-			+ "\nCtrl + "+REDO_HOTKEY+": Redo"
-			+ "\nCtrl + "+ADD_HOTKEY+": Quick Add"
-			+ "\nCtrl + "+DELETE_HOTKEY+": Quick Delete"
-			+ "\nCtrl + "+REFRESH_HOTKEY+": Refresh Tasks"
-			+ "\nCtrl + "+SYNC_HOTKEY+": Sync"
-			+ "\nCtrl + "+PREFERENCES_HOTKEY+": Taskbox Preferences"
-			+ "\nCtrl + "+QUIT_HOTKEY+": Quit"
-			+ "\nCtrl + up arrow: Scroll up timed tasks"
-			+ "\nCtrl + down arrow: Scroll down timed tasks"
-			+ "\nAlt + up arrow: Scroll up floating tasks"
-			+ "\nAlt + down arrow: Scroll down floating tasks";
-
+	
 	public UIController(String[] args) {
 		String fileName = args.length > 0 ? args[0] : "mytext.txt";
 		fileName = checkFileName(fileName);
@@ -438,7 +412,7 @@ public class UIController {
 			helpWindow.setBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 			final StyledText helpText = new StyledText(helpWindow, SWT.NONE);
-			helpText.setText(HELP_TEXT);
+			helpText.setText(Consts.HELP_TEXT);
 			helpText.setStyleRange(new StyleRange(0, 19, null, null, SWT.BOLD));
 			helpText.setStyleRange(new StyleRange(248, 8, null, null, SWT.BOLD));
 			helpText.setBounds(20, 10, 560, 460);
@@ -801,7 +775,12 @@ public class UIController {
 		public void searchTimed(String keyword) {
 			if (keyword != null && !keyword.isEmpty()) {
 				try {
-					timedList = logic.search(keyword, Consts.STATUS_TIMED_TASK);
+					SearchResult searchResult = logic.search(keyword, Consts.STATUS_TIMED_TASK);
+					timedList = searchResult.getTasksBuffer();
+					
+					//Modify date range by searchResult.getStartDate(), searchResult.getEndDate()
+					//for search command without date specification (like search with desc)
+					//startDate and endDate = Consts.DATE_DEFAULT
 					updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
 				} catch (IOException e) {
 				}
@@ -813,8 +792,9 @@ public class UIController {
 		public void searchFloating(String keyword) {
 			if (keyword != null && !keyword.isEmpty()) {
 				try {
-					floatingList = logic.search(keyword,
+					SearchResult searchResult = logic.search(keyword,
 							Consts.STATUS_FLOATING_TASK);
+					timedList = searchResult.getTasksBuffer();
 					updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
 				} catch (IOException e) {
 				}
