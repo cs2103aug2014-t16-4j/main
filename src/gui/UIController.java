@@ -351,7 +351,7 @@ public class UIController {
 					updateStatusIndicator(logic.syncWithGoogle());
 					isOkWithExistingToken = true;
 				} catch (IOException e) {
-					e.printStackTrace();
+					System.err.println(e.getMessage());
 					isOkWithExistingToken = false;
 				}
 			}

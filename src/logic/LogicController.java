@@ -238,8 +238,10 @@ public class LogicController {
 		if (logicAdd.executeCommand()) {
 			if(GoogleCal.isOnline()){
 				try {
-					gCal.createEvent(task, "primary");
-					logger.log(Level.INFO,"Adding - sync with google.");
+					if(gCal.withExistingToken()){
+						gCal.createEvent(task, "primary");
+						logger.log(Level.INFO,"Adding - sync with google.");
+					}
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
 				}
@@ -309,8 +311,10 @@ public class LogicController {
 		if(logicDelete.executeCommand()){
 			if(GoogleCal.isOnline()) {
 				try {
-					logger.log(Level.INFO,"Deleting- sync with google.");
-					gCal.deleteEvent(Converter.jsonToTask(task).getName());
+					if(gCal.withExistingToken()){
+						logger.log(Level.INFO,"Deleting- sync with google.");
+						gCal.deleteEvent(Converter.jsonToTask(task).getName());
+					}
 				} catch (IOException e) {
 					System.err.println(e.getMessage());
 				}
