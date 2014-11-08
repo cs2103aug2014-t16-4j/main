@@ -232,8 +232,8 @@ public class UIController {
 		statusComposite.setBounds(10, 596, 280, 14);
 
 		statusInd = new Label(statusComposite, SWT.NONE);
-		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande",
-				MAC ? 10 : 8, SWT.NORMAL));
+		statusInd.setFont(SWTResourceManager.getFont("MyriadPro-Regular",
+				MAC ? 11 : 9, SWT.NORMAL));
 		statusInd.setBounds(0, 0, 280, 14);
 		statusInd.setAlignment(SWT.CENTER);
 	}
@@ -383,7 +383,7 @@ public class UIController {
 		floatingTaskComposite.setMinSize(floatingTaskTable.computeSize(
 				SWT.DEFAULT, SWT.DEFAULT));
 		TableColumn taskNames = new TableColumn(floatingTaskTable, SWT.LEFT);
-		taskNames.setWidth(MAC ? 276 : 271);
+		taskNames.setWidth(MAC ? 276 : 255);
 	}
 
 	static void initialize(final Display display, Browser browser) {
@@ -851,7 +851,7 @@ public class UIController {
 			int priority = Integer.parseInt(o.get(Consts.PRIORITY).toString());
 			int frequency = Integer
 					.parseInt(o.get(Consts.FREQUENCY).toString());
-			String shortenedTaskName = ellipsize(taskName, 25);
+			String shortenedTaskName = ellipsize(taskName, 24);
 
 			if (currentDateString.compareTo(startDate) != 0) {
 				noOfDays++;
@@ -861,7 +861,10 @@ public class UIController {
 				form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 				form.setText(currentDateString);
 				if(!MAC){
-					form.setFont(SWTResourceManager.getFont("Myriad Pro",15, SWT.BOLD, false, true));
+					form.setFont(SWTResourceManager.getFont("MyriadPro-Regular",14, SWT.BOLD, false, true));
+				}
+				else{
+					form.setFont(SWTResourceManager.getFont("MyriadPro-Regular",14, SWT.BOLD));
 				}
 				ColumnLayout cl = new ColumnLayout();
 				cl.maxNumColumns = 1;
@@ -885,7 +888,10 @@ public class UIController {
 
 			section.setText(taskNo + ". " + shortenedTaskName);
 			if(!MAC && status == 4){
-				section.setFont(SWTResourceManager.getFont("Myriad Pro",14, SWT.BOLD, true, false));
+				section.setFont(SWTResourceManager.getFont("MyriadPro-Regular",12, SWT.BOLD, true, false));
+			}
+			else{
+				section.setFont(SWTResourceManager.getFont("MyriadPro-Regular",12, SWT.BOLD));
 			}
 			//section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 			//section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
@@ -1001,7 +1007,10 @@ public class UIController {
 							.toString())));
 			
 			if(!MAC && status == 5){
-				item.setFont(SWTResourceManager.getFont("Myriad Pro",14, SWT.BOLD, true, false));
+				item.setFont(SWTResourceManager.getFont("MyriadPro-Regular",11, SWT.NORMAL, true, false));
+			}
+			else{
+				item.setFont(SWTResourceManager.getFont("MyriadPro-Regular",11, SWT.NORMAL));
 			}
 		}
 	}
