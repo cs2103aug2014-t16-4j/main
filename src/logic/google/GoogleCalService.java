@@ -22,6 +22,8 @@ public class GoogleCalService implements Runnable{
 					} catch (IOException | ParseException e) {
 						System.err.println(e.getMessage());
 					}
+				}else{
+					logger.log(Level.INFO,"Existing token doesn't work.");
 				}
 			}
 			try{

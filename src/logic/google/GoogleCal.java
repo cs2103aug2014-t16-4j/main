@@ -127,26 +127,44 @@ public class GoogleCal {
 		do {
 			Events events = client.events().list("primary").setPageToken(pageToken).execute();
 			List<Event> items = events.getItems();
+			JSONObject toDel = null;
 			if (pageToken != null) {
-				for (Event event : items) {
-					boolean found = false;
-					for (int i = 0; i < timeTasks.size(); i++) {
-						if (event.getSummary().equals(Converter.jsonToTask(timeTasks.get(i)).getName())) {
-							found = true;
+				if(items.size()>timeTasks.size()){
+					for(Event event:items){
+						boolean found = false;
+						for(int i=0;i<timeTasks.size();i++){
+							if(event.getSummary().equals(Converter.jsonToTask(timeTasks.get(i)).getName())){
+								found = true;
+							}
+						}
+						if(!found){
+							logger.log(Level.INFO,"Not match found: " + event.getSummary());
+							str += Converter.eventToJSON(event).toString() + "\r\n";
+							LogicController.tasksBuffer.add(Converter.eventToJSON(event));
+							logger.log(Level.INFO,"Writing to file " + event.getSummary());
 						}
 					}
-					if (!found) {
-						logger.log(Level.INFO,"Not match found: " + event.getSummary());
-						str += Converter.eventToJSON(event).toString() + "\r\n";
-						LogicController.tasksBuffer.add(Converter.eventToJSON(event));
-						logger.log(Level.INFO,"Writing to file " + event.getSummary());
+				}else{
+					for(int i=0;i<timeTasks.size();i++){
+						boolean found = false;
+						for(Event event:items){
+							if(Converter.jsonToTask(timeTasks.get(i)).getName().equals(event.getSummary())){
+								found = true;
+							}
+						}
+						if(found){
+							str += timeTasks.get(i).toString() + "\r\n";
+						}else{
+							logger.log(Level.INFO,"Removing task: " + timeTasks.get(i).get(Consts.NAME));
+							LogicController.tasksBuffer.remove(timeTasks.get(i));
+						}
 					}
 				}
 			}
 			pageToken = events.getNextPageToken();
 		} while (pageToken != null);
 		assert (!str.isEmpty());
-		writeFile(LogicController.fileName, str, true);
+		writeFile(LogicController.fileName, str, false);
 	}
 
 	public String syncGCal(ArrayList<JSONObject> timeTasks) throws IOException {
