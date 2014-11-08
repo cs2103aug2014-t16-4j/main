@@ -1007,10 +1007,10 @@ public class UIController {
 							.toString())));
 			
 			if(!MAC && status == 5){
-				item.setFont(SWTResourceManager.getFont("MyriadPro-Regular",11, SWT.NORMAL, true, false));
+				item.setFont(SWTResourceManager.getFont("MyriadPro-Regular",10, SWT.NORMAL, true, false));
 			}
 			else{
-				item.setFont(SWTResourceManager.getFont("MyriadPro-Regular",11, SWT.NORMAL));
+				item.setFont(SWTResourceManager.getFont("MyriadPro-Regular",10, SWT.NORMAL));
 			}
 		}
 	}
