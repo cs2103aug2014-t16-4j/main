@@ -1,3 +1,5 @@
+//@author A0097699X
+
 package gui;
 
 import gui.common.HotKey;
@@ -880,7 +882,7 @@ public class UIController {
 				cl.maxNumColumns = 1;
 				TableWrapLayout twl = new TableWrapLayout();
 				twl.numColumns = 1;
-				form.getBody().setLayout(cl);
+				form.getBody().setLayout(twl);
 			}
 			Section section = toolkit.createSection(form.getBody(),
 					Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE
@@ -897,8 +899,8 @@ public class UIController {
 			// }
 
 			section.setText(taskNo + ". " + shortenedTaskName);
-			// section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-			// section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 			if (priority == 1) {
 				// section.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
