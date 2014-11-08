@@ -856,20 +856,17 @@ public class UIController {
 		for (; taskNo < timedList.size() + 1; taskNo++) {
 			JSONObject o = timedList.get(taskNo - 1);
 			String start = o.get(Consts.STARTDATE).toString();
-			String startTime = start.substring(11, start.length() - 3) + " hr";
+			String startTime = start.substring(11, start.length() - 3) + "hr";
 			String startDate = start.substring(0, 10);
 			String end = o.get(Consts.ENDDATE).toString();
-			String endTime = end.substring(11, end.length() - 3) + " hr";
+			String endTime = end.substring(11, end.length() - 3) + "hr";
 			String desc = o.get(Consts.DESCRIPTION).toString();
 			String taskName = o.get(Consts.NAME).toString();
 			int priority = Integer.parseInt(o.get(Consts.PRIORITY).toString());
 			int frequency = Integer
 					.parseInt(o.get(Consts.FREQUENCY).toString());
 			String shortenedTaskName = ellipsize(taskName, 28);
-			String dateString = start.compareTo(end) == 0 ? startTime
-					: (startTime.compareTo("00:00 hr") == 0
-					&& endTime.compareTo("23:59 hr") == 0 ? "Full Day Event"
-							: startTime + " to " + endTime);
+			
 
 			if (currentDateString.compareTo(startDate) != 0) {
 				noOfDays++;
@@ -927,7 +924,20 @@ public class UIController {
 
 			// time
 			text = toolkit.createFormText(sectionClient, false);
-			text.setText(dateString, false, false);
+			text.setLayoutData(td);
+			
+			if(start.compareTo(end) == 0){
+				text.setText(startTime, false, false);
+			}
+			else if(startTime.compareTo("00:00hr") == 0
+					&& endTime.compareTo("23:59hr") == 0){
+				text.setText("Full Day Event", false, false);
+			}
+			else{
+				text.setText("Start: "+startTime, false, false);
+				text = toolkit.createFormText(sectionClient, false);
+				text.setText("End:   "+endTime, false, false);
+			}
 			// description
 			if (!desc.isEmpty()) {
 				text = toolkit.createFormText(sectionClient, false);
