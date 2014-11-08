@@ -59,7 +59,7 @@ public final class Consts {
 
     // USAGE
     public static final String USAGE_ADD = "Usage: add <todo>";
-    public static final String USAGE_SHOW = "Usage: show <task #>";
+    public static final String USAGE_COMPLETE = "Usage: complete <task #>";
     public static final String USAGE_DELETE = "Usage: delete <task #>";
     public static final String USAGE_UPDATE = "Usage: update <task #> <updated string>";
     public static final String USAGE_BLOCK = "Usage: block <start date/time> <end date/time>";
@@ -85,16 +85,13 @@ public final class Consts {
 	
 	// PRIORITY CONSTANT
 	public static final String PRIORITY_IMPORTANT = "important";
-		
-    // DATE CONSTANT
-	//@SuppressWarnings("deprecation")
-	//public static final Date FLOATING_DATE = new Date(1,1,1); 
-    //public static final String FLOATING_DATE_STRING = "01/2/1901 00:00:00";
 	
 	// STATUS CONSTANT (Task type)
 	public static final int STATUS_TIMED_TASK = 1;
 	public static final int STATUS_FLOATING_TASK = 2;
 	public static final int STATUS_BLOCK_TASK = 3;
+	public static final int STATUS_COMPLETED_TIMED_TASK = 4;
+	public static final int STATUS_COMPLETED_FLOATING_TASK = 5;
 	
 	// HELP TEXT
 	public static final String HELP_TEXT = "TaskBox Commands:\n\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"

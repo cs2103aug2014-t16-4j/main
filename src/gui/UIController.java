@@ -30,7 +30,6 @@ import org.eclipse.ui.forms.widgets.Form;
 import org.eclipse.ui.forms.widgets.FormText;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
-import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
@@ -51,7 +50,7 @@ public class UIController {
 
 	public ArrayList<JSONObject> timedList;
 	public ArrayList<JSONObject> floatingList;
-	public static Boolean ISMAC = false;
+	public static Boolean MAC = false;
 
 	private final static String NON_THIN = "[^iIl1\\.,']";
 	private static Boolean BLNMOUSEDOWN = false;
@@ -90,7 +89,7 @@ public class UIController {
 	// for testing
 	public UIController(String fileName) {
 		try {
-			ISMAC = SystemUtils.IS_OS_MAC;
+			MAC = SystemUtils.IS_OS_MAC;
 			logic = LogicController.getInstance();
 			logic.init(fileName);
 			timedList = logic.getTimedTasksBuffer();
@@ -106,7 +105,7 @@ public class UIController {
 	 * @wbp.parser.entryPoint
 	 */
 	public void init(String fileName) throws IOException {
-		ISMAC = SystemUtils.IS_OS_MAC;
+		MAC = SystemUtils.IS_OS_MAC;
 		logic = LogicController.getInstance();
 		logic.init(fileName);
 
@@ -130,7 +129,7 @@ public class UIController {
 
 	private void renderDisplay() {
 		DISPLAY = new Display();
-		if (!ISMAC) {
+		if (!MAC) {
 			final HotKeyListener listener = new HotKeyListener() {
 				public void onHotKey(final HotKey hotKey) {
 
@@ -234,7 +233,7 @@ public class UIController {
 
 		statusInd = new Label(statusComposite, SWT.NONE);
 		statusInd.setFont(SWTResourceManager.getFont("Lucida Grande",
-				ISMAC ? 10 : 8, SWT.NORMAL));
+				MAC ? 10 : 8, SWT.NORMAL));
 		statusInd.setBounds(0, 0, 280, 14);
 		statusInd.setAlignment(SWT.CENTER);
 	}
@@ -384,7 +383,7 @@ public class UIController {
 		floatingTaskComposite.setMinSize(floatingTaskTable.computeSize(
 				SWT.DEFAULT, SWT.DEFAULT));
 		TableColumn taskNames = new TableColumn(floatingTaskTable, SWT.LEFT);
-		taskNames.setWidth(ISMAC ? 276 : 271);
+		taskNames.setWidth(MAC ? 276 : 271);
 	}
 
 	static void initialize(final Display display, Browser browser) {
@@ -598,7 +597,7 @@ public class UIController {
 				showAuthPopup();
 				break;
 			case SHOW:
-				statusString = show(task);
+				statusString = complete(task);
 				break;
 			case EXIT:
 				systemExit();
@@ -669,7 +668,7 @@ public class UIController {
 				return Consts.USAGE_UPDATE;
 			}
 			int lineNumber = Integer.parseInt(splittedString[0]);
-			if (lineNumber > taskNo + floatingList.size() - 1 && lineNumber > 0) {
+			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
 				return Consts.USAGE_UPDATE;
 			}
 			try {
@@ -705,8 +704,8 @@ public class UIController {
 	public String delete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber = Integer.parseInt(lineNo);
-			;
-			if (lineNumber > taskNo + floatingList.size() - 1 && lineNumber > 0) {
+			
+			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
 				return Consts.USAGE_DELETE;
 			}
 			try {
@@ -717,6 +716,24 @@ public class UIController {
 			}
 		} else {
 			return Consts.USAGE_DELETE;
+		}
+	}
+	
+	private String complete(String lineNo) {
+		if (lineNo != null && !lineNo.isEmpty()) {
+			int lineNumber = Integer.parseInt(lineNo);
+			
+			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
+				return Consts.USAGE_DELETE;
+			}
+			try {
+				// calculate whether task is in timed or floating
+				return logic.delete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1));
+			} catch (NumberFormatException e) {
+				return Consts.USAGE_DELETE;
+			}
+		} else {
+			return Consts.USAGE_COMPLETE;
 		}
 	}
 
@@ -813,38 +830,6 @@ public class UIController {
 		}
 	}
 
-	private String show(String lineNo) {
-		if (lineNo != null && !lineNo.isEmpty()) {
-			int lineNumber = Integer.parseInt(lineNo);
-			;
-			if (lineNumber > taskNo) {
-				return Consts.USAGE_SHOW;
-			}
-			try {
-				taskNo = 1;
-
-				timedInnerComposite.dispose();
-				timedTaskComposite.dispose();
-				renderTimedTaskContainer();
-
-				// timedInnerComposite.dispose();
-				// for (Control kid : timedInnerComposite.getChildren()) {
-				// kid.dispose();
-				// }
-				updateTimedTask(lineNumber);
-				timedInnerComposite.layout();
-				timedInnerComposite.redraw();
-				timedTaskComposite.layout();
-				timedTaskComposite.redraw();
-				return "";
-			} catch (NumberFormatException e) {
-				return Consts.USAGE_SHOW;
-			}
-		} else {
-			return Consts.USAGE_SHOW;
-		}
-	}
-
 	private void updateTimedTask(int line) {
 		int noOfDays = 0;
 		String currentDateString = "";
@@ -862,24 +847,27 @@ public class UIController {
 			String endTime = end.substring(11, end.length() - 3) + "hr";
 			String desc = o.get(Consts.DESCRIPTION).toString();
 			String taskName = o.get(Consts.NAME).toString();
+			int status = Integer.parseInt(o.get(Consts.STATUS).toString());
 			int priority = Integer.parseInt(o.get(Consts.PRIORITY).toString());
 			int frequency = Integer
 					.parseInt(o.get(Consts.FREQUENCY).toString());
-			String shortenedTaskName = ellipsize(taskName, 28);
-			
+			String shortenedTaskName = ellipsize(taskName, 25);
 
 			if (currentDateString.compareTo(startDate) != 0) {
 				noOfDays++;
 				toolkit = new FormToolkit(timedInnerComposite.getDisplay());
 				currentDateString = startDate;
 				form = toolkit.createForm(timedInnerComposite);
-				form.setLayoutData(new GridData(GridData.FILL_BOTH));
+				form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 				form.setText(currentDateString);
+				if(!MAC){
+					form.setFont(SWTResourceManager.getFont("Myriad Pro",15, SWT.BOLD, false, true));
+				}
 				ColumnLayout cl = new ColumnLayout();
 				cl.maxNumColumns = 1;
 				TableWrapLayout twl = new TableWrapLayout();
 				twl.numColumns = 1;
-				form.getBody().setLayout(twl);
+				form.getBody().setLayout(cl);
 			}
 			Section section = toolkit.createSection(form.getBody(),
 					Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE
@@ -896,8 +884,11 @@ public class UIController {
 			// }
 
 			section.setText(taskNo + ". " + shortenedTaskName);
-			section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-			section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			if(!MAC && status == 4){
+				section.setFont(SWTResourceManager.getFont("Myriad Pro",14, SWT.BOLD, true, false));
+			}
+			//section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+			//section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 
 			if (priority == 1) {
 				// section.setForeground(SWTResourceManager.getColor(SWT.COLOR_RED));
@@ -911,9 +902,6 @@ public class UIController {
 			TableWrapLayout twl = new TableWrapLayout();
 			twl.numColumns = 1;
 			sectionClient.setLayout(twl);
-			TableWrapData td = new TableWrapData();
-			td.colspan = 1;
-			sectionClient.setLayoutData(td);
 			FormText text;
 
 			// full name
@@ -924,19 +912,19 @@ public class UIController {
 
 			// time
 			text = toolkit.createFormText(sectionClient, false);
-			text.setLayoutData(td);
-			
+			//text.setFont(SWTResourceManager.getFont("Arial",10, SWT.NORMAL, false, false));
+
 			if(start.compareTo(end) == 0){
-				text.setText(startTime, false, false);
+				text.setText("Dateline: " + startTime, false, false);
 			}
 			else if(startTime.compareTo("00:00hr") == 0
 					&& endTime.compareTo("23:59hr") == 0){
 				text.setText("Full Day Event", false, false);
 			}
 			else{
-				text.setText("Start: "+startTime, false, false);
+				text.setText("Start: " + startTime, false, false);
 				text = toolkit.createFormText(sectionClient, false);
-				text.setText("End:   "+endTime, false, false);
+				text.setText("End: " + endTime, false, false);
 			}
 			// description
 			if (!desc.isEmpty()) {
@@ -1002,12 +990,19 @@ public class UIController {
 
 	private void updatefloatingTask() {
 		for (int i = 0; i < floatingList.size(); i++) {
+			JSONObject o = floatingList.get(i);
+			int status = Integer.parseInt(o.get(Consts.STATUS).toString());
+			
 			TableItem item = new TableItem(floatingTaskTable, 0);
 			item.setText((i + taskNo) + ". "
-					+ floatingList.get(i).get(Consts.NAME).toString());
+					+ o.get(Consts.NAME).toString());
 			item.setForeground(getColorWithPriority(Integer
-					.parseInt(floatingList.get(i).get(Consts.PRIORITY)
+					.parseInt(o.get(Consts.PRIORITY)
 							.toString())));
+			
+			if(!MAC && status == 5){
+				item.setFont(SWTResourceManager.getFont("Myriad Pro",14, SWT.BOLD, true, false));
+			}
 		}
 	}
 

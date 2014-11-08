@@ -169,7 +169,7 @@ public class LogicController {
 		Date curDate = new Date();
 		for (JSONObject jTask: tasksBuffer) {
 			
-			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_TIMED_TASK && Consts.FORMAT_COMPARE_DATE.format(Converter.jsonToTask(jTask).getStartDate()).compareTo(Consts.FORMAT_COMPARE_DATE.format(curDate)) >= 0) {
+			if ((Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_TIMED_TASK || Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_COMPLETED_TIMED_TASK) && Consts.FORMAT_COMPARE_DATE.format(Converter.jsonToTask(jTask).getStartDate()).compareTo(Consts.FORMAT_COMPARE_DATE.format(curDate)) >= 0) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
@@ -182,7 +182,7 @@ public class LogicController {
 	public ArrayList<JSONObject> getFloatingTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
-			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_FLOATING_TASK) {
+			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_FLOATING_TASK || Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_COMPLETED_FLOATING_TASK) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
