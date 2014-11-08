@@ -327,7 +327,7 @@ public class UIController {
 		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
 				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == '/')) {
+						&& (e.keyCode == HELP_HOTKEY)) {
 					if (helpWindow.isVisible()) {
 						helpWindow.setVisible(false);
 					} else {
@@ -525,7 +525,6 @@ public class UIController {
 
 	private void renderShell() {
 		SHELL = new Shell(DISPLAY, SWT.MODELESS);
-		// SHELL = new Shell (DISPLAY, SWT.ON_TOP | SWT.MODELESS);
 		SHELL.setSize(300, 620);
 		SHELL.setLayout(null);
 		// allow user to input once shell gets focus
@@ -756,6 +755,7 @@ public class UIController {
 				return Consts.USAGE_COMPLETE;
 			}
 			try {
+				// lineNumber >= taskNo? 5 : 4
 				// calculate whether task is in timed or floating
 				return logic.delete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1));
 			} catch (NumberFormatException e) {
@@ -804,14 +804,8 @@ public class UIController {
 	public String add(String task) {
 		Task tsk = parser.decompose(task);
 		if (tsk != null && !tsk.isEmpty()) {
-			/*
-			 * boolean isSuccess = logic.add(tsk); if (isSuccess) { return
-			 * String.format(Consts.STRING_ADD, logic.getFileName(), task); }
-			 * else { return Consts.USAGE_ADD; }
-			 */
 			return logic.add(tsk);
 		} else {
-			// return Consts.ERROR_ADD;
 			return Consts.USAGE_ADD;
 		}
 	}
@@ -1031,6 +1025,17 @@ public class UIController {
 	private void systemExit() {
 		logic.saveCache();
 		updateStatusIndicator(Consts.STRING_EXIT);
+		SHELL.dispose();
+		input.dispose();
+		floatingTaskComposite.dispose();
+		timedTaskComposite.dispose();
+		authShell.dispose();
+		browser.dispose();
+		statusComposite.dispose();
+		statusInd.dispose();
+		floatingTaskTable.dispose();
+		timedInnerComposite.dispose();
+		tray.dispose();
 		provider.reset();
 		provider.stop();
 		System.exit(0);
