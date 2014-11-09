@@ -1,14 +1,11 @@
+//@author A0112069M
 package logic;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-
-import org.apache.commons.lang.time.DateUtils;
 
 import com.joestelmach.natty.DateGroup;
 import com.joestelmach.natty.Parser;

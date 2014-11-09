@@ -61,6 +61,7 @@ public class LogicController {
 	LoadCache loadCache;
 	GoogleCal gCal;
 	GoogleCalService gCalServ;
+	//@author A0112069M
 	Stack<Command> opStack = new Stack<Command>(); // for redo stuff 
 	String authToken = "";
    
@@ -169,6 +170,7 @@ public class LogicController {
 		}
 	}
 	
+	//@author A0112069M
 	//TasksBuffer without Block task (Timed)
 	public ArrayList<JSONObject> getTimedTasksBuffer() {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
@@ -264,11 +266,13 @@ public class LogicController {
 			
 	}
 	
+	//@author A0112069M
 	public boolean clear(boolean...addToStack){
 		logicClear = new Clear();
 		logicClear.setFileName(fileName);
 		logicClear.setOldTaskBuffer(tasksBuffer);
 		opStack.add(logicClear);
+		//@author A0117993R
 		if(GoogleCal.isOnline()){
 			try {
 				if(gCal.withExistingToken()){
@@ -282,6 +286,7 @@ public class LogicController {
 		return logicClear.executeCommand();
 	}
 	
+	//@author A0112069M
 	public String update(JSONObject oldTask, Task newTask, boolean...addToStack){
 		logicUpdate = new Update();
 		logicUpdate.setFileName(fileName);
@@ -319,6 +324,7 @@ public class LogicController {
 			opStack.add(logicDelete);
 		}
 		if(logicDelete.executeCommand()){
+			//@author A0117993R
 			if(GoogleCal.isOnline()) {
 				try {
 					if(gCal.withExistingToken()){
@@ -338,6 +344,7 @@ public class LogicController {
 		}
 	}
 	
+	//@author A0112069M
 	public String block(String dateString) {
 		List<DateGroup> dateGrp = dateParser.parse(dateString);
 		if(!dateGrp.isEmpty() && dateGrp.get(0).getDates().size() == 2) {
@@ -383,6 +390,7 @@ public class LogicController {
 		}
 	}
 
+	//@author A0112069M
 	@SuppressWarnings("deprecation")
 	public int getTimeFromDate(Date date) {
 		return date.getHours() *  60 * 60 + date.getMinutes() * 60 + date.getSeconds();
