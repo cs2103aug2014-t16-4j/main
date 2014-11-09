@@ -870,7 +870,7 @@ public class UIController {
 				}
 				try {
 					// calculate whether task is in timed or floating
-					return logic.complete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1) ,lineNumber >= taskNo? 5 : 4));
+					return logic.complete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1) ,lineNumber >= taskNo? Consts.STATUS_COMPLETED_FLOATING_TASK : Consts.STATUS_COMPLETED_TIMED_TASK));
 				} catch (NumberFormatException e) {
 					return Consts.USAGE_COMPLETE;
 				}
