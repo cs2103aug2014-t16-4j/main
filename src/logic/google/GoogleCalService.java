@@ -20,10 +20,11 @@ public class GoogleCalService implements Runnable{
 					try {
 						gCal.syncGCalService(gCal.getTimedTasksBuffer());
 					} catch (IOException | ParseException e) {
-						System.err.println(e.getMessage());
+						logger.log(Level.INFO,"Existing token doesn't work.");
+						//System.err.println(e.getMessage());
 					}
 				}else{
-					logger.log(Level.INFO,"Existing token doesn't work.");
+					logger.log(Level.INFO,"Token file doesn't exist.");
 				}
 			}
 			try{
