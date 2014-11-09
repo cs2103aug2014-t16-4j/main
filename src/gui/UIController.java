@@ -998,10 +998,10 @@ public class UIController {
 					form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 					form.setText(currentDateString);
 					if(!MAC){
-						form.setFont(SWTResourceManager.getFont(SYSTEM_FONT,14, SWT.BOLD, false, true));
+						form.setFont(SWTResourceManager.getFont(SYSTEM_FONT,13, SWT.BOLD, false, true));
 					}
 					else{
-						form.setFont(SWTResourceManager.getFont(SYSTEM_FONT,14, SWT.BOLD));
+						form.setFont(SWTResourceManager.getFont(SYSTEM_FONT,13, SWT.BOLD));
 					}
 					ColumnLayout cl = new ColumnLayout();
 					cl.maxNumColumns = 1;
@@ -1014,10 +1014,10 @@ public class UIController {
 				section.setText(taskNo + ". " + shortenedTaskName);
 
 				if(!MAC && status == 4){
-					section.setFont(SWTResourceManager.getFont(SYSTEM_FONT,12, SWT.BOLD, true, false));
+					section.setFont(SWTResourceManager.getFont(SYSTEM_FONT,10, SWT.BOLD, true, false));
 				}
 				else{
-					section.setFont(SWTResourceManager.getFont(SYSTEM_FONT,12, SWT.BOLD));
+					section.setFont(SWTResourceManager.getFont(SYSTEM_FONT,10, SWT.BOLD));
 				}
 				//section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 				//section.setTitleBarBorderColor(SWTResourceManager.getColor(SWT.COLOR_WHITE));
@@ -1072,7 +1072,7 @@ public class UIController {
 				section.setClient(sectionClient);
 			}
 			timedTaskComposite.setContent(timedInnerComposite);
-			timedTaskComposite.setMinHeight(timedList.size() * 70 + noOfDays * 40);
+			timedTaskComposite.setMinHeight(timedList.size() * 62 + noOfDays * 30);
 		}
 
 		private static int textWidth(String str) {
