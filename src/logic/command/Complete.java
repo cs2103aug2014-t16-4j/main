@@ -13,6 +13,7 @@ public class Complete extends Command{
 	String fileName;
 	JSONObject task;
 	int oldStatus;
+	int status;
 
 	public String getFileName() {
 		return fileName;
@@ -21,8 +22,6 @@ public class Complete extends Command{
 	public void setFileName(String fileName) {
 		this.fileName = fileName;
 	}
-
-	int status;
 
 	public JSONObject getTask() {
 		return task;
