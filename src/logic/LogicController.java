@@ -2,11 +2,9 @@
 package logic;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -23,6 +21,7 @@ import java.util.logging.Logger;
 import logic.command.Add;
 import logic.command.Clear;
 import logic.command.Command;
+import logic.command.Complete;
 import logic.command.Delete;
 import logic.command.Update;
 import logic.google.CacheMap;
@@ -57,6 +56,7 @@ public class LogicController {
 	Clear logicClear;
 	Delete logicDelete;
 	Update logicUpdate;
+	Complete complete;
 	SaveCache saveCache;
 	LoadCache loadCache;
 	GoogleCal gCal;
@@ -444,20 +444,15 @@ public class LogicController {
 	}
 	
 	public String complete(JSONObject jTargetTask, int newStatus) {
-		try {
-			FileWriter fstream = new FileWriter(fileName);
-			BufferedWriter bw = new BufferedWriter(fstream);
-			jTargetTask.put(Consts.STATUS, newStatus);
-			bw.write("");
-			for (JSONObject jTask : tasksBuffer) {
-				bw.write(jTask.toString() + "\r\n");
-			}
-
-			bw.close();
+		complete = new Complete();
+		complete.setFileName(fileName);
+		complete.setStatus(newStatus);
+		complete.setTask(jTargetTask);
+		if(complete.executeCommand()){
 			return String.format(Consts.STRING_COMPLETE, jTargetTask.get(Consts.NAME));
-		} catch (IOException e) {
+		}else{
+			return Consts.STRING_COMPLETE_FAIL;
 		}
-		return Consts.STRING_COMPLETE_FAIL;
 	}
 	
 	public SearchResult search(String keyword, int statusType) throws IOException {
