@@ -212,7 +212,13 @@ public class UIController {
 		rating.add("Google Calendar");
 		rating.add("TaskBox");
 		rating.select(0);
-
+		
+		final Button checkbox = new Button(PreferencesWindow, SWT.CHECK);
+		checkbox.setText("Start up with Windows");
+		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+		gridData.horizontalSpan = 5;
+		checkbox.setLayoutData(gridData);
+		
 		// Save
 		Button save = new Button(PreferencesWindow, SWT.CENTER);
 		save.setText("Save");
@@ -227,6 +233,7 @@ public class UIController {
 				System.out.println(tScroll.getText());
 				System.out.println(fScroll.getText());
 				System.out.println(rating.getSelectionIndex());
+				System.out.println(checkbox.getSelection());
 			}
 
 			public void mouseUp(MouseEvent e) {
