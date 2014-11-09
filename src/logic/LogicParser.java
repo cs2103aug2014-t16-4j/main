@@ -17,7 +17,6 @@ import com.joestelmach.natty.Parser;
 import model.Task;
 
 public class LogicParser {
-	private static final int PRIORITY_IMPORTANT_VALUE = 1;
 	private static final int TIME_EPS = 2;	
 	private static final String IGNORE_LIST = "important normal the at in on from to";
 
@@ -60,7 +59,7 @@ public class LogicParser {
 			if (words.get(i).compareTo(Consts.PRIORITY_IMPORTANT) == 0) {
 				//words.remove(i);
 				//nameSeparator = Math.min(nameSeparator, i - 1);
-				return PRIORITY_IMPORTANT_VALUE;
+				return Consts.PRIORITY_IMPORTANT_VALUE;
 			}
 		}
 		return 0;

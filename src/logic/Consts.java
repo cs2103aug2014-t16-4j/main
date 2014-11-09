@@ -91,6 +91,7 @@ public final class Consts {
 
 	// PRIORITY CONSTANT
 	public static final String PRIORITY_IMPORTANT = "important";
+	public static final int PRIORITY_IMPORTANT_VALUE = 1;
 
 	// STATUS CONSTANT (Task type)
 	public static final int STATUS_TIMED_TASK = 1;
