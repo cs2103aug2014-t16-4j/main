@@ -1033,7 +1033,7 @@ public class UIController {
 					| Section.EXPANDED);
 			section.setText(taskNo + ". " + shortenedTaskName);
 
-			if(!MAC && status == 4){
+			if(!MAC && status == Consts.STATUS_COMPLETED_TIMED_TASK){
 				section.setFont(SWTResourceManager.getFont(SYSTEM_FONT,10, SWT.BOLD, true, false));
 			}
 			else{
@@ -1138,7 +1138,7 @@ public class UIController {
 					.parseInt(o.get(Consts.PRIORITY)
 							.toString())));
 
-			if(!MAC && status == 5){
+			if(!MAC && status == Consts.STATUS_COMPLETED_FLOATING_TASK){
 				item.setFont(SWTResourceManager.getFont(SYSTEM_FONT,10, SWT.NORMAL, true, false));
 			}
 			else{
