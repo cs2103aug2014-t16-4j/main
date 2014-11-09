@@ -869,9 +869,8 @@ public class UIController {
 					return Consts.USAGE_COMPLETE;
 				}
 				try {
-					// lineNumber >= taskNo? 5 : 4
 					// calculate whether task is in timed or floating
-					return logic.delete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1));
+					return logic.complete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1) ,lineNumber >= taskNo? 5 : 4));
 				} catch (NumberFormatException e) {
 					return Consts.USAGE_COMPLETE;
 				}

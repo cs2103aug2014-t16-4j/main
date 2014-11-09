@@ -443,7 +443,7 @@ public class LogicController {
 		
 	}
 	
-	public boolean Complete(JSONObject jTargetTask, int newStatus) {
+	public boolean complete(JSONObject jTargetTask, int newStatus) {
 		try {
 			FileWriter fstream = new FileWriter(fileName);
 			BufferedWriter bw = new BufferedWriter(fstream);
