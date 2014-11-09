@@ -82,8 +82,6 @@ public class LogicController {
 		cacheMap = new CacheMap();
 		gCal = new GoogleCal();
 		gCalServ = new GoogleCalService();
-		loadCacheBuffer();
-		new Thread(gCalServ).start(); // Thread for google sync 
 	}
 	
 	public void setFileName(String fileName) {
@@ -98,6 +96,13 @@ public class LogicController {
 	{
 		LogicController.fileName = fileName;
 		loadBuffer(fileName);
+		loadCacheBuffer();	
+		try{
+			Thread.sleep(1000);
+		}catch(InterruptedException e){
+			System.err.println(e.getMessage());
+		}
+		new Thread(gCalServ).start(); // Thread for google sync 
 	}
 	
 	//@author A0117993R

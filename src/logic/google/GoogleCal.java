@@ -162,6 +162,7 @@ public class GoogleCal {
 				}
 			}
 			pageToken = events.getNextPageToken();
+			//System.out.println(pageToken);
 		} while (pageToken != null);
 		assert (!str.isEmpty());
 		writeFile(LogicController.fileName, str, false);
