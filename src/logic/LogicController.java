@@ -443,7 +443,7 @@ public class LogicController {
 		
 	}
 	
-	public boolean complete(JSONObject jTargetTask, int newStatus) {
+	public String complete(JSONObject jTargetTask, int newStatus) {
 		try {
 			FileWriter fstream = new FileWriter(fileName);
 			BufferedWriter bw = new BufferedWriter(fstream);
@@ -454,10 +454,10 @@ public class LogicController {
 			}
 
 			bw.close();
-			return true;
+			return String.format(Consts.STRING_COMPLETE, jTargetTask.get(Consts.NAME));
 		} catch (IOException e) {
 		}
-		return false;
+		return Consts.STRING_COMPLETE_FAIL;
 	}
 	
 	public SearchResult search(String keyword, int statusType) throws IOException {

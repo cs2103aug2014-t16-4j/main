@@ -28,7 +28,9 @@ public final class Consts {
 	public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, undo, exit, sync, show";
 	public static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
 	public static final String STRING_ENTER_COMMAND = "Command: ";
-	public static final String STRING_ADD = "added from %s to %s";
+	public static final String STRING_ADD = "Added from %s to %s";
+	public static final String STRING_COMPLETE = "Completed %s";
+	public static final String STRING_COMPLETE_FAIL = "Complete fails";
 	public static final String STRING_CLEAR = "All content deleted from %1$s";
 	public static final String STRING_SEARCH_COMPLETE = "Search completed";
 	public static final String STRING_NOT_FOUND = "No item found.";
@@ -36,7 +38,7 @@ public final class Consts {
 	public static final String STRING_SORTED = "List Sorted";
 	public static final String STRING_UNDO = "Action Undone";
 	public static final String STRING_EXIT = "Bye!";
-	public static final String STRING_DELETE = "deleted from %s: \"%s\"";
+	public static final String STRING_DELETE = "Deleted from %s: \"%s\"";
 	public static final String STRING_UPDATE = "%s is updated.\n";
 	public static final String STRING_NOT_UPDATE = "%s is not updated.\n";
 	public static final String STRING_CRE_CORRECT = "The credentials are correct.";
