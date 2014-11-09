@@ -497,6 +497,8 @@ public class LogicController {
 			} else if(date1 != null){
 				//if(dateBefore(task.getStartDate(),date) && dateBefore(date,task.getEndDate())){
 				//if (task.getStartDate().getTime() <= date.getTime() && date.getTime() <= task.getEndDate().getTime()) {
+				sDate = date1;
+				eDate = date2;
 				if (intersectTime(task.getStartDate(), task.getEndDate(), date1, date2)) {
 					foundLine.add(tasksBuffer.get(i));
 				} else if (task.getFrequency() == Consts.FREQUENCY_DAILY_VALUE) {
