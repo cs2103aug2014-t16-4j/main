@@ -28,7 +28,7 @@ public final class Consts {
 	public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, undo, exit, sync, show";
 	public static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
 	public static final String STRING_ENTER_COMMAND = "Command: ";
-	public static final String STRING_ADD = "Added from %s to %s";
+	public static final String STRING_ADD = "Added %s";
 	public static final String STRING_COMPLETE = "Completed %s";
 	public static final String STRING_COMPLETE_FAIL = "Complete fails";
 	public static final String STRING_CLEAR = "All content deleted from %1$s";

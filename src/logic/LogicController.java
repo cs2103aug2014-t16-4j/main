@@ -253,7 +253,8 @@ public class LogicController {
 				logger.log(Level.INFO,"Adding - offline [saving to file].");
 				cacheMap.put(Consts.ADD,Converter.taskToJSON(task));
 			}
-			return String.format(Consts.STRING_ADD, Consts.FORMAT_PRINT_DATE.format(task.getStartDate()), Consts.FORMAT_PRINT_DATE.format(task.getEndDate()));
+			//return String.format(Consts.STRING_ADD, Consts.FORMAT_PRINT_DATE.format(task.getStartDate()), Consts.FORMAT_PRINT_DATE.format(task.getEndDate()));
+			return String.format(Consts.STRING_ADD, task.getName());
 		} else {
 			return Consts.ERROR_ADD;
 		}
