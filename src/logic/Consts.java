@@ -2,6 +2,7 @@ package logic;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 // Constant Class 
 public final class Consts {
@@ -119,4 +120,5 @@ public final class Consts {
 			+ "\nCtrl + down arrow: Scroll down timed tasks"
 			+ "\nAlt + up arrow: Scroll up floating tasks"
 			+ "\nAlt + down arrow: Scroll down floating tasks";
+	public static final Date DATE_DEFAULT = new Date(1,1,1);
 }
