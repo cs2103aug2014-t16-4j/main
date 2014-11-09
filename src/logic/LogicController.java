@@ -266,8 +266,10 @@ public class LogicController {
 		opStack.add(logicClear);
 		if(GoogleCal.isOnline()){
 			try {
-				logger.log(Level.INFO,"Deleting all events - sync with google.");
-				gCal.deleteAllEntries(); // Clearing all events from google calendar
+				if(gCal.withExistingToken()){
+					logger.log(Level.INFO,"Deleting all events - sync with google.");
+					gCal.deleteAllEntries(); // Clearing all events from google calendar
+				}
 			} catch (IOException e) {
 				System.err.println(e.getMessage());
 			}
