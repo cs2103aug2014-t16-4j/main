@@ -65,6 +65,7 @@ public final class Consts {
 
 	// USAGE
 	public static final String USAGE_ADD = "Usage: add <todo>";
+	public static final String USAGE_UNDO = "Usage: undo <task #>";
 	public static final String USAGE_COMPLETE = "Usage: complete <task #>";
 	public static final String USAGE_DELETE = "Usage: delete <task #>";
 	public static final String USAGE_UPDATE = "Usage: update <task #> <updated string>";

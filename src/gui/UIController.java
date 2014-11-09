@@ -740,7 +740,12 @@ public class UIController {
 				statusString = block(task);
 				break;
 			case UNDO:
-				undo();
+				if(splittedString.length==1){
+					undo();
+				}
+				else{
+					statusString = undo(task);
+				}
 				updateTaskList();
 				break;
 			case SYNC:
@@ -882,6 +887,26 @@ public class UIController {
 		}
 	}
 
+
+
+	private String undo(String lineNo) {
+		if (lineNo != null && !lineNo.isEmpty()) {
+			int lineNumber = Integer.parseInt(lineNo);
+
+			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
+				return Consts.USAGE_UNDO;
+			}
+			try {
+				// calculate whether task is in timed or floating
+				return logic.complete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1),lineNumber >= taskNo? Consts.STATUS_FLOATING_TASK : Consts.STATUS_TIMED_TASK);
+			} catch (NumberFormatException e) {
+				return Consts.USAGE_UNDO;
+			}
+		} else {
+			return Consts.USAGE_UNDO;
+		}
+	}
+	
 	private String complete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber = Integer.parseInt(lineNo);
