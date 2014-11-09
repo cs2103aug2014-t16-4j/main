@@ -712,7 +712,7 @@ public class UIController {
 					updateTaskList();
 					break;
 				case COMPLETE:
-					update(task);
+					complete(task);
 					break;
 				case CLEAR:
 					statusString = clear();
