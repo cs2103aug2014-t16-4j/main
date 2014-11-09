@@ -157,14 +157,14 @@ public class NotifierDialog {
         FontData fd = f.getFontData()[0];
         fd.setStyle(SWT.BOLD);
         fd.height = 11;
-        titleLabel.setFont(SWTResourceManager.getFont("Lucida Grande", 10, SWT.BOLD));
+        titleLabel.setFont(SWTResourceManager.getFont("MyriadPro-Regular", 12, SWT.BOLD));
 
         Label text = new Label(inner, SWT.WRAP);
         Font tf = text.getFont();
         FontData tfd = tf.getFontData()[0];
         tfd.setStyle(SWT.BOLD);
         tfd.height = 8;
-        text.setFont(SWTResourceManager.getFont("Lucida Grande", 8, SWT.BOLD));
+        text.setFont(SWTResourceManager.getFont("MyriadPro-Regular", 10, SWT.BOLD));
         GridData gd = new GridData(GridData.FILL_BOTH);
         gd.horizontalSpan = 2;
         text.setLayoutData(gd);

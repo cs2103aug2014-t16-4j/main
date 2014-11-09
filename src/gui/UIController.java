@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.KeyStroke;
 
@@ -46,6 +48,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.eclipse.wb.swt.SWTResourceManager;
+import org.joda.time.Minutes;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONObject;
 
 public class UIController {
@@ -60,6 +66,8 @@ public class UIController {
 	//constants
 	private final Provider provider = Provider.getCurrentProvider(false);
 	private final static String NON_THIN = "[^iIl1\\.,']";
+	private final int REMINDER_TIME_CHECK = 300000;
+	private final int MINUTES_TO_REMIND = 60;
 
 	//statics
 	private static Boolean BLNMOUSEDOWN = false;
@@ -98,6 +106,8 @@ public class UIController {
 	Table floatingTaskTable;
 	Composite timedInnerComposite;
 	MenuItem mi;
+	Timer timer;
+	TimerTask tt;
 
 	public UIController(String[] args) {
 		String fileName = args.length > 0 ? args[0] : "mytext.txt";
@@ -146,6 +156,7 @@ public class UIController {
 		renderTasks("");
 		updateStatusIndicator(String.format(Consts.STRING_WELCOME, fileName));
 		SHELL.open();
+		startReminder();
 		enableDrag();
 		disposeDisplay();
 	}
@@ -258,6 +269,38 @@ public class UIController {
 		PreferencesWindow.open();
 		PreferencesWindow.pack();
 		PreferencesWindow.setVisible(false);
+	}
+
+	private void startReminder() {
+		timer = new Timer();
+		tt = new TimerTask() {
+			@Override
+			public void run() {
+				if(timedList.size()>0){
+					DateTime d;
+					DateTimeFormatter formatter;
+					DateTime now = new DateTime();
+					String toCheck;
+					int i = 0;
+					do{
+						toCheck = timedList.get(i++).get(Consts.STARTDATE).toString();
+						formatter = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
+						d = formatter.parseDateTime(toCheck);
+					}while(d.isBeforeNow());
+					Minutes min = Minutes.minutesBetween(now, d);
+					System.out.println(min.getMinutes());
+					final JSONObject o = timedList.get(--i);
+					if(min.getMinutes() == MINUTES_TO_REMIND){
+						DISPLAY.asyncExec(new Runnable() {
+							public void run() {
+								showNotification(o.get(Consts.NAME).toString()+" is starting in 1 hour!","Ends: "+o.get(Consts.ENDDATE).toString()+"\n"+o.get(Consts.DESCRIPTION).toString());
+							}
+						});
+					}
+				}
+			}
+		};
+		timer.scheduleAtFixedRate(tt, REMINDER_TIME_CHECK, REMINDER_TIME_CHECK);
 	}
 
 	private void renderDisplay() {
@@ -906,7 +949,7 @@ public class UIController {
 			return Consts.USAGE_UNDO;
 		}
 	}
-	
+
 	private String complete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber = Integer.parseInt(lineNo);
@@ -1024,7 +1067,7 @@ public class UIController {
 			String start = o.get(Consts.STARTDATE).toString();
 			String startTime = start.substring(11, start.length() - 3) + "hr";
 			String startDate = !resultsDate.isEmpty()?resultsDate:start.substring(0, 10);
-			startDate = startDate.substring(3,6)+startDate.substring(0,3)+startDate.substring(6);
+			//startDate = startDate.substring(3,6)+startDate.substring(0,3)+startDate.substring(6);
 			String end = o.get(Consts.ENDDATE).toString();
 			String endTime = end.substring(11, end.length() - 3) + "hr";
 			String desc = o.get(Consts.DESCRIPTION).toString();
