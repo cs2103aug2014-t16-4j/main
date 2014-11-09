@@ -7,7 +7,12 @@ import gui.common.HotKeyListener;
 import gui.common.Provider;
 
 import java.awt.event.InputEvent;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,7 +42,6 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.*;
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
@@ -77,6 +81,7 @@ public class UIController {
 
 	//system Preferences
 	private String SYSTEM_FONT = "MyriadPro-Regular";
+	private boolean START_WITH_WINDOWS = true;
 	private int FLOATINGSCROLLSIZE = 5;
 	private int TIMEDSCROLLSIZE = 40;
 	private char UNDO_HOTKEY = 'z';
@@ -88,6 +93,7 @@ public class UIController {
 	private char QUIT_HOTKEY = 'q';
 	private char SYNC_HOTKEY = 's';
 	private char PREFERENCES_HOTKEY = 'p';
+	
 	//initialize global variables
 	private CommandEnum selectedCommand = CommandEnum.INVALID;
 	private int taskNo = 1;
@@ -141,6 +147,7 @@ public class UIController {
 		logic = LogicController.getInstance();
 		logic.init(fileName);
 
+		readConfig();
 		updateTaskList();
 		renderDisplay();
 		renderShell();
@@ -160,67 +167,90 @@ public class UIController {
 		enableDrag();
 		disposeDisplay();
 	}
+	
+	private void readConfig() {
+		System.out.println("reading from config");
+		BufferedReader reader = null;
+		String line = null;
+		try {
+			reader = new BufferedReader(new FileReader("config"));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		try {
+			line = reader.readLine();
+			FLOATINGSCROLLSIZE = Integer.parseInt(line);
+			line = reader.readLine();
+			TIMEDSCROLLSIZE = Integer.parseInt(line);
+			line = reader.readLine();
+			START_WITH_WINDOWS = line.compareTo("true")==0?true:false;
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	private void renderPreferencesPopup() {
-		final Shell PreferencesWindow = new Shell(SHELL, SWT.APPLICATION_MODAL
+		final Shell preferencesWindow = new Shell(SHELL, SWT.APPLICATION_MODAL
 				| SWT.DIALOG_TRIM);
-		PreferencesWindow.setText("TaskBox Preferences");
-		PreferencesWindow.setSize(400, 300);
+		preferencesWindow.setText("TaskBox Preferences");
+		preferencesWindow.setSize(400, 300);
 
 		GridLayout gridLayout = new GridLayout(5, false);
 		gridLayout.verticalSpacing = 8;
 		gridLayout.makeColumnsEqualWidth = true;
 
-		PreferencesWindow.setLayout(gridLayout);
+		preferencesWindow.setLayout(gridLayout);
 		Label label;
 		GridData gridData;
 
-		label = new Label(PreferencesWindow, SWT.CENTER);
+		label = new Label(preferencesWindow, SWT.CENTER);
 		label.setText("Scroll Size");
 		label.setBackground(DISPLAY.getSystemColor(SWT.COLOR_DARK_GRAY));
 		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		gridData.horizontalSpan = 5;
 		label.setLayoutData(gridData);
 
-		label = new Label(PreferencesWindow, SWT.NULL);
+		label = new Label(preferencesWindow, SWT.NULL);
 		label.setText("Floating task:");
 
-		final Text fScroll = new Text(PreferencesWindow, SWT.SINGLE | SWT.BORDER);
+		final Text fScroll = new Text(preferencesWindow, SWT.SINGLE | SWT.BORDER);
 		fScroll.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 		fScroll.setText(Integer.toString(FLOATINGSCROLLSIZE));
 
-		label = new Label(PreferencesWindow, SWT.NULL);
+		label = new Label(preferencesWindow, SWT.NULL);
 
-		label = new Label(PreferencesWindow, SWT.NULL);
+		label = new Label(preferencesWindow, SWT.NULL);
 		label.setText("Timed task:");
 
-		final Text tScroll = new Text(PreferencesWindow, SWT.SINGLE | SWT.BORDER);
+		final Text tScroll = new Text(preferencesWindow, SWT.SINGLE | SWT.BORDER);
 		tScroll.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
 		tScroll.setText(Integer.toString(TIMEDSCROLLSIZE));
 
-		label = new Label(PreferencesWindow, SWT.CENTER);
-		label.setBackground(DISPLAY.getSystemColor(SWT.COLOR_DARK_GRAY));
-		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		gridData.horizontalSpan = 5;
-		label.setLayoutData(gridData);
-		label.setText("Sync Priority");
-
-		final Combo rating = new Combo(PreferencesWindow, SWT.READ_ONLY | SWT.CENTER);
-		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		gridData.horizontalSpan = 5;
-		rating.setLayoutData(gridData);
-		rating.add("Google Calendar");
-		rating.add("TaskBox");
-		rating.select(0);
+//		label = new Label(preferencesWindow, SWT.CENTER);
+//		label.setBackground(DISPLAY.getSystemColor(SWT.COLOR_DARK_GRAY));
+//		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+//		gridData.horizontalSpan = 5;
+//		label.setLayoutData(gridData);
+//		label.setText("Sync Priority");
+//
+//		final Combo rating = new Combo(preferencesWindow, SWT.READ_ONLY | SWT.CENTER);
+//		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
+//		gridData.horizontalSpan = 5;
+//		rating.setLayoutData(gridData);
+//		rating.add("Google Calendar");
+//		rating.add("TaskBox");
+//		rating.select(0);
 		
-		final Button checkbox = new Button(PreferencesWindow, SWT.CHECK);
+		final Button checkbox = new Button(preferencesWindow, SWT.CHECK);
 		checkbox.setText("Start up with Windows");
 		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		gridData.horizontalSpan = 5;
 		checkbox.setLayoutData(gridData);
+		checkbox.setSelection(START_WITH_WINDOWS);
 		
 		// Save
-		Button save = new Button(PreferencesWindow, SWT.CENTER);
+		Button save = new Button(preferencesWindow, SWT.CENTER);
 		save.setText("Save");
 
 		gridData = new GridData();
@@ -232,8 +262,20 @@ public class UIController {
 			public void mouseDown(MouseEvent e) {
 				System.out.println(tScroll.getText());
 				System.out.println(fScroll.getText());
-				System.out.println(rating.getSelectionIndex());
 				System.out.println(checkbox.getSelection());
+				PrintWriter writer = null;
+				try {
+					writer = new PrintWriter("config", "UTF-8");
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (UnsupportedEncodingException e1) {
+					e1.printStackTrace();
+				}
+				writer.println(tScroll.getText());
+				writer.println(fScroll.getText());
+				writer.println(checkbox.getSelection());
+				writer.close();
+				preferencesWindow.setVisible(false);
 			}
 
 			public void mouseUp(MouseEvent e) {
@@ -243,18 +285,18 @@ public class UIController {
 			}
 		});
 
-		PreferencesWindow.addListener(SWT.Close, new Listener() {
+		preferencesWindow.addListener(SWT.Close, new Listener() {
 			public void handleEvent(Event event) {
 				event.doit = false;
-				PreferencesWindow.setVisible(false);
+				preferencesWindow.setVisible(false);
 			}
 		});
 
 		mi.addListener (SWT.Selection, new Listener () {
 			@Override
 			public void handleEvent (Event event) {
-				PreferencesWindow.setVisible(true);
-				PreferencesWindow.setFocus();
+				preferencesWindow.setVisible(true);
+				preferencesWindow.setFocus();
 			}
 		});
 
@@ -263,19 +305,19 @@ public class UIController {
 			public void handleEvent(Event e) {
 				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
 						&& (e.keyCode == PREFERENCES_HOTKEY)) {
-					if (PreferencesWindow.isVisible()) {
-						PreferencesWindow.setVisible(false);
+					if (preferencesWindow.isVisible()) {
+						preferencesWindow.setVisible(false);
 					} else {
-						PreferencesWindow.setVisible(true);
-						PreferencesWindow.setFocus();
+						preferencesWindow.setVisible(true);
+						preferencesWindow.setFocus();
 					}
 				}
 			}
 		});
-		positionWindow(PreferencesWindow);
-		PreferencesWindow.open();
-		PreferencesWindow.pack();
-		PreferencesWindow.setVisible(false);
+		positionWindow(preferencesWindow);
+		preferencesWindow.open();
+		preferencesWindow.pack();
+		preferencesWindow.setVisible(false);
 	}
 
 	private void startReminder() {
