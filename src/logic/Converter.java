@@ -70,10 +70,8 @@ public class Converter {
 		JSONObject temp = new JSONObject();
 		temp.put(Consts.NAME, event.getSummary());
 		temp.put(Consts.DESCRIPTION, event.getDescription()!=null?event.getDescription():"");
-		temp.put(Consts.STARTDATE, event.getStart()!=null?convertDate(event.getStart().getDateTime().toString()):"");
-		//temp.put(Consts.STARTDATE, convertDate(event.getStart().getDateTime().toString()));
-		//temp.put(Consts.ENDDATE, convertDate(event.getEnd().getDateTime().toString()));
-		temp.put(Consts.ENDDATE, event.getEnd()!=null?convertDate(event.getEnd().getDateTime().toString()):"");
+		temp.put(Consts.STARTDATE, convertDate(event.getStart().getDateTime().toString()));
+		temp.put(Consts.ENDDATE, convertDate(event.getEnd().getDateTime().toString()));
 		temp.put(Consts.PRIORITY, event.getSequence());
 		if(event.getRecurrence() == null){
 			temp.put(Consts.FREQUENCY,0);
