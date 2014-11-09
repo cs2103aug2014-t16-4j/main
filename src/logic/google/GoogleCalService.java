@@ -28,7 +28,7 @@ public class GoogleCalService implements Runnable{
 				}
 			}
 			try{
-				Thread.sleep(30000);
+				Thread.sleep(30000); // 30 seconds 
 			}catch(InterruptedException e){
 				System.err.println(e.getMessage());
 			}

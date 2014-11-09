@@ -1075,7 +1075,7 @@ public class UIController {
 				section.setClient(sectionClient);
 			}
 			timedTaskComposite.setContent(timedInnerComposite);
-			timedTaskComposite.setMinHeight(timedList.size() * 62 + noOfDays * 30);
+			timedTaskComposite.setMinHeight(timedList.size() * 70 + noOfDays * 40);
 		}
 
 		private static int textWidth(String str) {
