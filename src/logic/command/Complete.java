@@ -12,6 +12,7 @@ import org.json.simple.JSONObject;
 public class Complete extends Command{
 	String fileName;
 	JSONObject task;
+	int oldStatus;
 
 	public String getFileName() {
 		return fileName;
@@ -44,6 +45,7 @@ public class Complete extends Command{
 		try {
 			FileWriter fstream = new FileWriter(fileName);
 			BufferedWriter bw = new BufferedWriter(fstream);
+			oldStatus = Integer.parseInt(task.get(Consts.STATUS).toString());
 			task.put(Consts.STATUS, status);
 			bw.write("");
 			for (JSONObject jTask : LogicController.tasksBuffer) {
@@ -52,15 +54,25 @@ public class Complete extends Command{
 			bw.close();
 			return true;
 		} catch (IOException e) {
-			System.err.println("Cannot complete task.");
 			return false;
 		}
 	}
 	
 	@Override
 	public boolean undo() {
-		// TODO Auto-generated method stub
-		return false;
+		try {
+			FileWriter fstream = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(fstream);
+			task.put(Consts.STATUS, oldStatus);
+			bw.write("");
+			for (JSONObject jTask : LogicController.tasksBuffer) {
+				bw.write(jTask.toString() + "\r\n");
+			}
+			bw.close();
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 }

@@ -60,6 +60,17 @@ public class Update extends Command{
 	public boolean undo() {
 		LogicController.tasksBuffer.remove(taskToJSON(newTask));
 		LogicController.tasksBuffer.add(oldObj);
+
+		try {
+			FileWriter fstream = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(fstream);
+			for (JSONObject jTask: LogicController.tasksBuffer) {
+				bw.write(jTask.toString()+"\r\n");
+			}
+			bw.close();		
+		} catch (IOException e) {
+		}
+
 		return true;
 	}
 	

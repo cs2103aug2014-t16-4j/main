@@ -56,7 +56,7 @@ public class LogicController {
 	Clear logicClear;
 	Delete logicDelete;
 	Update logicUpdate;
-	Complete complete;
+	Complete logicComplete;
 	SaveCache saveCache;
 	LoadCache loadCache;
 	GoogleCal gCal;
@@ -444,11 +444,12 @@ public class LogicController {
 	}
 	
 	public String complete(JSONObject jTargetTask, int newStatus) {
-		complete = new Complete();
-		complete.setFileName(fileName);
-		complete.setStatus(newStatus);
-		complete.setTask(jTargetTask);
-		if(complete.executeCommand()){
+		logicComplete = new Complete();
+		logicComplete.setFileName(fileName);
+		logicComplete.setStatus(newStatus);
+		logicComplete.setTask(jTargetTask);
+		opStack.add(logicComplete);
+		if(logicComplete.executeCommand()){
 			return String.format(Consts.STRING_COMPLETE, jTargetTask.get(Consts.NAME));
 		}else{
 			return Consts.STRING_COMPLETE_FAIL;
