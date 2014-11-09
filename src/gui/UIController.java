@@ -711,6 +711,9 @@ public class UIController {
 				case DISPLAY:
 					updateTaskList();
 					break;
+				case COMPLETE:
+					update(task);
+					break;
 				case CLEAR:
 					statusString = clear();
 					updateTaskList();
