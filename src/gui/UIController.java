@@ -143,7 +143,7 @@ public class UIController {
 		renderAuthPopup();
 		renderPreferencesPopup();
 
-		renderTasks();
+		renderTasks("");
 		updateStatusIndicator(String.format(Consts.STRING_WELCOME, fileName));
 		SHELL.open();
 		enableDrag();
@@ -301,7 +301,7 @@ public class UIController {
 							&& (e.keyCode == UNDO_HOTKEY)) {
 						undo();
 						updateTaskList();
-						renderTasks();
+						renderTasks("");
 					}
 					// quit
 					else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
@@ -337,7 +337,7 @@ public class UIController {
 					else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
 							&& (e.keyCode == REFRESH_HOTKEY)) {
 						updateTaskList();
-						renderTasks();
+						renderTasks("");
 					}
 				}
 			});
@@ -703,6 +703,7 @@ public class UIController {
 				task = splittedString[Consts.TASK_POSITION];
 			}
 			if (selectedCommand != CommandEnum.INVALID) {
+				String resultsDate = "";
 				switch (selectedCommand) {
 				case ADD:
 					statusString = add(task);
@@ -728,7 +729,7 @@ public class UIController {
 					updateTaskList();
 					break;
 				case SEARCH:
-					searchTimed(task);
+					resultsDate = searchTimed(task);
 					searchFloating(task);
 					break;
 				case UPDATE:
@@ -758,7 +759,7 @@ public class UIController {
 				if (!statusString.isEmpty()) {
 					updateStatusIndicator(statusString);
 				}
-				renderTasks();
+				renderTasks(resultsDate);
 			} else {
 				updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
 			}
@@ -776,7 +777,7 @@ public class UIController {
 			}
 		}
 
-		public void searchTimed(String keyword) {
+		public String searchTimed(String keyword) {
 			if (keyword != null && !keyword.isEmpty()) {
 				try {
 					SearchResult searchResult = logic.search(keyword, Consts.STATUS_TIMED_TASK);
@@ -786,11 +787,22 @@ public class UIController {
 					//for search command without date specification (like search with desc)
 					//startDate and endDate = Consts.DATE_DEFAULT
 					updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
+					SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+					Date d = null;
+					try {
+						d = sdf.parse(searchResult.getStartDate().toString());
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+					return d.toString();
 				} catch (IOException e) {
 				}
 			} else {
 				updateStatusIndicator(Consts.STRING_NOT_FOUND);
 			}
+			return "";
 		}
 
 		public void searchFloating(String keyword) {
@@ -798,7 +810,7 @@ public class UIController {
 				try {
 					SearchResult searchResult = logic.search(keyword,
 							Consts.STATUS_FLOATING_TASK);
-					timedList = searchResult.getTasksBuffer();
+					floatingList = searchResult.getTasksBuffer();
 					updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
 				} catch (IOException e) {
 				}
@@ -874,7 +886,7 @@ public class UIController {
 				}
 				try {
 					// calculate whether task is in timed or floating
-					return logic.complete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1) ,lineNumber >= taskNo? Consts.STATUS_COMPLETED_FLOATING_TASK : Consts.STATUS_COMPLETED_TIMED_TASK);
+					return logic.complete(lineNumber >= taskNo ? floatingList.get(lineNumber - taskNo) : timedList.get(lineNumber - 1),lineNumber >= taskNo? Consts.STATUS_COMPLETED_FLOATING_TASK : Consts.STATUS_COMPLETED_TIMED_TASK);
 				} catch (NumberFormatException e) {
 					return Consts.USAGE_COMPLETE;
 				}
@@ -952,13 +964,13 @@ public class UIController {
 			return CommandEnum.INVALID;
 		}
 
-		private void renderTasks() {
+		private void renderTasks(String resultsDate) {
 			taskNo = 1;
 			if (timedInnerComposite != null) {
 				timedInnerComposite.dispose();
 			}
 			floatingTaskTable.removeAll();
-			updateTimedTask(-1);
+			updateTimedTask(-1,resultsDate);
 			updatefloatingTask();
 		}
 
@@ -969,7 +981,7 @@ public class UIController {
 			}
 		}
 
-		private void updateTimedTask(int line) {
+		private void updateTimedTask(int line, String resultsDate) {
 			int noOfDays = 0;
 			String currentDateString = "";
 			timedInnerComposite = new Composite(timedTaskComposite, SWT.NONE);
@@ -981,7 +993,7 @@ public class UIController {
 				JSONObject o = timedList.get(taskNo - 1);
 				String start = o.get(Consts.STARTDATE).toString();
 				String startTime = start.substring(11, start.length() - 3) + "hr";
-				String startDate = start.substring(0, 10);
+				String startDate = !resultsDate.isEmpty()?resultsDate:start.substring(0, 10);
 				startDate = startDate.substring(3,6)+startDate.substring(0,3)+startDate.substring(6);
 				String end = o.get(Consts.ENDDATE).toString();
 				String endTime = end.substring(11, end.length() - 3) + "hr";
