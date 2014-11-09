@@ -339,7 +339,8 @@ public class UIController {
 					Minutes min = Minutes.minutesBetween(now, d);
 					System.out.println(min.getMinutes());
 					final JSONObject o = timedList.get(--i);
-					if(min.getMinutes() == MINUTES_TO_REMIND){
+					int status = Integer.parseInt(o.get(Consts.STATUS).toString());
+					if(min.getMinutes() == MINUTES_TO_REMIND && status == 1){
 						DISPLAY.asyncExec(new Runnable() {
 							public void run() {
 								showNotification(o.get(Consts.NAME).toString()+" is starting in 1 hour!","Ends: "+o.get(Consts.ENDDATE).toString()+"\n"+o.get(Consts.DESCRIPTION).toString());
