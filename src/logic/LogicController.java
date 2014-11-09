@@ -341,9 +341,9 @@ public class LogicController {
 			Date endDate = dateGrp.get(0).getDates().get(1);			
 			Task task = new Task("Blocked " + Consts.FORMAT_PRINT_TIME.format(startDate) + " > " +  Consts.FORMAT_PRINT_TIME.format(endDate), "", startDate, endDate, 0, 0, Consts.STATUS_BLOCK_TASK);
 			add(task);
-			return "BLOCK " + startDate.toString() + " -> " + endDate.toString();
+			return String.format(Consts.STRING_BLOCK, Consts.FORMAT_PRINT_DATE.format(startDate), Consts.FORMAT_PRINT_DATE.format(endDate));
 		} else {
-			return "BLOCK FAIL";
+			return Consts.STRING_BLOCK_FAIL;
 		}
 	}
 	

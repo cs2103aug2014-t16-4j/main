@@ -47,6 +47,9 @@ public final class Consts {
 	public static final String STRING_SYNC_NOT_COMPLETE = "Synchronization is not complete";
 	public static final String STRING_SYNC = "TaskBox is synchronizing";
 	public static final String STRING_USER_NOT_ONLINE = "Please check your internet connection.";
+	public static final String STRING_BLOCK = "Blocked %s -> %s";
+	public static final String STRING_BLOCK_FAIL = "Block fail";
+	
 
 	// DATE FORMAT
 	public static final DateFormat FORMAT_DATE = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
