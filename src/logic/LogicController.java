@@ -99,6 +99,7 @@ public class LogicController {
 		loadBuffer(fileName);
 	}
 	
+	//@author A0117993R
 	// Loading the entries from cache file 
 	public void loadCacheBuffer(){
 		File f = new File(Consts.CACHE);
@@ -124,6 +125,7 @@ public class LogicController {
 		}
 	}
 	
+	//@author A0117993R
 	// Trying to sync with google server when the app is open
 	@SuppressWarnings("unchecked")
 	public boolean initSync() throws IOException{
@@ -150,6 +152,7 @@ public class LogicController {
 		return temp.isEmpty() ? false : true;
 	}
 
+	//@author A0117993R
 	// Fetching all tasks from file in the beginning.	
 	public void loadBuffer(String fileName) throws IOException {
 		JSONParser jsonParser = new JSONParser();
@@ -240,6 +243,7 @@ public class LogicController {
 			opStack.add(logicAdd);
 		}
 		if (logicAdd.executeCommand()) {
+			//@author A0117993R
 			if(GoogleCal.isOnline()){
 				try {
 					if(gCal.withExistingToken()){
@@ -347,6 +351,7 @@ public class LogicController {
 		}
 	}
 	
+	//@author A0117993R
 	public String getUrl(){
 		return gCal.getURL();
 	}
