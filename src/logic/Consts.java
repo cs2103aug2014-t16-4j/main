@@ -91,8 +91,8 @@ public final class Consts {
 	public static final int STATUS_TIMED_TASK = 1;
 	public static final int STATUS_FLOATING_TASK = 2;
 	public static final int STATUS_BLOCK_TASK = 3;
-	public static final int STATUS_COMPLETED_TIMED_TASK = 4;
-	public static final int STATUS_COMPLETED_FLOATING_TASK = 5;
+	public static final int STATUS_COMPLETED_TIMED_TASK = 11;
+	public static final int STATUS_COMPLETED_FLOATING_TASK = 12;
 
 	// HELP TEXT
 	public static final String HELP_TEXT = "TaskBox Commands:\n\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
