@@ -344,15 +344,14 @@ public class UIController {
 					} while (d.isBeforeNow() || status != 1);
 					final JSONObject o = timedList.get(--i);
 					Minutes min = Minutes.minutesBetween(now, d);
-					System.out.println(min.getMinutes());
-					if (min.getMinutes() == MINUTES_TO_REMIND) {
+					if (min.getMinutes() + 1 == MINUTES_TO_REMIND) {
 						DISPLAY.asyncExec(new Runnable() {
 							public void run() {
 								showNotification(o.get(Consts.NAME).toString()
 										+ " is starting in 1 hour!", "Ends: "
-										+ o.get(Consts.ENDDATE).toString()
-										+ "\n"
-										+ o.get(Consts.DESCRIPTION).toString());
+												+ o.get(Consts.ENDDATE).toString()
+												+ "\n"
+												+ o.get(Consts.DESCRIPTION).toString());
 							}
 						});
 					}
@@ -401,6 +400,7 @@ public class UIController {
 				// undo
 				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
 						&& (e.keyCode == UNDO_HOTKEY)) {
+					e.doit = false;
 					undo();
 					updateTaskList();
 					renderTasks("");
@@ -408,11 +408,13 @@ public class UIController {
 				// quit
 				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
 						&& (e.keyCode == QUIT_HOTKEY)) {
+					e.doit = false;
 					systemExit();
 				}
 				// sync
 				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
 						&& (e.keyCode == SYNC_HOTKEY)) {
+					e.doit = false;
 					showAuthPopup();
 				}
 				// prepare input to add
@@ -425,19 +427,14 @@ public class UIController {
 				// prepare input to delete
 				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
 						&& (e.keyCode == DELETE_HOTKEY)) {
+					e.doit = false;
 					input.setText("delete ");
 					input.setSelection(input.getText().length());
-				}
-				// notification
-				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == 'n')) {
-					showNotification(
-							"Hi There! I'm a notification widget!",
-							"Today we are creating a widget that allows us to show notifications that fade in and out!");
 				}
 				// refresh list
 				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
 						&& (e.keyCode == REFRESH_HOTKEY)) {
+					e.doit = false;
 					updateTaskList();
 					renderTasks("");
 				}
@@ -815,60 +812,60 @@ public class UIController {
 		if (selectedCommand != CommandEnum.INVALID) {
 			String resultsDate = "";
 			switch (selectedCommand) {
-			case ADD:
-				statusString = add(task);
-				updateTaskList();
-				break;
-			case DISPLAY:
-				updateTaskList();
-				break;
-			case COMPLETE:
-				statusString = complete(task);
-				updateTaskList();
-				break;
-			case CLEAR:
-				statusString = clear();
-				updateTaskList();
-				break;
-			case DELETE:
-				statusString = delete(task);
-				updateTaskList();
-				break;
-			case SORT:
-				statusString = sort();
-				updateTaskList();
-				break;
-			case SEARCH:
-				resultsDate = searchTimed(task);
-				searchFloating(task);
-				break;
-			case UPDATE:
-				statusString = update(task);
-				updateTaskList();
-				break;
-			case BLOCK:
-				statusString = block(task);
-				break;
-			case UNDO:
-				if (splittedString.length == 1) {
-					undo();
-				} else {
-					statusString = undo(task);
-				}
-				updateTaskList();
-				break;
-			case SYNC:
-				updateStatusIndicator(Consts.STRING_SYNC);
-				showAuthPopup();
-				break;
-			case SHOW:
-				statusString = complete(task);
-				break;
-			case EXIT:
-				systemExit();
-			default:
-				updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
-				break;
+				case ADD:
+					statusString = add(task);
+					updateTaskList();
+					break;
+				case DISPLAY:
+					updateTaskList();
+					break;
+				case COMPLETE:
+					statusString = complete(task);
+					updateTaskList();
+					break;
+				case CLEAR:
+					statusString = clear();
+					updateTaskList();
+					break;
+				case DELETE:
+					statusString = delete(task);
+					updateTaskList();
+					break;
+				case SORT:
+					statusString = sort();
+					updateTaskList();
+					break;
+				case SEARCH:
+					resultsDate = searchTimed(task);
+					searchFloating(task);
+					break;
+				case UPDATE:
+					statusString = update(task);
+					updateTaskList();
+					break;
+				case BLOCK:
+					statusString = block(task);
+					break;
+				case UNDO:
+					if (splittedString.length == 1) {
+						undo();
+					} else {
+						statusString = undo(task);
+					}
+					updateTaskList();
+					break;
+				case SYNC:
+					updateStatusIndicator(Consts.STRING_SYNC);
+					showAuthPopup();
+					break;
+				case SHOW:
+					statusString = complete(task);
+					break;
+				case EXIT:
+					systemExit();
+				default:
+					updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
+					break;
 			}
 			if (!statusString.isEmpty()) {
 				updateStatusIndicator(statusString);
@@ -957,7 +954,7 @@ public class UIController {
 				return logic.update(
 						lineNumber >= taskNo ? floatingList.get(lineNumber
 								- taskNo) : timedList.get(lineNumber - 1),
-						newTask);
+								newTask);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_UPDATE;
 			}
@@ -1016,8 +1013,8 @@ public class UIController {
 				return logic.complete(
 						lineNumber >= taskNo ? floatingList.get(lineNumber
 								- taskNo) : timedList.get(lineNumber - 1),
-						lineNumber >= taskNo ? Consts.STATUS_FLOATING_TASK
-								: Consts.STATUS_TIMED_TASK);
+								lineNumber >= taskNo ? Consts.STATUS_FLOATING_TASK
+										: Consts.STATUS_TIMED_TASK);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_UNDO;
 			}
@@ -1040,8 +1037,8 @@ public class UIController {
 								lineNumber >= taskNo ? floatingList
 										.get(lineNumber - taskNo) : timedList
 										.get(lineNumber - 1),
-								lineNumber >= taskNo ? Consts.STATUS_COMPLETED_FLOATING_TASK
-										: Consts.STATUS_COMPLETED_TIMED_TASK);
+										lineNumber >= taskNo ? Consts.STATUS_COMPLETED_FLOATING_TASK
+												: Consts.STATUS_COMPLETED_TIMED_TASK);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_COMPLETE;
 			}
@@ -1183,7 +1180,7 @@ public class UIController {
 
 			Section section = toolkit.createSection(form.getBody(),
 					Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE
-							| Section.EXPANDED);
+					| Section.EXPANDED);
 			section.setText(taskNo + ". " + shortenedTaskName);
 
 			if (!MAC && status == Consts.STATUS_COMPLETED_TIMED_TASK) {
