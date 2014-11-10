@@ -29,7 +29,7 @@ public class TaskBoxLogicTest {
 	public void tearDown() throws Exception {
 	}
 	
-	/*
+
 	@Test
 	public void testSearch() {
 		System.out.println("=== Testing search function ===");
@@ -91,7 +91,7 @@ public class TaskBoxLogicTest {
 		//System.out.println(returnString);
 		assertEquals(expectedString,returnObjects);
 	}
-	*/
+
 	
 	@Test
 	public void testDelete() {

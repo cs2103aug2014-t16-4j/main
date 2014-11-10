@@ -565,6 +565,7 @@ public class LogicController {
 		}
 		List<DateGroup> dateGrp = dateParser.parse(keyword);
 		
+		// date1, date2 will be the two date parsed from keyword
 		Date date1 = null;
 		Date date2 = null;
 		if(!dateGrp.isEmpty()){
@@ -583,6 +584,7 @@ public class LogicController {
 			}
 		}
 		
+		//looping throught the tasksBuffer and check
 		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
 		for (int i = 0; i < tasksBuffer.size(); i++) {
 			Task task = Converter.jsonToTask(tasksBuffer.get(i));
@@ -591,8 +593,6 @@ public class LogicController {
 			} else if (task.getDescription().contains(keyword)) {
 				foundLine.add(tasksBuffer.get(i));
 			} else if(date1 != null){
-				//if(dateBefore(task.getStartDate(),date) && dateBefore(date,task.getEndDate())){
-				//if (task.getStartDate().getTime() <= date.getTime() && date.getTime() <= task.getEndDate().getTime()) {
 				if (intersectTime(task.getStartDate(), task.getEndDate(), date1, date2)) {
 					foundLine.add(tasksBuffer.get(i));
 					date.add(maxDate(task.getStartDate(), date1));
