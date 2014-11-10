@@ -43,6 +43,7 @@ public final class Consts {
 	public static final String STRING_EXIT = "Bye!";
 	public static final String STRING_DELETE = "Deleted from %s: \"%s\"";
 	public static final String STRING_UPDATE = "%s is updated.\n";
+	public static final String STRING_UPDATE_CORRECT = "Use \"name\" or \"desc\" or \"date\" or \"important\" or \"not important\"";
 	public static final String STRING_NOT_UPDATE = "%s is not updated.\n";
 	public static final String STRING_CRE_CORRECT = "The credentials are correct.";
 	public static final String STRING_CRE_NOT_CORRECT = "The credentials are not correct.";
@@ -91,11 +92,18 @@ public final class Consts {
 	public static final int FREQUENCY_DAILY_VALUE = 1;
 	public static final int FREQUENCY_WEEKLY_VALUE = 2;
 	public static final int FREQUENCY_MONTHLY_VALUE = 3;
-
+	
+	// UPDATE CONSTANT
+	public static final String UPDATE_NAME = "name";
+	public static final String UPDATE_DATE = "date";
+	public static final String UPDATE_ERROR_DATE = "Please type a correct date";
+	public static final String UPDATE_DESC = "desc";
 
 	// PRIORITY CONSTANT
 	public static final String PRIORITY_IMPORTANT = "important";
+	public static final String PRIORITY_NOT_IMPORTANT = "not important";
 	public static final int PRIORITY_IMPORTANT_VALUE = 1;
+	public static final int PRIORITY_NOT_IMPORTANT_VALUE = 0;
 
 	// STATUS CONSTANT (Task type)
 	public static final int STATUS_TIMED_TASK = 1;
