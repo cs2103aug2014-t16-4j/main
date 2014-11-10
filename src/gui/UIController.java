@@ -64,8 +64,8 @@ public class UIController {
 	private LogicParser parser = new LogicParser();
 
 	// task storage
-	public ArrayList<JSONObject> timedList;
-	public ArrayList<JSONObject> floatingList;
+	private ArrayList<JSONObject> timedList;
+	private ArrayList<JSONObject> floatingList;
 
 	// constants
 	private final Provider PROVIDER = Provider.getCurrentProvider(false);
@@ -143,7 +143,7 @@ public class UIController {
 	}
 
 	// UI initializer
-	public void init(String fileName) throws IOException {
+	private void init(String fileName) throws IOException {
 		isMac = SystemUtils.IS_OS_MAC;
 		logic = LogicController.getInstance();
 		logic.init(fileName);
@@ -819,7 +819,7 @@ public class UIController {
 	}
 	
 	//delegate tasks from input
-	public void delegateTask(String userInput) {
+	private void delegateTask(String userInput) {
 		String[] splittedString;
 		String task = "";
 		String statusString = "";
@@ -898,7 +898,7 @@ public class UIController {
 	}
 
 	//calls and returns string value from logic's block function
-	public String block(String userInput) {
+	private String block(String userInput) {
 		if (userInput != null && !userInput.isEmpty()) {
 			try {
 				return logic.block(userInput);
@@ -910,7 +910,7 @@ public class UIController {
 		}
 	}
 
-	public String searchTimed(String keyword) {
+	private String searchTimed(String keyword) {
 		if (keyword != null && !keyword.isEmpty()) {
 			try {
 				SearchResult searchResult = logic.search(keyword,
@@ -949,7 +949,7 @@ public class UIController {
 		return "";
 	}
 
-	public void searchFloating(String keyword) {
+	private void searchFloating(String keyword) {
 		if (keyword != null && !keyword.isEmpty()) {
 			try {
 				SearchResult searchResult = logic.search(keyword,
@@ -963,7 +963,7 @@ public class UIController {
 		}
 	}
 
-	public String update(String userInput) {
+	private String update(String userInput) {
 		if (userInput != null && !userInput.isEmpty()) {
 			String[] splittedString = getSplittedString(userInput);
 			if (splittedString.length != Consts.NO_ARGS_UPDATE) {
@@ -979,11 +979,12 @@ public class UIController {
 				return Consts.USAGE_UPDATE;
 			}
 			try {
+				String[] newSplitted = getSplittedString(splittedString[1]);
 				// calculate whether task is in timed or floating
 				return logic.update(
 						lineNumber >= taskNo ? floatingList.get(lineNumber
 								- taskNo) : timedList.get(lineNumber - 1),
-								null);
+								newSplitted[0],newSplitted[1]);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_UPDATE;
 			}
@@ -992,7 +993,7 @@ public class UIController {
 		}
 	}
 
-	public String sort() {
+	private String sort() {
 		try {
 			logic.sort();
 			return Consts.STRING_SORTED;
@@ -1001,7 +1002,7 @@ public class UIController {
 		return null;
 	}
 
-	public String undo() {
+	private String undo() {
 		try {
 			logic.undo();
 			return Consts.STRING_UNDO;
@@ -1039,7 +1040,7 @@ public class UIController {
 		}
 	}
 
-	public String delete(String lineNo) {
+	private String delete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber;
 			try {
@@ -1120,7 +1121,7 @@ public class UIController {
 		}
 	}
 
-	public String clear() {
+	private String clear() {
 		if (logic.clear()) {
 			return String.format(Consts.STRING_CLEAR, logic.getFileName());
 		} else {
@@ -1155,7 +1156,7 @@ public class UIController {
 		});
 	}
 
-	public String add(String task) {
+	private String add(String task) {
 		Task tsk = parser.decompose(task);
 		if (tsk != null && !tsk.isEmpty()) {
 			return logic.add(tsk);
@@ -1335,7 +1336,7 @@ public class UIController {
 		return (int) (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
 	}
 
-	public static String ellipsize(String text, int max) {
+	private static String ellipsize(String text, int max) {
 		if (textWidth(text) <= max)
 			return text;
 
@@ -1390,7 +1391,7 @@ public class UIController {
 		}
 	}
 
-	public Color getColorWithPriority(int p) {
+	private Color getColorWithPriority(int p) {
 		if (p == Consts.TASK_IMPORTANT) {
 			return display.getSystemColor(SWT.COLOR_RED);
 		} else {

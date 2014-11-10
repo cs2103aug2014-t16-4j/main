@@ -105,7 +105,7 @@ public final class Consts {
 	public static final String HELP_TEXT = 
 			"TaskBox Commands:\n"
 			+ "\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
-			+ "\nupdate [line #][task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
+			+ "\nupdate [line #][name/start/end/description] [task name/start/end/description]"
 			+ "\nblock [task start and end date & time]"
 			+ "\nsearch [task date & time]/[keyword]"
 			+ "\ndelete [line #]"
@@ -116,6 +116,8 @@ public final class Consts {
 			+ "\nsync"
 			+ "\nquit"
 			+ "\n\nHotkeys:\n"
+			+ "\nAlt + up/down arrow: Scroll floating tasks"
+			+ "\nCtrl + up/down arrow: Scroll timed tasks"
 			+ "\nAlt + h: Hide/Show TaskBox"
 			+ "\nCtrl + /: Help"
 			+ "\nCtrl + z: Undo"
@@ -124,9 +126,7 @@ public final class Consts {
 			+ "\nCtrl + r: Refresh Tasks"
 			+ "\nCtrl + p: TaskBox Preferences"
 			+ "\nCtrl + s: Sync" 
-			+ "\nCtrl + q: Quit"
-			+ "\nCtrl + up/down arrow: Scroll timed tasks"
-			+ "\nAlt + up/down arrow: Scroll floating tasks";
+			+ "\nCtrl + q: Quit";
 	
 	public static final Date DATE_DEFAULT = new Date(1,1,1);
 }
