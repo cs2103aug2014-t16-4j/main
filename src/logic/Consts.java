@@ -124,9 +124,10 @@ public final class Consts {
 	public static final String HELP_TEXT = 
 			"TaskBox Commands:\n"
 			+ "\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
-			+ "\nupdate [line #][name/start/end/description] [task name/start/end/description]"
+			+ "\nupdate [line #] [name/date/desc/important/normal] [respective task data]"
 			+ "\nblock [task start and end date & time]"
 			+ "\nsearch [task date & time]/[keyword]"
+			+ "\ncomplete [line #]"
 			+ "\ndelete [line #]"
 			+ "\nexpand [line #]"
 			+ "\nclear"
