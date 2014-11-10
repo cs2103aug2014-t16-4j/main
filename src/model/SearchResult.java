@@ -8,33 +8,22 @@ import org.json.simple.JSONObject;
 
 public class SearchResult {
 	ArrayList<JSONObject> tasksBuffer;
-	Date startDate;
-	Date endDate;
-	
-	public SearchResult(ArrayList<JSONObject> tasksBuffer, Date startDate,
-			Date endDate) {
-		this.tasksBuffer = tasksBuffer;
-		this.startDate = startDate;
-		this.endDate = endDate;
-	}
-	
+	ArrayList<Date> date;
 	public ArrayList<JSONObject> getTasksBuffer() {
 		return tasksBuffer;
 	}
 	public void setTasksBuffer(ArrayList<JSONObject> tasksBuffer) {
 		this.tasksBuffer = tasksBuffer;
 	}
-	public Date getStartDate() {
-		return startDate;
+	public ArrayList<Date> getDate() {
+		return date;
 	}
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
+	public void setDate(ArrayList<Date> date) {
+		this.date = date;
 	}
-	public Date getEndDate() {
-		return endDate;
-	}
-	public void setEndDate(Date endDate) {
-		this.endDate = endDate;
+	public SearchResult(ArrayList<JSONObject> tasksBuffer, ArrayList<Date> date) {
+		this.tasksBuffer = tasksBuffer;
+		this.date = date;
 	}
 	
 }

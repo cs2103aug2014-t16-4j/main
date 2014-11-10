@@ -297,7 +297,13 @@ public class LogicController {
 	}
 	
 	//@author A0112069M
-	public String update(JSONObject oldTask, Task newTask, boolean...addToStack){
+	public String update(JSONObject oldTask, String commandString, String restString, boolean...addToStack){
+	//public String update(JSONObject oldTask, Task newTask, boolean...addToStack){
+		
+		Task newTask = new Task();
+		newTask.setDescription(description);
+		newTask.setDescription(oldTask.get(Consts.DESCRIPTION));
+		
 		logicUpdate = new Update();
 		logicUpdate.setFileName(fileName);
 		logicUpdate.setOldObj(oldTask);
@@ -431,7 +437,7 @@ public class LogicController {
 	    return calendar.getTime();
 	}
 	
-	private boolean checkWeekly(Date dateStart1, Date dateEnd1, Date dateStart2, Date dateEnd2) {
+	private Date checkWeekly(Date dateStart1, Date dateEnd1, Date dateStart2, Date dateEnd2) {
 		DateTime dS1 = new DateTime(dateStart1);
 		DateTime dE1 = new DateTime(dateEnd1);
 		if (dE1.isAfter(dS1.plusDays(6))) {
@@ -445,23 +451,23 @@ public class LogicController {
 		for (DateTime curDate1 = dS1; curDate1.isBefore(dE1); curDate1 = curDate1.plusDays(1)) {
 			for (DateTime curDate2 = dS2; curDate2.isBefore(dE2); curDate2 = curDate2.plusDays(1)) {
 				if (Days.daysBetween(curDate1, curDate2).getDays() % 7 == 0) { 
-					return true;
+					return curDate2.toDate();
 				}
 			}
 		}
-		return false;
+		return null;
 	}
 	
-	private boolean checkMonthly(Date dateStart1, Date dateEnd1, Date dateStart2, Date dateEnd2) {
+	private Date checkMonthly(Date dateStart1, Date dateEnd1, Date dateStart2, Date dateEnd2) {
 		int dayStart1 = (new DateTime(dateStart1)).getDayOfMonth();
 		int dayEnd1 = (new DateTime(dateEnd1)).getDayOfMonth();
 		int dayStart2 = (new DateTime(dateStart2)).getDayOfMonth();
 		int dayEnd2 = (new DateTime(dateEnd2)).getDayOfMonth();
 		if (Math.max(dayStart1, dayStart2) <= Math.min(dayEnd1, dayEnd2)) {
-			return true;
+			return dateStart1;
 		}
 		else {
-			return false;
+			return null;
 		}
 		
 	}
@@ -479,16 +485,23 @@ public class LogicController {
 		}
 	}
 	
+	private Date maxDate(Date date1, Date date2) {
+		if (date1.after(date2)) {
+			return date1;
+		} else {
+			return date2;
+		}
+	}
+	
 	public SearchResult search(String keyword, int statusType) throws IOException {
 		//tasksBuffer inside is different from outside
 		ArrayList <JSONObject> tasksBuffer;
-		Date sDate = Consts.DATE_DEFAULT;
-		Date eDate = Consts.DATE_DEFAULT;
+		ArrayList <Date> date = new ArrayList<Date>();
 		
 		if (statusType == Consts.STATUS_TIMED_TASK) {
 			tasksBuffer = getTimedTasksBuffer();
 			if (keyword.trim().toLowerCase().equals("block")) {
-				return new SearchResult(getBlockTasksBuffer(), sDate, eDate);
+				return new SearchResult(getBlockTasksBuffer(), date);
 			}
 		} else {
 			tasksBuffer = getFloatingTasksBuffer();
@@ -521,23 +534,25 @@ public class LogicController {
 			} else if(date1 != null){
 				//if(dateBefore(task.getStartDate(),date) && dateBefore(date,task.getEndDate())){
 				//if (task.getStartDate().getTime() <= date.getTime() && date.getTime() <= task.getEndDate().getTime()) {
-				sDate = date1;
-				eDate = date2;
 				if (intersectTime(task.getStartDate(), task.getEndDate(), date1, date2)) {
 					foundLine.add(tasksBuffer.get(i));
+					date.add(maxDate(task.getStartDate(), date1));
 				} else if (task.getFrequency() == Consts.FREQUENCY_DAILY_VALUE) {
 					foundLine.add(tasksBuffer.get(i));
+					date.add(maxDate(task.getStartDate(), date1));
 				} else if (task.getFrequency() == Consts.FREQUENCY_WEEKLY_VALUE && 
-						checkWeekly(task.getStartDate(), task.getEndDate(), date1, date2)) {
+						checkWeekly(task.getStartDate(), task.getEndDate(), date1, date2) != null) {
 					foundLine.add(tasksBuffer.get(i));
+					date.add(checkWeekly(task.getStartDate(), task.getEndDate(), date1, date2));
 				} else if (task.getFrequency() == Consts.FREQUENCY_MONTHLY_VALUE && 
-						checkMonthly(task.getStartDate(), task.getEndDate(), date1, date2)) {
+						checkMonthly(task.getStartDate(), task.getEndDate(), date1, date2) != null) {
 					foundLine.add(tasksBuffer.get(i));
+					date.add(checkMonthly(task.getStartDate(), task.getEndDate(), date1, date2));
 				} 
 			}
 		}
 		logger.log(Level.INFO,foundLine.toString());
-		return new SearchResult(foundLine, sDate, eDate);
+		return new SearchResult(foundLine, date);
 	}
 	
 	public Boolean dateBefore(Date x, Date y){
