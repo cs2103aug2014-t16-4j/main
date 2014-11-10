@@ -13,7 +13,10 @@ import java.net.Socket;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -119,11 +122,37 @@ public class GoogleCal {
 			return false;
 		}
 	}
+	
+	private void cacheSync() throws IOException{
+		if(!LogicController.cacheMap.isEmpty()){
+			Iterator<Entry<String, List<JSONObject>>> it = LogicController.cacheMap.entrySet().iterator();
+			ArrayList<JSONObject> temp = new ArrayList<JSONObject>(); // To store the values from cacheMap
+			while (it.hasNext()) {
+				Map.Entry pairs = (Map.Entry) it.next();
+				logger.log(Level.INFO,pairs.getKey() + " = " + pairs.getValue());
+				String key = (String) pairs.getKey();
+				for (JSONObject obj : (List<JSONObject>) pairs.getValue()) {
+					temp.add(obj);
+				}
+				if (key.equals(Consts.ADD)) {
+					logger.log(Level.INFO,"Adding to google cal - cache file.");
+					syncGCal(temp);
+				} else if (key.equals(Consts.DELETE)) {
+					logger.log(Level.INFO,"Deleting from google cal - cache file");
+					for (JSONObject obj : temp) {
+						deleteEvent((String)obj.get(Consts.NAME));
+					}
+				}
+				it.remove();
+			}
+		}
+	}
 
 	// Service method running in separate thread
 	public void syncGCalService(ArrayList<JSONObject> timeTasks) throws IOException, ParseException {
 		String pageToken = null;
 		String str = "";
+		cacheSync();
 		do {
 			Events events = client.events().list("primary").setPageToken(pageToken).execute();
 			List<Event> items = events.getItems();
