@@ -2,17 +2,12 @@
 
 package gui;
 
-import logic.*;
-import model.*;
-import gui.common.*;
-import logic.google.GoogleCal;
-
-import javax.swing.KeyStroke;
+import static java.awt.event.KeyEvent.VK_H;
+import gui.common.HotKey;
+import gui.common.HotKeyListener;
+import gui.common.Provider;
 
 import java.awt.event.InputEvent;
-
-import static java.awt.event.KeyEvent.*;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,25 +18,68 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.KeyStroke;
+
+import logic.CommandEnum;
+import logic.Consts;
+import logic.LogicController;
+import logic.LogicParser;
+import logic.google.GoogleCal;
+import model.SearchResult;
+import model.Task;
+
+import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.browser.*;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.CloseWindowListener;
+import org.eclipse.swt.browser.OpenWindowListener;
+import org.eclipse.swt.browser.TitleEvent;
+import org.eclipse.swt.browser.TitleListener;
+import org.eclipse.swt.browser.VisibilityWindowListener;
+import org.eclipse.swt.browser.WindowEvent;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.*;
-import org.eclipse.swt.graphics.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
-import org.eclipse.ui.forms.widgets.*;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Monitor;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tray;
+import org.eclipse.swt.widgets.TrayItem;
+import org.eclipse.ui.forms.widgets.ColumnLayout;
+import org.eclipse.ui.forms.widgets.Form;
+import org.eclipse.ui.forms.widgets.FormText;
+import org.eclipse.ui.forms.widgets.FormToolkit;
+import org.eclipse.ui.forms.widgets.Section;
+import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.joda.time.Minutes;
 import org.joda.time.DateTime;
+import org.joda.time.Minutes;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONObject;
-import org.apache.commons.lang.SystemUtils;
 
 // renders everything UI related
 public class UIController {

@@ -4,17 +4,9 @@ package gui;
 
 import static org.junit.Assert.assertEquals;
 import gui.UIController;
-
-import java.util.ArrayList;
-
 import logic.CommandEnum;
 import logic.Consts;
 
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.SWT;
-import org.json.simple.JSONObject;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 public class TaskBoxUITest {
