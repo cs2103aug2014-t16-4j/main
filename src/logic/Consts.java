@@ -102,18 +102,21 @@ public final class Consts {
 	public static final int STATUS_COMPLETED_FLOATING_TASK = 12;
 
 	// HELP TEXT
-	public static final String HELP_TEXT = "TaskBox Commands:\n\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
+	public static final String HELP_TEXT = 
+			"TaskBox Commands:\n"
+			+ "\nadd [task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
+			+ "\nupdate [line #][task title] ([task description]) [task date & time] [task priority] [repeat frequency]"
+			+ "\nblock [task start and end date & time]"
+			+ "\nsearch [task date & time]/[keyword]"
 			+ "\ndelete [line #]"
-			+ "\nupdate [line #]"
+			+ "\nshow [line #]"
 			+ "\nclear"
 			+ "\nsort"
-			+ "\nsearch [task date & time]/[keyword]"
-			+ "\nblock [task start and end date & time]"
 			+ "\nundo"
 			+ "\nsync"
 			+ "\nexit"
-			+ "\n\nHotkeys:"
-			+ "\n\nAlt + h: Hide/Show TaskBox"
+			+ "\n\nHotkeys:\n"
+			+ "\nAlt + h: Hide/Show TaskBox"
 			+ "\nCtrl + /: Help"
 			+ "\nCtrl + z: Undo"
 			+ "\nCtrl + a: Quick Add"
@@ -122,9 +125,8 @@ public final class Consts {
 			+ "\nCtrl + p: TaskBox Preferences"
 			+ "\nCtrl + s: Sync" 
 			+ "\nCtrl + q: Quit"
-			+ "\nCtrl + up arrow: Scroll up timed tasks"
-			+ "\nCtrl + down arrow: Scroll down timed tasks"
-			+ "\nAlt + up arrow: Scroll up floating tasks"
-			+ "\nAlt + down arrow: Scroll down floating tasks";
+			+ "\nCtrl + up/down arrow: Scroll timed tasks"
+			+ "\nAlt + up/down arrow: Scroll floating tasks";
+	
 	public static final Date DATE_DEFAULT = new Date(1,1,1);
 }

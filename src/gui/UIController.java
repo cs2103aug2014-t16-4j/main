@@ -121,8 +121,7 @@ public class UIController {
 	TimerTask tt;
 
 	public UIController(String[] args) {
-		String fileName = args.length > 0 ? args[0] : "mytext.txt";
-		fileName = checkFileName(fileName);
+		String fileName = checkFileName("taskbox.txt");
 		try {
 			init(fileName);
 		} catch (IOException e) {
@@ -143,10 +142,7 @@ public class UIController {
 		}
 	}
 
-	/**
-	 * @throws IOException
-	 * @wbp.parser.entryPoint
-	 */
+	// UI initializer
 	public void init(String fileName) throws IOException {
 		isMac = SystemUtils.IS_OS_MAC;
 		logic = LogicController.getInstance();
@@ -172,7 +168,8 @@ public class UIController {
 		enableDrag();
 		disposeDisplay();
 	}
-
+	
+	//read from existing config file 
 	private void readConfig() {
 		System.out.println("reading from config");
 		BufferedReader reader = null;
@@ -181,6 +178,10 @@ public class UIController {
 			reader = new BufferedReader(new FileReader("config"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			floating_scroll_size = DEFAULT_FLOATING_SCROLL_SIZE;
+			timed_scroll_size = DEFAULT_TIMED_SCROLL_SIZE;
+			start_with_windows = DEFAULT_START_WITH_WINDOWS;
+			return;
 		}
 		try {
 			line = reader.readLine();
@@ -454,7 +455,8 @@ public class UIController {
 				}
 			}
 		});
-
+		
+		
 	}
 
 	private void showNotification(String title, String text) {
@@ -529,7 +531,7 @@ public class UIController {
 		final StyledText helpText = new StyledText(helpWindow, SWT.NONE);
 		helpText.setText(Consts.HELP_TEXT);
 		helpText.setStyleRange(new StyleRange(0, 19, null, null, SWT.BOLD));
-		helpText.setStyleRange(new StyleRange(248, 8, null, null, SWT.BOLD));
+		helpText.setStyleRange(new StyleRange(344, 10, null, null, SWT.BOLD));
 		helpText.setBounds(20, 10, 560, 460);
 		helpText.setEditable(false);
 
@@ -880,7 +882,7 @@ public class UIController {
 				expandLine = expand(task);
 				jumpLine = timedTaskComposite.getOrigin().y;
 				break;
-			case EXIT:
+			case QUIT:
 				systemExit();
 			default:
 				updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
@@ -920,18 +922,21 @@ public class UIController {
 				// for search command without date specification (like search
 				// with desc)
 				// startDate and endDate = Consts.DATE_DEFAULT
-				if (searchResult.getStartDate() != Consts.DATE_DEFAULT) {
+				if (searchResult.getStartDate() != Consts.DATE_DEFAULT && searchResult.getEndDate() != Consts.DATE_DEFAULT) {
 					updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
 					SimpleDateFormat osdf = new SimpleDateFormat(
 							"EEE MMM dd HH:mm:ss zzz yyyy");
 					SimpleDateFormat nsdf = new SimpleDateFormat("dd/MM/yyyy");
-					Date d = null;
+					Date sd = null, ed = null;
 					try {
-						d = osdf.parse(searchResult.getStartDate().toString());
+						sd = osdf.parse(searchResult.getStartDate().toString());
+						ed = osdf.parse(searchResult.getEndDate().toString());
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
-					String temp = nsdf.format(d);
+					String start = nsdf.format(sd);
+					String end = nsdf.format(ed);
+					String temp = start.compareTo(end)==0?start:start+" to "+end;
 					return temp;
 				} else {
 					return "";
@@ -974,12 +979,11 @@ public class UIController {
 				return Consts.USAGE_UPDATE;
 			}
 			try {
-				Task newTask = parser.decompose(splittedString[1]);
 				// calculate whether task is in timed or floating
 				return logic.update(
 						lineNumber >= taskNo ? floatingList.get(lineNumber
 								- taskNo) : timedList.get(lineNumber - 1),
-						newTask);
+								splittedString[1]);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_UPDATE;
 			}
