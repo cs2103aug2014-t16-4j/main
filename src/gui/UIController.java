@@ -983,7 +983,7 @@ public class UIController {
 				return logic.update(
 						lineNumber >= taskNo ? floatingList.get(lineNumber
 								- taskNo) : timedList.get(lineNumber - 1),
-								splittedString[1]);
+								null);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_UPDATE;
 			}
