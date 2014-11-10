@@ -160,18 +160,26 @@ public class GoogleCal {
 			if (pageToken != null) {
 				if(items.size()>timeTasks.size()){
 					for(Event event:items){
-						System.out.println(event.toPrettyString());
-						boolean found = false;
-						for(int i=0;i<timeTasks.size();i++){
-							if(event.getSummary().equals(Converter.jsonToTask(timeTasks.get(i)).getName())){
-								found = true;
+						if (event.getStatus().equalsIgnoreCase(Consts.CONFIRMED)) {
+							System.out.println(event.toPrettyString());
+							boolean found = false;
+							for (int i = 0; i < timeTasks.size(); i++) {
+								if (event.getSummary().equals(
+										Converter.jsonToTask(timeTasks.get(i))
+												.getName())) {
+									found = true;
+								}
 							}
-						}
-						if(!found){
-							logger.log(Level.INFO,"Not match found: " + event.getSummary());
-							str += Converter.eventToJSON(event).toString() + "\r\n";
-							LogicController.tasksBuffer.add(Converter.eventToJSON(event));
-							logger.log(Level.INFO,"Writing to file " + event.getSummary());
+							if (!found) {
+								logger.log(Level.INFO, "Not match found: "
+										+ event.getSummary());
+								str += Converter.eventToJSON(event).toString()
+										+ "\r\n";
+								LogicController.tasksBuffer.add(Converter
+										.eventToJSON(event));
+								logger.log(Level.INFO, "Writing to file "
+										+ event.getSummary());
+							}
 						}
 					}
 				}else{
@@ -207,9 +215,10 @@ public class GoogleCal {
 				for (int i = 0; i < timeTasks.size(); i++) {
 					boolean found = false;
 					for (Event event : items) {
-						//System.out.println(event.toPrettyString());
-						if (Converter.jsonToTask(timeTasks.get(i)).getName().equals(event.getSummary())) {
-							found = true;
+						if(event.getStatus().equalsIgnoreCase(Consts.CONFIRMED)){
+							if (Converter.jsonToTask(timeTasks.get(i)).getName().equals(event.getSummary())) {
+								found = true;
+							}
 						}
 					}
 					if(!found){

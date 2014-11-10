@@ -15,11 +15,14 @@ public final class Consts {
 	public static final String ENDDATE = "EndDate";
 	public static final String STATUS = "Status";
 
-	//CACHE FILE KEY CONSTANTS
+	// GOOGLE STATUS CONSTANTS
+	public static final String CONFIRMED = "confirmed";
+
+	// CACHE FILE KEY CONSTANTS
 	public static final String ADD = "ADD";
 	public static final String DELETE = "DELETE";
 
-	//FILENAME CONSTANTS
+	// FILENAME CONSTANTS
 	public static final String GOOGLETOKEN = "GoogleToken";
 	public static final String CACHE = "Cache";
 
