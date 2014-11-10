@@ -66,7 +66,8 @@ public class UIController {
 	// task storage
 	private ArrayList<JSONObject> timedList;
 	private ArrayList<JSONObject> floatingList;
-
+	private ArrayList<Date> resultsDate;
+	
 	// constants
 	private final Provider PROVIDER = Provider.getCurrentProvider(false);
 	private final static String NON_THIN = "[^iIl1\\.,']";
@@ -74,7 +75,7 @@ public class UIController {
 	private final int MINUTES_TO_REMIND = 60;
 	private final int DEFAULT_JUMP_LINE = 0;
 	private final int DEFAULT_EXPAND_LINE = -1;
-	private final String DEFAULT_SEARCH_DATE = "";
+	private final ArrayList<Date> DEFAULT_SEARCH_DATE = null;
 	private final int DEFAULT_FLOATING_SCROLL_SIZE = 5;
 	private final int DEFAULT_TIMED_SCROLL_SIZE = 40;
 	private final boolean DEFAULT_START_WITH_WINDOWS = true;
@@ -829,7 +830,6 @@ public class UIController {
 			task = splittedString[Consts.TASK_POSITION];
 		}
 		if (selectedCommand != CommandEnum.INVALID) {
-			String resultsDate = "";
 			int expandLine = -1, jumpLine = 0;
 			switch (selectedCommand) {
 			case ADD:
@@ -856,7 +856,7 @@ public class UIController {
 				updateTaskList();
 				break;
 			case SEARCH:
-				resultsDate = searchTimed(task);
+				statusString = searchTimed(task);
 				searchFloating(task);
 				break;
 			case UPDATE:
@@ -913,34 +913,16 @@ public class UIController {
 	private String searchTimed(String keyword) {
 		if (keyword != null && !keyword.isEmpty()) {
 			try {
-				SearchResult searchResult = logic.search(keyword,
-						Consts.STATUS_TIMED_TASK);
-				timedList = searchResult.getTasksBuffer();
-
 				// Modify date range by searchResult.getStartDate(),
 				// searchResult.getEndDate()
 				// for search command without date specification (like search
 				// with desc)
 				// startDate and endDate = Consts.DATE_DEFAULT
-				if (searchResult.getStartDate() != Consts.DATE_DEFAULT && searchResult.getEndDate() != Consts.DATE_DEFAULT) {
-					updateStatusIndicator(Consts.STRING_SEARCH_COMPLETE);
-					SimpleDateFormat osdf = new SimpleDateFormat(
-							"EEE MMM dd HH:mm:ss zzz yyyy");
-					SimpleDateFormat nsdf = new SimpleDateFormat("dd/MM/yyyy");
-					Date sd = null, ed = null;
-					try {
-						sd = osdf.parse(searchResult.getStartDate().toString());
-						ed = osdf.parse(searchResult.getEndDate().toString());
-					} catch (ParseException e) {
-						e.printStackTrace();
-					}
-					String start = nsdf.format(sd);
-					String end = nsdf.format(ed);
-					String temp = start.compareTo(end)==0?start:start+" to "+end;
-					return temp;
-				} else {
-					return "";
-				}
+				SearchResult searchResult = logic.search(keyword,
+						Consts.STATUS_TIMED_TASK);
+				timedList = searchResult.getTasksBuffer();
+				resultsDate = searchResult.getDate();
+				return Consts.STRING_SEARCH_COMPLETE;
 			} catch (IOException e) {
 			}
 		} else {
@@ -1190,7 +1172,7 @@ public class UIController {
 		return CommandEnum.INVALID;
 	}
 
-	private void renderTasks(int expandLine, String resultsDate, int jumpLine) {
+	private void renderTasks(int expandLine, ArrayList<Date> resultsDate, int jumpLine) {
 		taskNo = 1;
 		if (timedInnerComposite != null) {
 			timedInnerComposite.dispose();
@@ -1207,7 +1189,7 @@ public class UIController {
 		}
 	}
 
-	private void updateTimedTask(int line, String resultsDate, int jumpLine) {
+	private void updateTimedTask(int line, ArrayList<Date> resultsDate, int jumpLine) {
 		int noOfDays = 0;
 		String currentDateString = "";
 		timedInnerComposite = new Composite(timedTaskComposite, SWT.NONE);
@@ -1217,10 +1199,10 @@ public class UIController {
 
 		for (; taskNo < timedList.size() + 1; taskNo++) {
 			JSONObject o = timedList.get(taskNo - 1);
-			String start = o.get(Consts.STARTDATE).toString();
+			String start = resultsDate.size()>0?resultsDate.get(taskNo).toString():o.get(Consts.STARTDATE).toString();
+			System.out.println(start);
 			String startTime = start.substring(11, start.length() - 3) + "hr";
-			String startDate = !resultsDate.isEmpty() ? resultsDate : start
-					.substring(0, 10);
+			String startDate = start.substring(0, 10);
 			// startDate =
 			// startDate.substring(3,6)+startDate.substring(0,3)+startDate.substring(6);
 			String end = o.get(Consts.ENDDATE).toString();
@@ -1330,6 +1312,9 @@ public class UIController {
 		timedTaskComposite.setMinHeight(timedList.size()
 				* (line == -9 ? 70 : 40) + noOfDays * (line == -9 ? 40 : 30));
 		timedTaskComposite.setOrigin(0, jumpLine);
+		if(resultsDate!=null){
+			resultsDate.clear();
+		}
 	}
 
 	private static int textWidth(String str) {

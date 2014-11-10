@@ -301,8 +301,8 @@ public class LogicController {
 	//public String update(JSONObject oldTask, Task newTask, boolean...addToStack){
 		
 		Task newTask = new Task();
-		newTask.setDescription(description);
-		newTask.setDescription(oldTask.get(Consts.DESCRIPTION));
+//		newTask.setDescription(description);
+//		newTask.setDescription(oldTask.get(Consts.DESCRIPTION));
 		
 		logicUpdate = new Update();
 		logicUpdate.setFileName(fileName);
