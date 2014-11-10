@@ -948,34 +948,30 @@ public class UIController {
 	private String update(String userInput) {
 		if (userInput != null && !userInput.isEmpty()) {
 			String[] splittedString = getSplittedString(userInput);
-			if (splittedString.length != Consts.NO_ARGS_UPDATE) {
-				return Consts.USAGE_UPDATE;
-			}
-			int lineNumber;
-			try {
-				lineNumber = Integer.parseInt(splittedString[0]);
-			} catch (Exception e) {
-				return Consts.USAGE_UPDATE;
-			}
-			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
-				return Consts.USAGE_UPDATE;
-			}
-			try {
-				String[] newSplitted = getSplittedString(splittedString[1]);
-				if(newSplitted.length < 2){
+			if (splittedString.length == Consts.NO_ARGS_UPDATE) {
+				int lineNumber;
+				try {
+					lineNumber = Integer.parseInt(splittedString[0]);
+				} catch (Exception e) {
 					return Consts.USAGE_UPDATE;
 				}
-				// calculate whether task is in timed or floating
-				return logic.update(
-						lineNumber >= taskNo ? floatingList.get(lineNumber
-								- taskNo) : timedList.get(lineNumber - 1),
-								newSplitted[0],newSplitted[1]);
-			} catch (NumberFormatException e) {
-				return Consts.USAGE_UPDATE;
+				if (lineNumber < taskNo + floatingList.size() && lineNumber > 0) {
+					try {
+						String[] newSplitted = getSplittedString(splittedString[1]);
+						if(newSplitted.length == Consts.NO_ARGS_UPDATE){
+							// calculate whether task is in timed or floating
+							return logic.update(
+									lineNumber >= taskNo ? floatingList.get(lineNumber
+											- taskNo) : timedList.get(lineNumber - 1),
+											newSplitted[0],newSplitted[1]);
+						}
+					} catch (NumberFormatException e) {
+						return Consts.USAGE_UPDATE;
+					}
+				}
 			}
-		} else {
-			return Consts.USAGE_UPDATE;
 		}
+		return Consts.USAGE_UPDATE;
 	}
 
 	private String sort() {
@@ -1011,18 +1007,16 @@ public class UIController {
 				return -1;
 			}
 
-			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
-				return -1;
+			if (lineNumber < taskNo + floatingList.size() && lineNumber > 0) {
+				try {
+					// calculate whether task is in timed or floating
+					return lineNumber;
+				} catch (NumberFormatException e) {
+					return -1;
+				}
 			}
-			try {
-				// calculate whether task is in timed or floating
-				return lineNumber;
-			} catch (NumberFormatException e) {
-				return -1;
-			}
-		} else {
-			return -1;
 		}
+		return -1;
 	}
 
 	private String delete(String lineNo) {
@@ -1034,20 +1028,18 @@ public class UIController {
 				return Consts.USAGE_DELETE;
 			}
 
-			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
-				return Consts.USAGE_DELETE;
+			if (lineNumber < taskNo + floatingList.size() && lineNumber > 0) {
+				try {
+					// calculate whether task is in timed or floating
+					return logic.delete(lineNumber >= taskNo ? floatingList
+							.get(lineNumber - taskNo) : timedList
+							.get(lineNumber - 1));
+				} catch (NumberFormatException e) {
+					return Consts.USAGE_DELETE;
+				}
 			}
-			try {
-				// calculate whether task is in timed or floating
-				return logic.delete(lineNumber >= taskNo ? floatingList
-						.get(lineNumber - taskNo) : timedList
-						.get(lineNumber - 1));
-			} catch (NumberFormatException e) {
-				return Consts.USAGE_DELETE;
-			}
-		} else {
-			return Consts.USAGE_DELETE;
 		}
+		return Consts.USAGE_DELETE;
 	}
 
 	private String undo(String lineNo) {
@@ -1059,22 +1051,20 @@ public class UIController {
 				return Consts.USAGE_UNDO;
 			}
 
-			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
-				return Consts.USAGE_UNDO;
+			if (lineNumber < taskNo + floatingList.size() && lineNumber > 0) {
+				try {
+					// calculate whether task is in timed or floating
+					return logic.complete(
+							lineNumber >= taskNo ? floatingList.get(lineNumber
+									- taskNo) : timedList.get(lineNumber - 1),
+									lineNumber >= taskNo ? Consts.STATUS_FLOATING_TASK
+											: Consts.STATUS_TIMED_TASK);
+				} catch (NumberFormatException e) {
+					return Consts.USAGE_UNDO;
+				}
 			}
-			try {
-				// calculate whether task is in timed or floating
-				return logic.complete(
-						lineNumber >= taskNo ? floatingList.get(lineNumber
-								- taskNo) : timedList.get(lineNumber - 1),
-								lineNumber >= taskNo ? Consts.STATUS_FLOATING_TASK
-										: Consts.STATUS_TIMED_TASK);
-			} catch (NumberFormatException e) {
-				return Consts.USAGE_UNDO;
-			}
-		} else {
-			return Consts.USAGE_UNDO;
-		}
+		} 
+		return Consts.USAGE_UNDO;
 	}
 
 	private String complete(String lineNo) {
@@ -1086,24 +1076,23 @@ public class UIController {
 				return Consts.USAGE_COMPLETE;
 			}
 
-			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
-				return Consts.USAGE_COMPLETE;
+			if (lineNumber < taskNo + floatingList.size() && lineNumber > 0) {
+				try {
+					// calculate whether task is in timed or floating
+					return logic
+							.complete(
+									lineNumber >= taskNo ? floatingList
+											.get(lineNumber - taskNo) : timedList
+											.get(lineNumber - 1),
+											lineNumber >= taskNo ? Consts.STATUS_COMPLETED_FLOATING_TASK
+													: Consts.STATUS_COMPLETED_TIMED_TASK);
+				} catch (NumberFormatException e) {
+					return Consts.USAGE_COMPLETE;
+				}
 			}
-			try {
-				// calculate whether task is in timed or floating
-				return logic
-						.complete(
-								lineNumber >= taskNo ? floatingList
-										.get(lineNumber - taskNo) : timedList
-										.get(lineNumber - 1),
-										lineNumber >= taskNo ? Consts.STATUS_COMPLETED_FLOATING_TASK
-												: Consts.STATUS_COMPLETED_TIMED_TASK);
-			} catch (NumberFormatException e) {
-				return Consts.USAGE_COMPLETE;
-			}
-		} else {
-			return Consts.USAGE_COMPLETE;
 		}
+		return Consts.USAGE_COMPLETE;
+
 	}
 
 	private String clear() {
