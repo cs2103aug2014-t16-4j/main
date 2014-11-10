@@ -72,6 +72,9 @@ public class UIController {
 	private final static String NON_THIN = "[^iIl1\\.,']";
 	private final int REMINDER_TIME_CHECK = 300000;
 	private final int MINUTES_TO_REMIND = 60;
+	private final int DEFAULT_JUMPLINE = 0;
+	private final int DEFAULT_EXPANDLINE = -1;
+	private final String DEFAULT_SEARCH_DATE = "";
 
 	// statics
 	private static Boolean BLNMOUSEDOWN = false;
@@ -160,7 +163,7 @@ public class UIController {
 		renderAuthPopup();
 		renderPreferencesPopup();
 
-		renderTasks("");
+		renderTasks(DEFAULT_EXPANDLINE, DEFAULT_SEARCH_DATE, DEFAULT_JUMPLINE);
 		updateStatusIndicator(String.format(Consts.STRING_WELCOME, fileName));
 		SHELL.open();
 		startReminder();
@@ -403,7 +406,7 @@ public class UIController {
 					e.doit = false;
 					undo();
 					updateTaskList();
-					renderTasks("");
+					renderTasks(DEFAULT_EXPANDLINE, DEFAULT_SEARCH_DATE, DEFAULT_JUMPLINE);
 				}
 				// quit
 				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
@@ -436,7 +439,7 @@ public class UIController {
 						&& (e.keyCode == REFRESH_HOTKEY)) {
 					e.doit = false;
 					updateTaskList();
-					renderTasks("");
+					renderTasks(DEFAULT_EXPANDLINE, DEFAULT_SEARCH_DATE, DEFAULT_JUMPLINE);
 				}
 			}
 		});
@@ -811,6 +814,7 @@ public class UIController {
 		}
 		if (selectedCommand != CommandEnum.INVALID) {
 			String resultsDate = "";
+			int expandLine = -1, jumpLine = 0;
 			switch (selectedCommand) {
 				case ADD:
 					statusString = add(task);
@@ -858,8 +862,9 @@ public class UIController {
 					updateStatusIndicator(Consts.STRING_SYNC);
 					showAuthPopup();
 					break;
-				case SHOW:
-					statusString = complete(task);
+				case EXPAND:
+					expandLine = expand(task);
+					jumpLine = timedTaskComposite.getOrigin().y;
 					break;
 				case EXIT:
 					systemExit();
@@ -870,7 +875,7 @@ public class UIController {
 			if (!statusString.isEmpty()) {
 				updateStatusIndicator(statusString);
 			}
-			renderTasks(resultsDate);
+			renderTasks(expandLine, resultsDate, jumpLine);
 		} else {
 			updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
 		}
@@ -981,6 +986,30 @@ public class UIController {
 		return null;
 	}
 
+	private int expand(String lineNo) {
+		if(lineNo.toLowerCase().compareTo("all") == 0){
+			return -9;
+		}
+		if(lineNo.toLowerCase().compareTo("none") == 0){
+			return -1;
+		}
+		if (lineNo != null && !lineNo.isEmpty()) {
+			int lineNumber = Integer.parseInt(lineNo);
+
+			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
+				return -1;
+			}
+			try {
+				// calculate whether task is in timed or floating
+				return lineNumber;
+			} catch (NumberFormatException e) {
+				return -1;
+			}
+		} else {
+			return -1;
+		}
+	}
+	
 	public String delete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber = Integer.parseInt(lineNo);
@@ -1116,13 +1145,13 @@ public class UIController {
 		return CommandEnum.INVALID;
 	}
 
-	private void renderTasks(String resultsDate) {
+	private void renderTasks(int expandLine, String resultsDate, int jumpLine) {
 		taskNo = 1;
 		if (timedInnerComposite != null) {
 			timedInnerComposite.dispose();
 		}
 		floatingTaskTable.removeAll();
-		updateTimedTask(-1, resultsDate);
+		updateTimedTask(expandLine, resultsDate, jumpLine);
 		updatefloatingTask();
 	}
 
@@ -1133,7 +1162,7 @@ public class UIController {
 		}
 	}
 
-	private void updateTimedTask(int line, String resultsDate) {
+	private void updateTimedTask(int line, String resultsDate, int jumpLine) {
 		int noOfDays = 0;
 		String currentDateString = "";
 		timedInnerComposite = new Composite(timedTaskComposite, SWT.NONE);
@@ -1177,10 +1206,18 @@ public class UIController {
 				cl.maxNumColumns = 1;
 				form.getBody().setLayout(cl);
 			}
-
-			Section section = toolkit.createSection(form.getBody(),
-					Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE
-					| Section.EXPANDED);
+			Section section;
+			if(taskNo == line || line == -9){
+				section = toolkit.createSection(form.getBody(),
+						Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE
+						| Section.EXPANDED);
+			}
+			else {
+			section = toolkit.createSection(form.getBody(),
+					Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE );
+			}
+			
+			
 			section.setText(taskNo + ". " + shortenedTaskName);
 
 			if (!MAC && status == Consts.STATUS_COMPLETED_TIMED_TASK) {
@@ -1241,7 +1278,8 @@ public class UIController {
 			section.setClient(sectionClient);
 		}
 		timedTaskComposite.setContent(timedInnerComposite);
-		timedTaskComposite.setMinHeight(timedList.size() * 70 + noOfDays * 40);
+		timedTaskComposite.setMinHeight(timedList.size() * (line==-9?70:40) + noOfDays * (line==-9?40:30));
+		timedTaskComposite.setOrigin(0, jumpLine);
 	}
 
 	private static int textWidth(String str) {

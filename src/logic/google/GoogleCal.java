@@ -131,6 +131,7 @@ public class GoogleCal {
 			if (pageToken != null) {
 				if(items.size()>timeTasks.size()){
 					for(Event event:items){
+						System.out.println(event.toPrettyString());
 						boolean found = false;
 						for(int i=0;i<timeTasks.size();i++){
 							if(event.getSummary().equals(Converter.jsonToTask(timeTasks.get(i)).getName())){
@@ -177,6 +178,7 @@ public class GoogleCal {
 				for (int i = 0; i < timeTasks.size(); i++) {
 					boolean found = false;
 					for (Event event : items) {
+						//System.out.println(event.toPrettyString());
 						if (Converter.jsonToTask(timeTasks.get(i)).getName().equals(event.getSummary())) {
 							found = true;
 						}
