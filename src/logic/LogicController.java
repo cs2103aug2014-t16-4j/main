@@ -337,8 +337,8 @@ public class LogicController {
 			case Consts.PRIORITY_IMPORTANT:
 				newTask.setPriority(Consts.PRIORITY_IMPORTANT_VALUE);
 				break;
-			case Consts.PRIORITY_NOT_IMPORTANT:
-				newTask.setPriority(Consts.PRIORITY_NOT_IMPORTANT_VALUE);
+			case Consts.PRIORITY_NORMAL:
+				newTask.setPriority(Consts.PRIORITY_NORMAL_VALUE);
 				break;			
 			default:
 				return Consts.STRING_UPDATE_CORRECT;
