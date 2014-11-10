@@ -958,13 +958,11 @@ public class UIController {
 				if (lineNumber < taskNo + floatingList.size() && lineNumber > 0) {
 					try {
 						String[] newSplitted = getSplittedString(splittedString[1]);
-						if(newSplitted.length == Consts.NO_ARGS_UPDATE){
 							// calculate whether task is in timed or floating
 							return logic.update(
 									lineNumber >= taskNo ? floatingList.get(lineNumber
 											- taskNo) : timedList.get(lineNumber - 1),
-											newSplitted[0],newSplitted[1]);
-						}
+											newSplitted[0],newSplitted.length == Consts.NO_ARGS_UPDATE?newSplitted[1]:"");
 					} catch (NumberFormatException e) {
 						return Consts.USAGE_UPDATE;
 					}
