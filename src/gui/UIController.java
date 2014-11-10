@@ -754,6 +754,8 @@ public class UIController {
 		shell = new Shell(display, SWT.MODELESS);
 		shell.setSize(300, 620);
 		shell.setLayout(null);
+		Image image = new Image(shell.getDisplay(), "resource/1box.png");
+		shell.setImage(image);
 		// allow user to input once shell gets focus
 		shell.addFocusListener(new FocusListener() {
 			public void focusGained(FocusEvent event) {
@@ -813,7 +815,8 @@ public class UIController {
 
 		sh.setLocation(x, y);
 	}
-
+	
+	//delegate tasks from input
 	public void delegateTask(String userInput) {
 		String[] splittedString;
 		String task = "";
@@ -892,6 +895,7 @@ public class UIController {
 		}
 	}
 
+	//calls and returns string value from logic's block function
 	public String block(String userInput) {
 		if (userInput != null && !userInput.isEmpty()) {
 			try {
