@@ -1,3 +1,4 @@
+//@author A0117993R
 
 package logic.command;
 
@@ -31,7 +32,7 @@ public class Add extends Command {
 		this.fileName = fileName;
 	}
 
-//@author A0112069M
+	//@author A0112069M
 	public boolean executeCommand() {
 		try {
 			FileWriter fstream = new FileWriter(fileName, true);
