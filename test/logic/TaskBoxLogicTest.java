@@ -57,8 +57,51 @@ public class TaskBoxLogicTest {
 	}	
 	
 	@Test
+	public void testCompleted() {
+		System.out.println("=== Testing completed function ===");
+		logic.clear();
+		Task completeTask = parser.decompose("do CS2101");
+		logic.add(completeTask);
+		logic.add(parser.decompose("do CS2101"),false);
+		logic.add(parser.decompose("do CS2103 today"),false);
+		logic.add(parser.decompose("do CS2104 tomorrow"), false);
+		logic.add(parser.decompose("do CS2105 day after tomorrow"),false);
+		logic.add(parser.decompose("do CS2106 today to tomorrow"),false);
+		String expectedString = "Completed do CS2101";
+		assertEquals(expectedString, logic.complete(logic.getFloatingTasksBuffer().get(0), Consts.STATUS_COMPLETED_FLOATING_TASK));
+		assertEquals(Consts.STATUS_COMPLETED_FLOATING_TASK, logic.getFloatingTasksBuffer().get(0).get(Consts.STATUS));		
+	}	
+	
+	@Test
+	public void testBlock() {
+		System.out.println("=== Testing block function ===");
+		logic.clear();
+		String expectedString = "Blocked 10/11/2014 14:00:00 -> 10/11/2014 16:00:00";
+		assertEquals(expectedString, logic.block("from 2pm to 4pm"));
+		expectedString = "The time frame is blocked.";
+		assertEquals(expectedString, logic.add(parser.decompose("do CS2101 2pm"),false));
+	}	
+
+	@Test
+	public void testUpdate() {
+		System.out.println("=== Testing update function ===");
+		logic.clear();
+		Task updateTask = parser.decompose("do CS2101 today");
+		logic.add(updateTask);
+		logic.add(parser.decompose("do CS2101"),false);
+		logic.add(parser.decompose("do CS2103 today"),false);
+		logic.add(parser.decompose("do CS2104 tomorrow"), false);
+		logic.add(parser.decompose("do CS2105 day after tomorrow"),false);
+		logic.add(parser.decompose("do CS2106 today to tomorrow"),false);
+		String expectedString = "do CS2101 is updated.\n";
+		assertEquals(expectedString, logic.update(logic.getTimedTasksBuffer().get(0), "date", "today"));
+		expectedString = "do CS2101 is updated.";
+		assertEquals("10/11/2014 00:00:00", logic.getTimedTasksBuffer().get(0).get(Consts.STARTDATE));
+	}	
+	
+	@Test
 	public void testRepeatedFeature() {
-		System.out.println("=== Testing search function ===");
+		System.out.println("=== Testing repeated feature ===");
 		logic.clear();
 		logic.add(parser.decompose("do CS2103 today weekly"),false);
 		logic.add(parser.decompose("do CS2104 tomorrow daily"), false);
@@ -89,8 +132,6 @@ public class TaskBoxLogicTest {
 		logic.add(fourth,false);
 		String expectedString = String.format(Consts.STRING_DELETE, fileName[0],soonToBeDeletedTask.getName());
 		String returnString = logic.delete(Converter.taskToJSON(soonToBeDeletedTask));
-		//System.out.println(returnString);
-		//System.out.println(expectedString);
 		assertEquals(expectedString,returnString);
 	}
 	
@@ -130,7 +171,6 @@ public class TaskBoxLogicTest {
 		logic.undo();
 		boolean returnBoolean = true;
 		for(JSONObject i:LogicController.tasksBuffer){
-			//System.out.println(Converter.jsonToTask(i).getName());
 			if(Converter.jsonToTask(i).getName().equalsIgnoreCase(fourth.getName())){
 				returnBoolean = false;
 			}
@@ -152,7 +192,6 @@ public class TaskBoxLogicTest {
 		logic.add(fourth,false);
 		String expectedString = Consts.USAGE_DELETE;
 		String returnString = logic.delete(Converter.taskToJSON(soonToBeDeletedTask));
-		//System.out.println(returnString);
 		assertEquals(expectedString,returnString);
 	}
 	
@@ -162,7 +201,6 @@ public class TaskBoxLogicTest {
 		logic.add(parser.decompose("first one"),false);
 		logic.add(parser.decompose("second one"),false);
 		Boolean returnBoolean = logic.clear(false);
-		//System.out.println(returnString);
 		assertEquals(true, returnBoolean);
 	}
 
@@ -173,17 +211,15 @@ public class TaskBoxLogicTest {
 		Task newTask = parser.decompose("To eat");
 		String returnString= logic.add(newTask,false);
 		String expectedString = String.format(Consts.STRING_ADD, newTask.getName(), newTask.getStartDate(), newTask.getEndDate());
-		//System.out.println(returnString); //debugging
 		assertEquals(expectedString,returnString);
 	}
 	
 	@Test
-	public void testAddWithBlankTask(){
+	public void testAddWithBlankNameTask(){
 		System.out.println("=== Testing add function with blank todo ===");
 		logic.clear();
-		String returnString = logic.add(parser.decompose(" "),false);
+		String returnString = logic.add(parser.decompose(" today "),false);
 		String expectedString = Consts.ERROR_ADD;
-		//System.out.println(returnBoolean); //debugging
 		assertEquals(expectedString,returnString);
 	}
 }
