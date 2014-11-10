@@ -13,7 +13,7 @@ If your answer is YES, TaskBox is for you! It is very easy to use TaskBox. Simpl
 
 #####Libraries needed
 - The program uses NATTY library for date parsing. The library can be downloaded at
-<a href="natty.joestelmach.com">natty.joestelmach.com</a>
+<a href="http://natty.joestelmach.com">natty.joestelmach.com</a>
 - The program uses JSON Simple for storage. The library can be downloaded at
 <a href="https://code.google.com/p/json-simple/">https://code.google.com/p/json-simple/</a>
 - The program uses Google APIs client libraries for Google Integration. The libraries can be downloaded at 
