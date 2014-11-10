@@ -9,6 +9,7 @@ Cache
 *.ear
 *.class
 *.txt
+*.log
 
 # eclipse specific git ignore
 *.pydevproject
