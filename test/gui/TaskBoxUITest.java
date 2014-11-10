@@ -1,3 +1,5 @@
+//@author A0097699X
+
 package gui;
 
 import static org.junit.Assert.assertEquals;
@@ -25,101 +27,101 @@ public class TaskBoxUITest {
 	public void testInvalidComplete() {
 		String s = UC.complete("random");
 		String expected = Consts.USAGE_COMPLETE;
-		assertEquals(expected,s);
+		assertEquals(expected, s);
 	}
-	
+
 	@Test
 	// ensures invalid undo is returning usage string correctly
 	public void testInvalidUndo() {
 		String s = UC.undo("random");
 		String expected = Consts.USAGE_UNDO;
-		assertEquals(expected,s);
+		assertEquals(expected, s);
 	}
-	
+
 	@Test
 	// ensures invalid delete is returning usage string correctly
 	public void testInvalidDelete() {
 		String s = UC.delete("random");
 		String expected = Consts.USAGE_DELETE;
-		assertEquals(expected,s);
+		assertEquals(expected, s);
 	}
-	
+
 	@Test
 	// ensures invalid expand is returning usage string correctly
 	public void testInvalidExpand() {
 		int s = UC.expand("random");
 		int expected = -1;
-		assertEquals(expected,s);
+		assertEquals(expected, s);
 	}
-	
+
 	@Test
 	// ensures the expand is returning values correctly for expand none
 	public void testExpandNone() {
 		int s = UC.expand("none");
 		int expected = Consts.EXPAND_NONE;
-		assertEquals(expected,s);
+		assertEquals(expected, s);
 	}
-	
+
 	@Test
 	// ensures the expand is returning values correctly
 	public void testExpandAll() {
 		int s = UC.expand("all");
 		int expected = Consts.EXPAND_ALL;
-		assertEquals(expected,s);
+		assertEquals(expected, s);
 	}
-	
+
 	@Test
 	// ensures the block command is blocking correctly
 	public void testValidBlock() {
 		String s = UC.block("10 Nov 5pm to 8pm");
 		String expected = "Blocked 10/11/2014 17:00:00 -> 10/11/2014 20:00:00";
-		assertEquals(expected,s);
+		assertEquals(expected, s);
 	}
-	
+
 	@Test
 	// ensures the block fail is returned correctly
 	public void testInvalidBlock() {
 		String s = UC.block("taskbox");
-		assertEquals(s,"Block fail");
+		assertEquals(s, "Block fail");
 	}
-	
+
 	@Test
 	// ensures the add command is returned correctly
 	public void testInvalidUpdateEmpty() {
 		String s = UC.update("");
 		String expected = Consts.USAGE_UPDATE;
-		assertEquals(expected,s);
+		assertEquals(expected, s);
 	}
-	
+
 	@Test
 	// ensures that .txt is added if it isn't there
 	public void testAppendsExtensionFileOnlyWhenNecessary() {
 		String a = UC.checkFileName("taskbox.txt");
 		String b = UC.checkFileName("taskbox");
-		assertEquals(a,b);
+		assertEquals(a, b);
 	}
-	
+
 	@Test
 	// ensures the add command is returned correctly
 	public void testAddCommand() {
 		CommandEnum s = UC.getCommandType("add");
-		assertEquals(s,CommandEnum.ADD);
+		assertEquals(s, CommandEnum.ADD);
 	}
-	
+
 	@Test
 	// ensures the delete command is returned correctly
 	public void testDeleteCommand() {
 		CommandEnum s = UC.getCommandType("delete");
-		assertEquals(s,CommandEnum.DELETE);
+		assertEquals(s, CommandEnum.DELETE);
 	}
-	
+
 	@Test
 	// ensures the invalid command is returned correctly
 	public void testInvalidCommand() {
 		CommandEnum s = UC.getCommandType("something");
-		assertEquals(s,CommandEnum.INVALID);
+		assertEquals(s, CommandEnum.INVALID);
 	}
-	
+
 	@Test
 	// ensures the string splitting is done correctly
 	public void testSplittedString() {
