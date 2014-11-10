@@ -44,7 +44,7 @@ public class TaskBoxLogicTest {
 		logic.add(parser.decompose("do CS2105 day after tomorrow"),false);
 		logic.add(parser.decompose("do CS2106 today to tomorrow"),false);
 		String expectedStringJSON = "[{\"Name\":\"do CS2104\",\"Status\":1,\"Description\":\"\",\"EndDate\":\"11\\/11\\/2014 23:59:59\",\"StartDate\":\"11\\/11\\/2014 00:00:00\",\"Frequency\":0,\"Priority\":0}, {\"Name\":\"do CS2106\",\"Status\":1,\"Description\":\"\",\"EndDate\":\"11\\/11\\/2014 23:59:59\",\"StartDate\":\"10\\/11\\/2014 00:00:00\",\"Frequency\":0,\"Priority\":0}]";
-		String expectedStringDate = "[Tue Nov 11 00:00:00 SGT 2014, Tue Nov 11 00:00:00 SGT 2014]";
+		String expectedStringDate = "[Tue Nov 11 00:00:00 GMT+08:00 2014, Tue Nov 11 00:00:00 GMT+08:00 2014]";
 		SearchResult searchResult = new SearchResult(new ArrayList<JSONObject>(), new ArrayList<Date>());
 		try {
 			searchResult = logic.search("tomorrow", Consts.STATUS_TIMED_TASK);

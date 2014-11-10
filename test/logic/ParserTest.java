@@ -1,9 +1,6 @@
 package logic;
 
-import static org.junit.Assert.*;
-import logic.Converter;
-import logic.LogicParser;
-import model.Task;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
