@@ -8,9 +8,7 @@ import gui.common.*;
 import logic.google.GoogleCal;
 
 import javax.swing.KeyStroke;
-
 import java.awt.event.InputEvent;
-
 import static java.awt.event.KeyEvent.*;
 
 import java.io.IOException;
@@ -65,7 +63,7 @@ public class UIController {
 	private final char HELP_HOTKEY = '/';
 	private final char QUIT_HOTKEY = 'q';
 	private final char SYNC_HOTKEY = 's';
-	private final int REMINDER_TIME_CHECK = 60000;
+	private final int REMINDER_TIME_CHECK = 300000;
 	private final int MINUTES_TO_REMIND = 60;
 	private final int DEFAULT_JUMP_LINE = 0;
 	private final int DEFAULT_EXPAND_LINE = -1;
@@ -102,7 +100,7 @@ public class UIController {
 	Timer timer;
 	TimerTask tt;
 
-	public UIController() {
+	public UIController(String[] args) {
 		String fileName = checkFileName("taskbox.txt");
 		try {
 			init(fileName);
@@ -113,11 +111,13 @@ public class UIController {
 
 	// for testing
 	public UIController(String fileName) {
-		logic = LogicController.getInstance();
 		try {
+			isMac = SystemUtils.IS_OS_MAC;
 			logic.init(fileName);
+			timedList = logic.getTimedTasksBuffer();
+			floatingList = logic.getFloatingTasksBuffer();
+			display = new Display();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -702,7 +702,7 @@ public class UIController {
 	}
 
 	// calls and returns string value from logic's block function
-	public String block(String userInput) {
+	private String block(String userInput) {
 		if (userInput != null && !userInput.isEmpty()) {
 			try {
 				return logic.block(userInput);
@@ -714,7 +714,7 @@ public class UIController {
 		}
 	}
 
-	public String searchTimed(String keyword) {
+	private String searchTimed(String keyword) {
 		if (keyword != null && !keyword.isEmpty()) {
 			try {
 				// Modify date range by searchResult.getStartDate(),
@@ -732,7 +732,7 @@ public class UIController {
 		} else {
 			updateStatusIndicator(Consts.STRING_NOT_FOUND);
 		}
-		return Consts.USAGE_SEARCH;
+		return "";
 	}
 
 	private void searchFloating(String keyword) {
@@ -749,7 +749,7 @@ public class UIController {
 		}
 	}
 
-	public String update(String userInput) {
+	private String update(String userInput) {
 		if (userInput != null && !userInput.isEmpty()) {
 			String[] splittedString = getSplittedString(userInput);
 			if (splittedString.length == Consts.NO_ARGS_UPDATE) {
@@ -797,19 +797,19 @@ public class UIController {
 		return null;
 	}
 
-	public int expand(String lineNo) {
+	private int expand(String lineNo) {
 		if (lineNo.toLowerCase().compareTo("all") == 0) {
-			return Consts.EXPAND_ALL;
+			return -9;
 		}
 		if (lineNo.toLowerCase().compareTo("none") == 0) {
-			return Consts.EXPAND_NONE;
+			return -1;
 		}
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber;
 			try {
 				lineNumber = Integer.parseInt(lineNo);
 			} catch (Exception e) {
-				return Consts.EXPAND_NONE;
+				return -1;
 			}
 
 			if (lineNumber < taskNo + floatingList.size() && lineNumber > 0) {
@@ -817,14 +817,14 @@ public class UIController {
 					// calculate whether task is in timed or floating
 					return lineNumber;
 				} catch (NumberFormatException e) {
-					return Consts.EXPAND_NONE;
+					return -1;
 				}
 			}
 		}
-		return Consts.EXPAND_NONE;
+		return -1;
 	}
 
-	public String delete(String lineNo) {
+	private String delete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber;
 			try {
@@ -847,7 +847,7 @@ public class UIController {
 		return Consts.USAGE_DELETE;
 	}
 
-	public String undo(String lineNo) {
+	private String undo(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber;
 			try {
@@ -872,7 +872,7 @@ public class UIController {
 		return Consts.USAGE_UNDO;
 	}
 
-	public String complete(String lineNo) {
+	private String complete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
 			int lineNumber;
 			try {
@@ -944,12 +944,12 @@ public class UIController {
 		}
 	}
 
-	public String[] getSplittedString(String userInput) {
+	private String[] getSplittedString(String userInput) {
 		String[] splittedString = userInput.split(" ", 2);
 		return splittedString;
 	}
 
-	public static String checkFileName(String fileName) {
+	private static String checkFileName(String fileName) {
 		String[] parts = fileName.split("\\.(?=[^\\.]+$)");
 		if (parts.length != Consts.FILE_VALID_LENGTH
 				|| !parts[Consts.FILE_TYPE_POSITION].equalsIgnoreCase("txt")) {
@@ -958,7 +958,7 @@ public class UIController {
 		return fileName;
 	}
 
-	public CommandEnum getCommandType(String firstWord) {
+	private CommandEnum getCommandType(String firstWord) {
 		if (firstWord != null) {
 			for (CommandEnum cmd : CommandEnum.values()) {
 				if (firstWord.equalsIgnoreCase(cmd.toString())) {
@@ -1132,16 +1132,14 @@ public class UIController {
 		}
 	}
 
-	private int textWidth(String str) {
+	private static int textWidth(String str) {
 		return (int) (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
 	}
 
-	public String ellipsize(String text, int max) {
+	private static String ellipsize(String text, int max) {
 		if (textWidth(text) <= max)
 			return text;
-		if(max < 3){
-			return "";
-		}
+
 		// Start by chopping off at the word before max
 		// This is an over-approximation due to thin-characters...
 		int end = text.lastIndexOf(' ', max - 3);
