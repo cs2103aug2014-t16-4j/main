@@ -1,9 +1,13 @@
+//@author A0097699X
+
 package gui;
 
 import static org.junit.Assert.assertEquals;
+import gui.UIController;
 
 import java.util.ArrayList;
 
+import logic.CommandEnum;
 import logic.Consts;
 
 import org.eclipse.swt.graphics.Color;
@@ -15,176 +19,140 @@ import org.junit.Test;
 
 public class TaskBoxUITest {
 
-	String fileName = "mytext.txt";
-	UIController UC;
-	ArrayList<JSONObject> taskList;
-	@Before
-	public void setUp() throws Exception {
-		UC = new UIController(fileName);
+	String fileName = "taskbox.txt";
+	UIController UC = new UIController(fileName);
+
+	@Test
+	// ensures invalid complete is returning usage string correctly
+	public void testInvalidComplete() {
+		String s = UC.complete("random");
+		String expected = Consts.USAGE_COMPLETE;
+		assertEquals(expected, s);
 	}
 
-	@After
-	public void tearDown() throws Exception {
-	}
-	
-//	@Test
-//	public void testSearch() {
-//		System.out.println("=== Testing search function ===");
-//		String expectedString = "1. to do something\n2. to do cs2103 project";
-//		UC.clear();
-//		UC.add("to sleep");
-//		UC.add("to do something");
-//		UC.add("to do cs2103 project");
-//		UC.add("to eat");
-//		UC.search("do");
-//		ArrayList<JSONObject> returnObjects = UC.getDisplayList();
-//		//System.out.println(returnString);
-//		assertEquals(expectedString,returnObjects);
-//	}
-//	
-//	@Test
-//	public void testSearchNotFound(){
-//		System.out.println("=== Testing search function ===");
-//		String expectedString = Consts.STRING_NOT_FOUND;
-//		UC.clear();
-//		UC.add("to sleep");
-//		UC.add("to do something");
-//		UC.add("to do cs2103 project");
-//		UC.add("to eat");
-//		UC.search("Anything not from text file");
-//		ArrayList<JSONObject> returnObjects = UC.getDisplayList();
-//		//System.out.println(returnString);
-//		assertEquals(expectedString,returnObjects);
-//	}
-//
-//	@Test
-//	public void testSort() throws Exception {
-//		System.out.println("=== Testing sort function ===");
-//		String expectedString = "1. AAAA\n2. CCCC\n3. DDDD\n4. EEEE\n5. FFFF";
-//		UC.clear();
-//		UC.add("AAAA");
-//		UC.add("DDDD");
-//		UC.add("CCCC");
-//		UC.add("FFFF");
-//		UC.add("EEEE");
-//		UC.sort();
-//		ArrayList<JSONObject> returnObjects= UC.getDisplayList();
-//		//System.out.println(returnString);
-//		assertEquals(expectedString,returnObjects);
-//	}
-//
-//	@Test
-//	public void testSortwithSameFirstWord() throws Exception{
-//		System.out.println("=== Testing sort function ===");
-//		String expectedString = "1. to do A\n2. to do B\n3. to do C\n4. to do D\n5. to do E";
-//		UC.clear();
-//		UC.add("to do A");
-//		UC.add("to do C");
-//		UC.add("to do B");
-//		UC.add("to do E");
-//		UC.add("to do D");
-//		UC.sort();
-//		ArrayList<JSONObject> returnObjects = UC.getDisplayList();
-//		//System.out.println(returnString);
-//		assertEquals(expectedString,returnObjects);
-//	}
-//	@Test
-//	public void testDelete() {
-//		System.out.println("=== Testing delete function ===");
-//		String expectedString = "deleted from " + fileName[0] + ": \"Second line\"";
-//		UC.clear();
-//		UC.add("First line");
-//		UC.add("Second line");
-//		UC.add("Third line");
-//		UC.add("Forth line");
-//		String returnString = UC.delete("2");
-//		//System.out.println(returnString);
-//		assertEquals(expectedString,returnString);
-//	}
-//
-//	@Test
-//	public void testDeleteLineNotFound(){
-//		System.out.println("=== Testing delete function ===");
-//		String expectedString = "Line number not found! None was deleted.";
-//		UC.clear();
-//		UC.add("First line");
-//		UC.add("Second line");
-//		UC.add("Third line");
-//		UC.add("Forth line");
-//		String returnString = UC.delete("-1");
-//		//System.out.println(returnString);
-//		assertEquals(expectedString,returnString);
-//	}
-//	
-//	@Test
-//	public void testClear() {
-//		System.out.println("=== Testing clear function ===");
-//		String expectedString = "All content deleted from "+ fileName[0];
-//		String returnString = UC.clear();
-//		System.out.println(returnString);
-//		assertEquals(expectedString,returnString);
-//	}
-//
-//	@Test
-//	public void testAdd() {
-//		System.out.println("=== Testing add function ===");
-//		String expectedString = "added to "+ fileName[0] +": \"To eat\"";
-//		UC.clear();
-//		String returnString = UC.add("To eat");
-//		//System.out.println(returnString);
-//		assertEquals(expectedString,returnString);
-//	}
-//	
-//	@Test
-//	public void testAddWithBlankTask(){
-//		System.out.println("=== Testing add function with blank todo ===");
-//		String expectedString = "Task cannot be blank.";
-//		UC.clear();
-//		String returnString = UC.add("");
-//		//System.out.println(returnString);
-//		assertEquals(expectedString,returnString);
-//	}
-//
-//	@Test
-//	//ensures the UI is getting correct taskList
-//	public void testGetTaskList(){
-//		System.out.println("=== Testing getTaskList function ===");
-//		int expectedSize = 4;
-//		UC.clear();
-//		UC.add("to sleep");
-//		UC.add("to do something");
-//		UC.add("to do cs2103 project");
-//		UC.add("to eat");
-//		taskList = UC.getTaskList();
-//		assertEquals(expectedSize,taskList.size());
-//	}
-//	
-//	@Test
-//	//ensures the UI is assigning black color for normal tasks
-//	public void getNormalColor(){
-//		System.out.println("=== Testing normal color function ===");
-//		Color black = UIController.DISPLAY.getSystemColor(SWT.COLOR_BLACK);
-//		Color testColor = UC.getColorWithPriority(Consts.TASK_NORMAL);
-//		assertEquals(black,testColor);
-//	}
-//	
-//	@Test
-//	//ensures the UI is assigning red color for important tasks
-//	public void getImportantColor(){
-//		System.out.println("=== Testing important color function ===");
-//		Color red = UIController.DISPLAY.getSystemColor(SWT.COLOR_RED);
-//		Color testColor = UC.getColorWithPriority(Consts.TASK_IMPORTANT);
-//		assertEquals(red,testColor);
-//	}
-	
 	@Test
-	//ensures the UI is assigning black color for all other tasks
-	//this is also a boundary value analysis
-	public void getDefaultColor(){
-		System.out.println("=== Testing all other color function ===");
-		Color testColor1 = UC.getColorWithPriority(-1);
-		Color testColor2 = UC.getColorWithPriority(2);
-		assertEquals(true,testColor1.equals(testColor2));
+	// ensures invalid undo is returning usage string correctly
+	public void testInvalidUndo() {
+		String s = UC.undo("random");
+		String expected = Consts.USAGE_UNDO;
+		assertEquals(expected, s);
 	}
-	
+
+	@Test
+	// ensures invalid delete is returning usage string correctly
+	public void testInvalidDelete() {
+		String s = UC.delete("random");
+		String expected = Consts.USAGE_DELETE;
+		assertEquals(expected, s);
+	}
+
+	@Test
+	// ensures invalid expand is returning usage string correctly
+	public void testInvalidExpand() {
+		int s = UC.expand("random");
+		int expected = -1;
+		assertEquals(expected, s);
+	}
+
+	@Test
+	// ensures the expand is returning values correctly for expand none
+	public void testExpandNone() {
+		int s = UC.expand("none");
+		int expected = Consts.EXPAND_NONE;
+		assertEquals(expected, s);
+	}
+
+	@Test
+	// ensures the expand is returning values correctly
+	public void testExpandAll() {
+		int s = UC.expand("all");
+		int expected = Consts.EXPAND_ALL;
+		assertEquals(expected, s);
+	}
+
+	@Test
+	// ensures the block command is blocking correctly
+	public void testValidBlock() {
+		String s = UC.block("10 Nov 5pm to 8pm");
+		String expected = "Blocked 10/11/2014 17:00:00 -> 10/11/2014 20:00:00";
+		assertEquals(expected, s);
+	}
+
+	@Test
+	// ensures the block fail is returned correctly
+	public void testInvalidBlock() {
+		String s = UC.block("taskbox");
+		assertEquals(s, "Block fail");
+	}
+
+	@Test
+	// ensures the add command is returned correctly
+	public void testInvalidUpdateEmpty() {
+		String s = UC.update("");
+		String expected = Consts.USAGE_UPDATE;
+		assertEquals(expected, s);
+	}
+
+	@Test
+	// ensures that .txt is added if it isn't there
+	public void testAppendsExtensionFileOnlyWhenNecessary() {
+		String a = UC.checkFileName("taskbox.txt");
+		String b = UC.checkFileName("taskbox");
+		assertEquals(a, b);
+	}
+
+	@Test
+	// ensures the add command is returned correctly
+	public void testAddCommand() {
+		CommandEnum s = UC.getCommandType("add");
+		assertEquals(s, CommandEnum.ADD);
+	}
+
+	@Test
+	// ensures the delete command is returned correctly
+	public void testDeleteCommand() {
+		CommandEnum s = UC.getCommandType("delete");
+		assertEquals(s, CommandEnum.DELETE);
+	}
+
+	@Test
+	// ensures the invalid command is returned correctly
+	public void testInvalidCommand() {
+		CommandEnum s = UC.getCommandType("something");
+		assertEquals(s, CommandEnum.INVALID);
+	}
+
+	@Test
+	// ensures the string splitting is done correctly
+	public void testSplittedString() {
+		String[] sa1 = UC.getSplittedString("add something");
+		String s1 = "add";
+		String s2 = "something";
+		assertEquals(s1.compareTo(sa1[0]) == 0, s2.compareTo(sa1[1]) == 0);
+	}
+
+	@Test
+	// ensures that the ellipsize function doesnt show half a word
+	public void checkEllipsize() {
+		String s1 = UC.ellipsize("Hello, this is a test", 13);
+		String s2 = "Hello, this...";
+		assertEquals(s2, s1);
+	}
+
+	@Test
+	// ensures that the ellipsize function truncates fully if max length is 0
+	public void checkEllipsizeZero() {
+		String s1 = UC.ellipsize("Hello, this is a test", 0);
+		String s2 = "";
+		assertEquals(s2, s1);
+	}
+
+	@Test
+	// ensures that the ellipsize function shows everything if length is longer
+	// than word
+	public void checkEllipsizeShowAll() {
+		String s1 = UC.ellipsize("Hello, this is a test", 99);
+		String s2 = "Hello, this is a test";
+		assertEquals(s2, s1);
+	}
 }

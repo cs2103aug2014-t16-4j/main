@@ -70,6 +70,7 @@ public final class Consts {
 
 	// USAGE
 	public static final String USAGE_ADD = "Usage: add <todo>";
+	public static final String USAGE_SEARCH = "Usage: search <keyword>";
 	public static final String USAGE_UNDO = "Usage: undo <task #>";
 	public static final String USAGE_COMPLETE = "Usage: complete <task #>";
 	public static final String USAGE_DELETE = "Usage: delete <task #>";
@@ -113,6 +114,10 @@ public final class Consts {
 	public static final int STATUS_BLOCK_TASK = 3;
 	public static final int STATUS_COMPLETED_TIMED_TASK = 11;
 	public static final int STATUS_COMPLETED_FLOATING_TASK = 12;
+	
+	// EXPAND UI
+	public static final int EXPAND_NONE = -1;
+	public static final int EXPAND_ALL = -9;
 
 	//@author A0097699X
 	// HELP TEXT
