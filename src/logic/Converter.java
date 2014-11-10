@@ -59,6 +59,7 @@ public class Converter {
 	
 	public static List<JSONObject> stringToJSONList(String strListRaw) throws org.json.simple.parser.ParseException{
 		JSONParser jsonParser = new JSONParser();
+		@SuppressWarnings("unchecked")
 		List<String> strList = Arrays.asList(strListRaw.split("~"));
 		List<JSONObject> res = new ArrayList<JSONObject>(strList.size());
 		for (String objStr : strList) {
@@ -67,7 +68,6 @@ public class Converter {
 		return res;
 	}
 	
-	//@author A0117993R
 	@SuppressWarnings("unchecked")
 	public static JSONObject eventToJSON(Event event) throws ParseException {
 		JSONObject temp = new JSONObject();

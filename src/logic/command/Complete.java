@@ -41,6 +41,7 @@ public class Complete extends Command{
 	}
 
 	//@author A0112069M
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean executeCommand() {
 		try {
@@ -59,6 +60,7 @@ public class Complete extends Command{
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean undo() {
 		try {

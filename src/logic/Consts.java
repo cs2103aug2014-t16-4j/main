@@ -142,5 +142,6 @@ public final class Consts {
 			+ "\nCtrl + s: Sync" 
 			+ "\nCtrl + q: Quit";
 	
+	@SuppressWarnings("deprecation")
 	public static final Date DATE_DEFAULT = new Date(1,1,1);
 }

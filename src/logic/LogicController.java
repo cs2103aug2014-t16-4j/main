@@ -50,8 +50,10 @@ public class LogicController {
 	public static String fileName;
 	public static CacheMap cacheMap; // for saving cache purpose
 	private static Logger logger = Logger.getLogger("Logic");
+	
 	Parser dateParser = new Parser();
 	ArrayList <Task> blockBuffer;
+	
 	Add logicAdd;
 	Clear logicClear;
 	Delete logicDelete;
@@ -61,6 +63,7 @@ public class LogicController {
 	LoadCache loadCache;
 	GoogleCal gCal;
 	GoogleCalService gCalServ;
+	
 	//@author A0112069M
 	Stack<Command> opStack = new Stack<Command>(); // for undo stuff 
 	String authToken = "";
@@ -72,7 +75,6 @@ public class LogicController {
 		if (singleton == null)
 		{
 			singleton = new LogicController();
-			
 		}
 		return singleton;
 	}
@@ -138,6 +140,7 @@ public class LogicController {
 		Iterator<Entry<String, List<JSONObject>>> it = cacheMap.entrySet().iterator();
 		ArrayList<JSONObject> temp = new ArrayList<JSONObject>(); // To store the values from cacheMap
 		while (it.hasNext()) {
+			@SuppressWarnings("rawtypes")
 			Map.Entry pairs = (Map.Entry) it.next();
 			logger.log(Level.INFO,pairs.getKey() + " = " + pairs.getValue());
 			String key = (String) pairs.getKey();
@@ -188,11 +191,11 @@ public class LogicController {
 							Converter.jsonToTask(jTask).getStartDate())
 							.compareTo(
 									Consts.FORMAT_COMPARE_DATE.format(curDate)) >= 0) {
-				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
 		}
-		//System.out.println(); // For Debuging
+		
+		logger.log(Level.INFO,displayTasksBuffer.toString());
 		return displayTasksBuffer;
 	}
 	
@@ -206,7 +209,7 @@ public class LogicController {
 			}
 		} 
 		
-		//System.out.println(); // For Debuging
+		logger.log(Level.INFO,displayTasksBuffer.toString());
 		return displayTasksBuffer;
 	}
 	
@@ -215,11 +218,11 @@ public class LogicController {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
 			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_BLOCK_TASK) {
-				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
 		}
-		//System.out.println(); // For Debuging
+		
+		logger.log(Level.INFO,displayTasksBuffer.toString());
 		return displayTasksBuffer;
 	}
 	
@@ -248,6 +251,7 @@ public class LogicController {
 				}
 			}
 		}
+		
 		logicAdd = new Add();
 		logicAdd.setFileName(fileName);
 		logicAdd.setTask(task);
@@ -277,6 +281,7 @@ public class LogicController {
 	}
 	
 	//@author A0112069M
+	@SuppressWarnings("static-access")
 	public boolean clear(boolean...addToStack){
 		logicClear = new Clear();
 		logicClear.setFileName(fileName);
