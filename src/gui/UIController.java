@@ -68,42 +68,44 @@ public class UIController {
 	public ArrayList<JSONObject> floatingList;
 
 	// constants
-	private final Provider provider = Provider.getCurrentProvider(false);
+	private final Provider PROVIDER = Provider.getCurrentProvider(false);
 	private final static String NON_THIN = "[^iIl1\\.,']";
 	private final int REMINDER_TIME_CHECK = 300000;
 	private final int MINUTES_TO_REMIND = 60;
-	private final int DEFAULT_JUMPLINE = 0;
-	private final int DEFAULT_EXPANDLINE = -1;
+	private final int DEFAULT_JUMP_LINE = 0;
+	private final int DEFAULT_EXPAND_LINE = -1;
 	private final String DEFAULT_SEARCH_DATE = "";
+	private final int DEFAULT_FLOATING_SCROLL_SIZE = 5;
+	private final int DEFAULT_TIMED_SCROLL_SIZE = 40;
+	private final boolean DEFAULT_START_WITH_WINDOWS = true;
+	private final char UNDO_HOTKEY = 'z';
+	private final char REFRESH_HOTKEY = 'r';
+	private final char ADD_HOTKEY = 'a';
+	private final char DELETE_HOTKEY = 'd';
+	private final char HELP_HOTKEY = '/';
+	private final char QUIT_HOTKEY = 'q';
+	private final char SYNC_HOTKEY = 's';
+	private final char PREFERENCES_HOTKEY = 'p';
 
 	// statics
-	private static Boolean BLNMOUSEDOWN = false;
-	private static Boolean MAC = false;
-	private static int XPOS = 0;
-	private static int YPOS = 0;
+	private static Boolean blnMouseDown = false;
+	private static Boolean isMac = false;
+	private static int xPos = 0;
+	private static int yPos = 0;
 
 	// system Preferences
-	private String SYSTEM_FONT = "MyriadPro-Regular";
-	private boolean START_WITH_WINDOWS = true;
-	private int FLOATINGSCROLLSIZE = 5;
-	private int TIMEDSCROLLSIZE = 40;
-	private char UNDO_HOTKEY = 'z';
-	private char REDO_HOTKEY = 'y';
-	private char REFRESH_HOTKEY = 'r';
-	private char ADD_HOTKEY = 'a';
-	private char DELETE_HOTKEY = 'd';
-	private char HELP_HOTKEY = '/';
-	private char QUIT_HOTKEY = 'q';
-	private char SYNC_HOTKEY = 's';
-	private char PREFERENCES_HOTKEY = 'p';
+	private String system_font = "MyriadPro-Regular";
+	private boolean start_with_windows = true;
+	private int floating_scroll_size = 5;
+	private int timed_scroll_size = 40;
 
 	// initialize global variables
 	private CommandEnum selectedCommand = CommandEnum.INVALID;
 	private int taskNo = 1;
 
 	// declare sub-ui components
-	Display DISPLAY;
-	Shell SHELL;
+	Display display;
+	Shell shell;
 	Text input;
 	ScrolledComposite floatingTaskComposite;
 	ScrolledComposite timedTaskComposite;
@@ -131,11 +133,11 @@ public class UIController {
 	// for testing
 	public UIController(String fileName) {
 		try {
-			MAC = SystemUtils.IS_OS_MAC;
+			isMac = SystemUtils.IS_OS_MAC;
 			logic.init(fileName);
 			timedList = logic.getTimedTasksBuffer();
 			floatingList = logic.getFloatingTasksBuffer();
-			DISPLAY = new Display();
+			display = new Display();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -146,7 +148,7 @@ public class UIController {
 	 * @wbp.parser.entryPoint
 	 */
 	public void init(String fileName) throws IOException {
-		MAC = SystemUtils.IS_OS_MAC;
+		isMac = SystemUtils.IS_OS_MAC;
 		logic = LogicController.getInstance();
 		logic.init(fileName);
 
@@ -163,9 +165,9 @@ public class UIController {
 		renderAuthPopup();
 		renderPreferencesPopup();
 
-		renderTasks(DEFAULT_EXPANDLINE, DEFAULT_SEARCH_DATE, DEFAULT_JUMPLINE);
+		renderTasks(DEFAULT_EXPAND_LINE, DEFAULT_SEARCH_DATE, DEFAULT_JUMP_LINE);
 		updateStatusIndicator(String.format(Consts.STRING_WELCOME, fileName));
-		SHELL.open();
+		shell.open();
 		startReminder();
 		enableDrag();
 		disposeDisplay();
@@ -182,19 +184,22 @@ public class UIController {
 		}
 		try {
 			line = reader.readLine();
-			FLOATINGSCROLLSIZE = Integer.parseInt(line);
+			floating_scroll_size = Integer.parseInt(line);
 			line = reader.readLine();
-			TIMEDSCROLLSIZE = Integer.parseInt(line);
+			timed_scroll_size = Integer.parseInt(line);
 			line = reader.readLine();
-			START_WITH_WINDOWS = line.compareTo("true") == 0 ? true : false;
+			start_with_windows = line.compareTo("true") == 0 ? true : false;
 			reader.close();
 		} catch (IOException e) {
+			floating_scroll_size = DEFAULT_FLOATING_SCROLL_SIZE;
+			timed_scroll_size = DEFAULT_TIMED_SCROLL_SIZE;
+			start_with_windows = DEFAULT_START_WITH_WINDOWS;
 			e.printStackTrace();
 		}
 	}
 
 	private void renderPreferencesPopup() {
-		final Shell preferencesWindow = new Shell(SHELL, SWT.APPLICATION_MODAL
+		final Shell preferencesWindow = new Shell(shell, SWT.APPLICATION_MODAL
 				| SWT.DIALOG_TRIM);
 		preferencesWindow.setText("TaskBox Preferences");
 		preferencesWindow.setSize(400, 300);
@@ -209,7 +214,7 @@ public class UIController {
 
 		label = new Label(preferencesWindow, SWT.CENTER);
 		label.setText("Scroll Size");
-		label.setBackground(DISPLAY.getSystemColor(SWT.COLOR_DARK_GRAY));
+		label.setBackground(display.getSystemColor(SWT.COLOR_DARK_GRAY));
 		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		gridData.horizontalSpan = 5;
 		label.setLayoutData(gridData);
@@ -220,7 +225,7 @@ public class UIController {
 		final Text fScroll = new Text(preferencesWindow, SWT.SINGLE
 				| SWT.BORDER);
 		fScroll.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-		fScroll.setText(Integer.toString(FLOATINGSCROLLSIZE));
+		fScroll.setText(Integer.toString(floating_scroll_size));
 
 		label = new Label(preferencesWindow, SWT.NULL);
 
@@ -230,7 +235,7 @@ public class UIController {
 		final Text tScroll = new Text(preferencesWindow, SWT.SINGLE
 				| SWT.BORDER);
 		tScroll.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-		tScroll.setText(Integer.toString(TIMEDSCROLLSIZE));
+		tScroll.setText(Integer.toString(timed_scroll_size));
 
 		// label = new Label(preferencesWindow, SWT.CENTER);
 		// label.setBackground(DISPLAY.getSystemColor(SWT.COLOR_DARK_GRAY));
@@ -253,7 +258,7 @@ public class UIController {
 		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
 		gridData.horizontalSpan = 5;
 		checkbox.setLayoutData(gridData);
-		checkbox.setSelection(START_WITH_WINDOWS);
+		checkbox.setSelection(start_with_windows);
 
 		// Save
 		Button save = new Button(preferencesWindow, SWT.CENTER);
@@ -307,7 +312,7 @@ public class UIController {
 		});
 
 		// add ctrl + p hotkey
-		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+		display.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
 				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
 						&& (e.keyCode == PREFERENCES_HOTKEY)) {
@@ -339,8 +344,12 @@ public class UIController {
 					String toCheck;
 					int i = 0, status = 0;
 					do {
-						status = Integer.parseInt(timedList.get(i)
-								.get(Consts.STATUS).toString());
+						try {
+							status = Integer.parseInt(timedList.get(i)
+									.get(Consts.STATUS).toString());
+						} catch (Exception e) {
+							status = Consts.STATUS_TIMED_TASK;
+						}
 						toCheck = timedList.get(i++).get(Consts.STARTDATE)
 								.toString();
 						d = formatter.parseDateTime(toCheck);
@@ -348,13 +357,13 @@ public class UIController {
 					final JSONObject o = timedList.get(--i);
 					Minutes min = Minutes.minutesBetween(now, d);
 					if (min.getMinutes() + 1 == MINUTES_TO_REMIND) {
-						DISPLAY.asyncExec(new Runnable() {
+						display.asyncExec(new Runnable() {
 							public void run() {
 								showNotification(o.get(Consts.NAME).toString()
 										+ " is starting in 1 hour!", "Ends: "
-												+ o.get(Consts.ENDDATE).toString()
-												+ "\n"
-												+ o.get(Consts.DESCRIPTION).toString());
+										+ o.get(Consts.ENDDATE).toString()
+										+ "\n"
+										+ o.get(Consts.DESCRIPTION).toString());
 							}
 						});
 					}
@@ -365,8 +374,8 @@ public class UIController {
 	}
 
 	private void renderDisplay() {
-		DISPLAY = new Display();
-		if (!MAC) {
+		display = new Display();
+		if (!isMac) {
 			final HotKeyListener listener = new HotKeyListener() {
 				public void onHotKey(final HotKey hotKey) {
 
@@ -374,17 +383,17 @@ public class UIController {
 						public void run() {
 							Display.getDefault().asyncExec(new Runnable() {
 								public void run() {
-									if (!SHELL.isVisible()
-											|| DISPLAY.getFocusControl() == null) {
+									if (!shell.isVisible()
+											|| display.getFocusControl() == null) {
 										System.out.println("showing window");
-										SHELL.setVisible(true);
-										SHELL.setMinimized(false);
+										shell.setVisible(true);
+										shell.setMinimized(false);
 										input.setFocus();
-										SHELL.forceActive();
+										shell.forceActive();
 									} else {
 										System.out.println("hiding window");
-										SHELL.setMinimized(true);
-										SHELL.setVisible(false);
+										shell.setMinimized(true);
+										shell.setVisible(false);
 									}
 								}
 							});
@@ -393,12 +402,12 @@ public class UIController {
 				}
 			};
 
-			provider.reset();
-			provider.register(
+			PROVIDER.reset();
+			PROVIDER.register(
 					KeyStroke.getKeyStroke(VK_H, InputEvent.ALT_DOWN_MASK),
 					listener);
 		}
-		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+		display.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
 				// undo
 				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
@@ -406,7 +415,8 @@ public class UIController {
 					e.doit = false;
 					undo();
 					updateTaskList();
-					renderTasks(DEFAULT_EXPANDLINE, DEFAULT_SEARCH_DATE, DEFAULT_JUMPLINE);
+					renderTasks(DEFAULT_EXPAND_LINE, DEFAULT_SEARCH_DATE,
+							DEFAULT_JUMP_LINE);
 				}
 				// quit
 				else if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
@@ -439,7 +449,8 @@ public class UIController {
 						&& (e.keyCode == REFRESH_HOTKEY)) {
 					e.doit = false;
 					updateTaskList();
-					renderTasks(DEFAULT_EXPANDLINE, DEFAULT_SEARCH_DATE, DEFAULT_JUMPLINE);
+					renderTasks(DEFAULT_EXPAND_LINE, DEFAULT_SEARCH_DATE,
+							DEFAULT_JUMP_LINE);
 				}
 			}
 		});
@@ -451,7 +462,7 @@ public class UIController {
 	}
 
 	private void renderTimedTaskContainer() {
-		timedTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER
+		timedTaskComposite = new ScrolledComposite(shell, SWT.BORDER
 				| SWT.V_SCROLL);
 		timedTaskComposite.setBackground(SWTResourceManager
 				.getColor(SWT.COLOR_WHITE));
@@ -459,35 +470,35 @@ public class UIController {
 		timedTaskComposite.setExpandHorizontal(true);
 		timedTaskComposite.setExpandVertical(true);
 
-		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+		display.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
 				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
 						&& (e.keyCode == SWT.ARROW_DOWN)) {
 					Point p = timedTaskComposite.getOrigin();
-					timedTaskComposite.setOrigin(0, p.y += TIMEDSCROLLSIZE);
+					timedTaskComposite.setOrigin(0, p.y += timed_scroll_size);
 				}
 				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
 						&& (e.keyCode == SWT.ARROW_UP)) {
 					Point p = timedTaskComposite.getOrigin();
-					timedTaskComposite.setOrigin(0, p.y -= TIMEDSCROLLSIZE);
+					timedTaskComposite.setOrigin(0, p.y -= timed_scroll_size);
 				}
 			}
 		});
 	}
 
 	private void renderStatusIndicator() {
-		statusComposite = new Composite(SHELL, SWT.NONE);
+		statusComposite = new Composite(shell, SWT.NONE);
 		statusComposite.setBounds(10, 596, 280, 14);
 
 		statusInd = new Label(statusComposite, SWT.NONE);
-		statusInd.setFont(SWTResourceManager.getFont(SYSTEM_FONT, MAC ? 11 : 9,
+		statusInd.setFont(SWTResourceManager.getFont(system_font, isMac ? 11 : 9,
 				SWT.NORMAL));
 		statusInd.setBounds(0, 0, 280, 14);
 		statusInd.setAlignment(SWT.CENTER);
 	}
 
 	private void renderInputBox() {
-		input = new Text(SHELL, SWT.BORDER);
+		input = new Text(shell, SWT.BORDER);
 		input.setBounds(10, 10, 258, 19);
 
 		// delegate task and reset input
@@ -502,12 +513,12 @@ public class UIController {
 	}
 
 	private void renderHelp() {
-		Label helpButton = new Label(SHELL, SWT.NONE);
-		helpButton.setImage(new Image(SHELL.getDisplay(),
+		Label helpButton = new Label(shell, SWT.NONE);
+		helpButton.setImage(new Image(shell.getDisplay(),
 				"resource/icon_info.gif"));
 		helpButton.setBounds(274, 13, 16, 14);
 
-		final Shell helpWindow = new Shell(SHELL, SWT.APPLICATION_MODAL
+		final Shell helpWindow = new Shell(shell, SWT.APPLICATION_MODAL
 				| SWT.DIALOG_TRIM);
 		helpWindow.setText("Help");
 		helpWindow.setSize(600, 480);
@@ -542,7 +553,7 @@ public class UIController {
 
 		});
 		// add ctrl + ? hotkey
-		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+		display.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
 				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
 						&& (e.keyCode == HELP_HOTKEY)) {
@@ -559,11 +570,11 @@ public class UIController {
 	}
 
 	private void renderAuthPopup() {
-		authShell = new Shell(DISPLAY);
+		authShell = new Shell(display);
 		authShell.setText("Request for Permission");
 		authShell.setLayout(new FillLayout());
 		browser = new Browser(authShell, SWT.NONE);
-		initializeBrowser(DISPLAY, browser);
+		initializeBrowser(display, browser);
 		authShell.open();
 		positionWindow(authShell);
 		authShell.setVisible(false);
@@ -616,7 +627,7 @@ public class UIController {
 	}
 
 	private void renderFloatingTaskContainer() {
-		floatingTaskComposite = new ScrolledComposite(SHELL, SWT.BORDER
+		floatingTaskComposite = new ScrolledComposite(shell, SWT.BORDER
 				| SWT.V_SCROLL);
 		floatingTaskComposite.setBounds(10, 446, 280, 144);
 		floatingTaskComposite.setExpandHorizontal(true);
@@ -631,19 +642,19 @@ public class UIController {
 		floatingTaskComposite.setMinSize(floatingTaskTable.computeSize(
 				SWT.DEFAULT, SWT.DEFAULT));
 		TableColumn taskNames = new TableColumn(floatingTaskTable, SWT.LEFT);
-		taskNames.setWidth(MAC ? 276 : 255);
+		taskNames.setWidth(isMac ? 276 : 255);
 
-		DISPLAY.addFilter(SWT.KeyDown, new Listener() {
+		display.addFilter(SWT.KeyDown, new Listener() {
 			public void handleEvent(Event e) {
 				if (((e.stateMask & SWT.ALT) == SWT.ALT)
 						&& (e.keyCode == SWT.ARROW_DOWN)) {
 					floatingTaskTable.setTopIndex(floatingTaskTable
-							.getTopIndex() + FLOATINGSCROLLSIZE);
+							.getTopIndex() + floating_scroll_size);
 				}
 				if (((e.stateMask & SWT.ALT) == SWT.ALT)
 						&& (e.keyCode == SWT.ARROW_UP)) {
 					floatingTaskTable.setTopIndex(floatingTaskTable
-							.getTopIndex() - FLOATINGSCROLLSIZE);
+							.getTopIndex() - floating_scroll_size);
 				}
 			}
 		});
@@ -695,8 +706,8 @@ public class UIController {
 	}
 
 	private void renderTrayIcon() {
-		Image image = new Image(SHELL.getDisplay(), "resource/1box.png");
-		tray = DISPLAY.getSystemTray();
+		Image image = new Image(shell.getDisplay(), "resource/1box.png");
+		tray = display.getSystemTray();
 		if (tray == null) {
 			System.out.println("The system tray is not available");
 		} else {
@@ -705,17 +716,17 @@ public class UIController {
 			item.addListener(SWT.Selection, new Listener() {
 				@Override
 				public void handleEvent(Event event) {
-					SHELL.forceFocus();
-					if (!SHELL.isVisible()) {
+					shell.forceFocus();
+					if (!shell.isVisible()) {
 						System.out.println("showing window");
-						SHELL.setVisible(true);
-						SHELL.setMinimized(false);
+						shell.setVisible(true);
+						shell.setMinimized(false);
 						input.setFocus();
-						SHELL.forceActive();
+						shell.forceActive();
 					} else {
 						System.out.println("hiding window");
-						SHELL.setMinimized(true);
-						SHELL.setVisible(false);
+						shell.setMinimized(true);
+						shell.setVisible(false);
 					}
 				}
 			});
@@ -725,7 +736,7 @@ public class UIController {
 					System.out.println("default selection");
 				}
 			});
-			final Menu menu = new Menu(SHELL, SWT.POP_UP);
+			final Menu menu = new Menu(shell, SWT.POP_UP);
 			mi = new MenuItem(menu, SWT.PUSH);
 			mi.setText("TaskBox Preferences");
 			item.addListener(SWT.MenuDetect, new Listener() {
@@ -740,11 +751,11 @@ public class UIController {
 	}
 
 	private void renderShell() {
-		SHELL = new Shell(DISPLAY, SWT.MODELESS);
-		SHELL.setSize(300, 620);
-		SHELL.setLayout(null);
+		shell = new Shell(display, SWT.MODELESS);
+		shell.setSize(300, 620);
+		shell.setLayout(null);
 		// allow user to input once shell gets focus
-		SHELL.addFocusListener(new FocusListener() {
+		shell.addFocusListener(new FocusListener() {
 			public void focusGained(FocusEvent event) {
 				input.setFocus();
 			}
@@ -752,40 +763,40 @@ public class UIController {
 			public void focusLost(FocusEvent event) {
 			}
 		});
-		positionWindow(SHELL);
+		positionWindow(shell);
 	}
 
 	private void disposeDisplay() {
-		while (!SHELL.isDisposed()) {
-			if (!DISPLAY.readAndDispatch()) {
-				DISPLAY.sleep();
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch()) {
+				display.sleep();
 			}
 		}
-		DISPLAY.dispose();
+		display.dispose();
 		systemExit();
 	}
 
 	private void enableDrag() {
-		SHELL.addMouseListener(new MouseListener() {
+		shell.addMouseListener(new MouseListener() {
 			public void mouseUp(MouseEvent arg0) {
-				BLNMOUSEDOWN = false;
+				blnMouseDown = false;
 			}
 
 			public void mouseDown(MouseEvent e) {
-				BLNMOUSEDOWN = true;
-				XPOS = e.x;
-				YPOS = e.y;
+				blnMouseDown = true;
+				xPos = e.x;
+				yPos = e.y;
 			}
 
 			public void mouseDoubleClick(MouseEvent arg0) {
 			}
 		});
 
-		SHELL.addMouseMoveListener(new MouseMoveListener() {
+		shell.addMouseMoveListener(new MouseMoveListener() {
 			public void mouseMove(MouseEvent e) {
-				if (BLNMOUSEDOWN) {
-					SHELL.setLocation(SHELL.getLocation().x + (e.x - XPOS),
-							SHELL.getLocation().y + (e.y - YPOS));
+				if (blnMouseDown) {
+					shell.setLocation(shell.getLocation().x + (e.x - xPos),
+							shell.getLocation().y + (e.y - yPos));
 				}
 			}
 		});
@@ -793,7 +804,7 @@ public class UIController {
 
 	// sets shell position to middle of screen
 	private void positionWindow(Shell sh) {
-		Monitor primary = DISPLAY.getPrimaryMonitor();
+		Monitor primary = display.getPrimaryMonitor();
 		Rectangle bounds = primary.getBounds();
 		Rectangle rect = sh.getBounds();
 
@@ -816,61 +827,61 @@ public class UIController {
 			String resultsDate = "";
 			int expandLine = -1, jumpLine = 0;
 			switch (selectedCommand) {
-				case ADD:
-					statusString = add(task);
-					updateTaskList();
-					break;
-				case DISPLAY:
-					updateTaskList();
-					break;
-				case COMPLETE:
-					statusString = complete(task);
-					updateTaskList();
-					break;
-				case CLEAR:
-					statusString = clear();
-					updateTaskList();
-					break;
-				case DELETE:
-					statusString = delete(task);
-					updateTaskList();
-					break;
-				case SORT:
-					statusString = sort();
-					updateTaskList();
-					break;
-				case SEARCH:
-					resultsDate = searchTimed(task);
-					searchFloating(task);
-					break;
-				case UPDATE:
-					statusString = update(task);
-					updateTaskList();
-					break;
-				case BLOCK:
-					statusString = block(task);
-					break;
-				case UNDO:
-					if (splittedString.length == 1) {
-						undo();
-					} else {
-						statusString = undo(task);
-					}
-					updateTaskList();
-					break;
-				case SYNC:
-					updateStatusIndicator(Consts.STRING_SYNC);
-					showAuthPopup();
-					break;
-				case EXPAND:
-					expandLine = expand(task);
-					jumpLine = timedTaskComposite.getOrigin().y;
-					break;
-				case EXIT:
-					systemExit();
-				default:
-					updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
-					break;
+			case ADD:
+				statusString = add(task);
+				updateTaskList();
+				break;
+			case DISPLAY:
+				updateTaskList();
+				break;
+			case COMPLETE:
+				statusString = complete(task);
+				updateTaskList();
+				break;
+			case CLEAR:
+				statusString = clear();
+				updateTaskList();
+				break;
+			case DELETE:
+				statusString = delete(task);
+				updateTaskList();
+				break;
+			case SORT:
+				statusString = sort();
+				updateTaskList();
+				break;
+			case SEARCH:
+				resultsDate = searchTimed(task);
+				searchFloating(task);
+				break;
+			case UPDATE:
+				statusString = update(task);
+				updateTaskList();
+				break;
+			case BLOCK:
+				statusString = block(task);
+				break;
+			case UNDO:
+				if (splittedString.length == 1) {
+					undo();
+				} else {
+					statusString = undo(task);
+				}
+				updateTaskList();
+				break;
+			case SYNC:
+				updateStatusIndicator(Consts.STRING_SYNC);
+				showAuthPopup();
+				break;
+			case EXPAND:
+				expandLine = expand(task);
+				jumpLine = timedTaskComposite.getOrigin().y;
+				break;
+			case EXIT:
+				systemExit();
+			default:
+				updateStatusIndicator(Consts.STRING_NOT_SUPPORTED_COMMAND);
+				break;
 			}
 			if (!statusString.isEmpty()) {
 				updateStatusIndicator(statusString);
@@ -949,7 +960,12 @@ public class UIController {
 			if (splittedString.length != Consts.NO_ARGS_UPDATE) {
 				return Consts.USAGE_UPDATE;
 			}
-			int lineNumber = Integer.parseInt(splittedString[0]);
+			int lineNumber;
+			try {
+				lineNumber = Integer.parseInt(splittedString[0]);
+			} catch (Exception e) {
+				return Consts.USAGE_UPDATE;
+			}
 			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
 				return Consts.USAGE_UPDATE;
 			}
@@ -959,7 +975,7 @@ public class UIController {
 				return logic.update(
 						lineNumber >= taskNo ? floatingList.get(lineNumber
 								- taskNo) : timedList.get(lineNumber - 1),
-								newTask);
+						newTask);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_UPDATE;
 			}
@@ -987,14 +1003,19 @@ public class UIController {
 	}
 
 	private int expand(String lineNo) {
-		if(lineNo.toLowerCase().compareTo("all") == 0){
+		if (lineNo.toLowerCase().compareTo("all") == 0) {
 			return -9;
 		}
-		if(lineNo.toLowerCase().compareTo("none") == 0){
+		if (lineNo.toLowerCase().compareTo("none") == 0) {
 			return -1;
 		}
 		if (lineNo != null && !lineNo.isEmpty()) {
-			int lineNumber = Integer.parseInt(lineNo);
+			int lineNumber;
+			try {
+				lineNumber = Integer.parseInt(lineNo);
+			} catch (Exception e) {
+				return -1;
+			}
 
 			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
 				return -1;
@@ -1009,10 +1030,15 @@ public class UIController {
 			return -1;
 		}
 	}
-	
+
 	public String delete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
-			int lineNumber = Integer.parseInt(lineNo);
+			int lineNumber;
+			try {
+				lineNumber = Integer.parseInt(lineNo);
+			} catch (Exception e) {
+				return Consts.USAGE_DELETE;
+			}
 
 			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
 				return Consts.USAGE_DELETE;
@@ -1032,7 +1058,12 @@ public class UIController {
 
 	private String undo(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
-			int lineNumber = Integer.parseInt(lineNo);
+			int lineNumber;
+			try {
+				lineNumber = Integer.parseInt(lineNo);
+			} catch (Exception e) {
+				return Consts.USAGE_UNDO;
+			}
 
 			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
 				return Consts.USAGE_UNDO;
@@ -1042,8 +1073,8 @@ public class UIController {
 				return logic.complete(
 						lineNumber >= taskNo ? floatingList.get(lineNumber
 								- taskNo) : timedList.get(lineNumber - 1),
-								lineNumber >= taskNo ? Consts.STATUS_FLOATING_TASK
-										: Consts.STATUS_TIMED_TASK);
+						lineNumber >= taskNo ? Consts.STATUS_FLOATING_TASK
+								: Consts.STATUS_TIMED_TASK);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_UNDO;
 			}
@@ -1054,7 +1085,12 @@ public class UIController {
 
 	private String complete(String lineNo) {
 		if (lineNo != null && !lineNo.isEmpty()) {
-			int lineNumber = Integer.parseInt(lineNo);
+			int lineNumber;
+			try {
+				lineNumber = Integer.parseInt(lineNo);
+			} catch (Exception e) {
+				return Consts.USAGE_COMPLETE;
+			}
 
 			if (lineNumber > taskNo + floatingList.size() - 1 || lineNumber < 1) {
 				return Consts.USAGE_COMPLETE;
@@ -1066,8 +1102,8 @@ public class UIController {
 								lineNumber >= taskNo ? floatingList
 										.get(lineNumber - taskNo) : timedList
 										.get(lineNumber - 1),
-										lineNumber >= taskNo ? Consts.STATUS_COMPLETED_FLOATING_TASK
-												: Consts.STATUS_COMPLETED_TIMED_TASK);
+								lineNumber >= taskNo ? Consts.STATUS_COMPLETED_FLOATING_TASK
+										: Consts.STATUS_COMPLETED_TIMED_TASK);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_COMPLETE;
 			}
@@ -1156,7 +1192,7 @@ public class UIController {
 	}
 
 	private void updateStatusIndicator(String str) {
-		if (!SHELL.isDisposed()) {
+		if (!shell.isDisposed()) {
 			statusInd.setText(str);
 			statusComposite.layout();
 		}
@@ -1182,10 +1218,16 @@ public class UIController {
 			String endTime = end.substring(11, end.length() - 3) + "hr";
 			String desc = o.get(Consts.DESCRIPTION).toString();
 			String taskName = o.get(Consts.NAME).toString();
-			int status = Integer.parseInt(o.get(Consts.STATUS).toString());
-			int priority = Integer.parseInt(o.get(Consts.PRIORITY).toString());
-			int frequency = Integer
-					.parseInt(o.get(Consts.FREQUENCY).toString());
+			int status = 0;
+			int priority = 0;
+			int frequency = 0;
+			try {
+				status = Integer.parseInt(o.get(Consts.STATUS).toString());
+				priority = Integer.parseInt(o.get(Consts.PRIORITY).toString());
+				frequency = Integer
+						.parseInt(o.get(Consts.FREQUENCY).toString());
+			} catch (Exception e) {
+			}
 			String shortenedTaskName = ellipsize(taskName, 24);
 
 			if (currentDateString.compareTo(startDate) != 0) {
@@ -1195,11 +1237,11 @@ public class UIController {
 				form = toolkit.createForm(timedInnerComposite);
 				form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 				form.setText(currentDateString);
-				if (!MAC) {
-					form.setFont(SWTResourceManager.getFont(SYSTEM_FONT, 13,
+				if (!isMac) {
+					form.setFont(SWTResourceManager.getFont(system_font, 13,
 							SWT.BOLD, false, true));
 				} else {
-					form.setFont(SWTResourceManager.getFont(SYSTEM_FONT, 13,
+					form.setFont(SWTResourceManager.getFont(system_font, 13,
 							SWT.BOLD));
 				}
 				ColumnLayout cl = new ColumnLayout();
@@ -1207,24 +1249,22 @@ public class UIController {
 				form.getBody().setLayout(cl);
 			}
 			Section section;
-			if(taskNo == line || line == -9){
-				section = toolkit.createSection(form.getBody(),
-						Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE
+			if (taskNo == line || line == -9) {
+				section = toolkit.createSection(form.getBody(), Section.COMPACT
+						| Section.TITLE_BAR | Section.TWISTIE
 						| Section.EXPANDED);
+			} else {
+				section = toolkit.createSection(form.getBody(), Section.COMPACT
+						| Section.TITLE_BAR | Section.TWISTIE);
 			}
-			else {
-			section = toolkit.createSection(form.getBody(),
-					Section.COMPACT | Section.TITLE_BAR | Section.TWISTIE );
-			}
-			
-			
+
 			section.setText(taskNo + ". " + shortenedTaskName);
 
-			if (!MAC && status == Consts.STATUS_COMPLETED_TIMED_TASK) {
-				section.setFont(SWTResourceManager.getFont(SYSTEM_FONT, 10,
+			if (!isMac && status == Consts.STATUS_COMPLETED_TIMED_TASK) {
+				section.setFont(SWTResourceManager.getFont(system_font, 10,
 						SWT.BOLD, true, false));
 			} else {
-				section.setFont(SWTResourceManager.getFont(SYSTEM_FONT, 10,
+				section.setFont(SWTResourceManager.getFont(system_font, 10,
 						SWT.BOLD));
 			}
 			// section.setTitleBarBackground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
@@ -1278,7 +1318,8 @@ public class UIController {
 			section.setClient(sectionClient);
 		}
 		timedTaskComposite.setContent(timedInnerComposite);
-		timedTaskComposite.setMinHeight(timedList.size() * (line==-9?70:40) + noOfDays * (line==-9?40:30));
+		timedTaskComposite.setMinHeight(timedList.size()
+				* (line == -9 ? 70 : 40) + noOfDays * (line == -9 ? 40 : 30));
 		timedTaskComposite.setOrigin(0, jumpLine);
 	}
 
@@ -1316,18 +1357,26 @@ public class UIController {
 	private void updatefloatingTask() {
 		for (int i = 0; i < floatingList.size(); i++) {
 			JSONObject o = floatingList.get(i);
-			int status = Integer.parseInt(o.get(Consts.STATUS).toString());
+			int status;
+			try {
+				status = Integer.parseInt(o.get(Consts.STATUS).toString());
+			} catch (Exception e) {
+				status = Consts.STATUS_FLOATING_TASK;
+			}
 
 			TableItem item = new TableItem(floatingTaskTable, 0);
 			item.setText((i + taskNo) + ". " + o.get(Consts.NAME).toString());
-			item.setForeground(getColorWithPriority(Integer.parseInt(o.get(
-					Consts.PRIORITY).toString())));
-
-			if (!MAC && status == Consts.STATUS_COMPLETED_FLOATING_TASK) {
-				item.setFont(SWTResourceManager.getFont(SYSTEM_FONT, 10,
+			try {
+				item.setForeground(getColorWithPriority(Integer.parseInt(o.get(
+						Consts.PRIORITY).toString())));
+			} catch (Exception e) {
+				item.setForeground(getColorWithPriority(0));
+			}
+			if (!isMac && status == Consts.STATUS_COMPLETED_FLOATING_TASK) {
+				item.setFont(SWTResourceManager.getFont(system_font, 10,
 						SWT.NORMAL, true, false));
 			} else {
-				item.setFont(SWTResourceManager.getFont(SYSTEM_FONT, 10,
+				item.setFont(SWTResourceManager.getFont(system_font, 10,
 						SWT.NORMAL));
 			}
 		}
@@ -1335,16 +1384,16 @@ public class UIController {
 
 	public Color getColorWithPriority(int p) {
 		if (p == Consts.TASK_IMPORTANT) {
-			return DISPLAY.getSystemColor(SWT.COLOR_RED);
+			return display.getSystemColor(SWT.COLOR_RED);
 		} else {
-			return DISPLAY.getSystemColor(SWT.COLOR_BLACK);
+			return display.getSystemColor(SWT.COLOR_BLACK);
 		}
 	}
 
 	private void systemExit() {
 		logic.saveCache();
 		updateStatusIndicator(Consts.STRING_EXIT);
-		SHELL.dispose();
+		shell.dispose();
 		input.dispose();
 		floatingTaskComposite.dispose();
 		timedTaskComposite.dispose();
@@ -1355,8 +1404,8 @@ public class UIController {
 		floatingTaskTable.dispose();
 		timedInnerComposite.dispose();
 		tray.dispose();
-		provider.reset();
-		provider.stop();
+		PROVIDER.reset();
+		PROVIDER.stop();
 		System.exit(0);
 	}
 }

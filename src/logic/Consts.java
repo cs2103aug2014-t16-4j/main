@@ -116,7 +116,6 @@ public final class Consts {
 			+ "\n\nAlt + h: Hide/Show TaskBox"
 			+ "\nCtrl + /: Help"
 			+ "\nCtrl + z: Undo"
-			+ "\nCtrl + y: Redo"
 			+ "\nCtrl + a: Quick Add"
 			+ "\nCtrl + d: Quick Delete"
 			+ "\nCtrl + r: Refresh Tasks"
