@@ -188,14 +188,14 @@ public class LogicController {
 			if ((Converter.jsonToTask(jTask).getStatus() % 10 == Consts.STATUS_TIMED_TASK || Converter
 					.jsonToTask(jTask).getStatus() == Consts.STATUS_COMPLETED_TIMED_TASK)
 					&& Consts.FORMAT_COMPARE_DATE.format(
-							Converter.jsonToTask(jTask).getStartDate())
+							Converter.jsonToTask(jTask).getEndDate())
 							.compareTo(
 									Consts.FORMAT_COMPARE_DATE.format(curDate)) >= 0) {
 				displayTasksBuffer.add(jTask);
 			}
 		}
 		
-		logger.log(Level.INFO,displayTasksBuffer.toString());
+		//logger.log(Level.INFO,displayTasksBuffer.toString());
 		return displayTasksBuffer;
 	}
 	
@@ -204,12 +204,11 @@ public class LogicController {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
 			if (Converter.jsonToTask(jTask).getStatus() % 10 == Consts.STATUS_FLOATING_TASK || Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_COMPLETED_FLOATING_TASK) {
-				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
 		} 
 		
-		logger.log(Level.INFO,displayTasksBuffer.toString());
+		//logger.log(Level.INFO,displayTasksBuffer.toString());
 		return displayTasksBuffer;
 	}
 	
@@ -222,7 +221,7 @@ public class LogicController {
 			}
 		}
 		
-		logger.log(Level.INFO,displayTasksBuffer.toString());
+		//logger.log(Level.INFO,displayTasksBuffer.toString());
 		return displayTasksBuffer;
 	}
 	
