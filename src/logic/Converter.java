@@ -70,8 +70,10 @@ public class Converter {
 		JSONObject temp = new JSONObject();
 		temp.put(Consts.NAME, event.getSummary());
 		temp.put(Consts.DESCRIPTION, event.getDescription()!=null?event.getDescription():"");
-		temp.put(Consts.STARTDATE, convertDate(event.getStart().getDateTime().toString()));
-		temp.put(Consts.ENDDATE, convertDate(event.getEnd().getDateTime().toString()));
+		temp.put(Consts.STARTDATE, startDateOnly(event));
+		//temp.put(Consts.STARTDATE, event.getStart()!=null?convertDate(event.getStart().getDateTime().toString()):"");
+		temp.put(Consts.ENDDATE, endDateOnly(event));
+		//temp.put(Consts.ENDDATE, event.getEnd()!=null?convertDate(event.getEnd().getDateTime().toString()):"");
 		temp.put(Consts.PRIORITY, event.getSequence());
 		if(event.getRecurrence() == null){
 			temp.put(Consts.FREQUENCY,0);
@@ -82,11 +84,61 @@ public class Converter {
 		return temp;
 	}
 
-	private static String convertDate(String str) throws ParseException {
+	private static String startDateOnly(Event event){
+		String str = "";
+		if(event.getStart().getDateTime() != null){
+			str = event.getStart().getDateTime().toString();
+			try {
+				return convertDateTime(str);
+			} catch (ParseException e) {
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}else{
+			// full day event - no start time 
+			str = event.getStart().getDate().toString();
+			try{
+				return convertDate(str)+" 00:00:00";
+			}catch(ParseException e){
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}
+	}
+	
+	private static String endDateOnly(Event event){
+		String str = "";
+		if(event.getEnd().getDateTime() != null){
+			str = event.getEnd().getDateTime().toString();
+			try {
+				return convertDateTime(str);
+			} catch (ParseException e) {
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}else{
+			// full day event - no end time 
+			str = event.getEnd().getDate().toString();
+			try {
+				return convertDate(str)+" 23:59:59";
+			} catch (ParseException e) {
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}
+	}
+	
+	private static String convertDateTime(String str) throws ParseException {
 		String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS";
-		String datedate = str;
-		Date newDate = new SimpleDateFormat(pattern).parse(datedate.split("\\+")[0]);
+		Date newDate = new SimpleDateFormat(pattern).parse(str.split("\\+")[0]);
 		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
+		return DATE_FORMAT.format(newDate);
+	}
+	
+	private static String convertDate(String str) throws ParseException {
+		String pattern = "yyyy-MM-dd";
+		Date newDate = new SimpleDateFormat(pattern).parse(str.split("\\+")[0]);
+		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/M/yyyy");
 		return DATE_FORMAT.format(newDate);
 	}
 

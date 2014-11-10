@@ -21,14 +21,14 @@ public class GoogleCalService implements Runnable{
 						gCal.syncGCalService(gCal.getTimedTasksBuffer());
 					} catch (IOException | ParseException e) {
 						logger.log(Level.INFO,"Existing token doesn't work.");
-						//System.err.println(e.getMessage());
+						System.err.println(e.getMessage());
 					}
 				}else{
 					logger.log(Level.INFO,"Token file doesn't exist.");
 				}
 			}
 			try{
-				Thread.sleep(30000); // 30 seconds 
+				Thread.sleep(10000); // 10 seconds 
 			}catch(InterruptedException e){
 				System.err.println(e.getMessage());
 			}
