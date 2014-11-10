@@ -532,7 +532,7 @@ public class UIController {
 		final StyledText helpText = new StyledText(helpWindow, SWT.NONE);
 		helpText.setText(Consts.HELP_TEXT);
 		helpText.setStyleRange(new StyleRange(0, 19, null, null, SWT.BOLD));
-		helpText.setStyleRange(new StyleRange(344, 10, null, null, SWT.BOLD));
+		helpText.setStyleRange(new StyleRange(322, 10, null, null, SWT.BOLD));
 		helpText.setBounds(20, 10, 560, 460);
 		helpText.setEditable(false);
 
