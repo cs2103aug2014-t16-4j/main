@@ -1,0 +1,1416 @@
+//@author: a0117993r
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\command\Add.java
+	 */
+
+
+package logic.command;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import org.json.simple.JSONObject;
+
+import logic.Converter;
+import logic.LogicController;
+import model.Task;
+
+public class Add extends Command {
+	Task task;
+	String fileName;
+
+	public Task getTask() {
+		return task;
+	}
+
+	public void setTask(Task task) {
+		this.task = task;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	// End of segment: D:\github\main\src\logic\command\Add.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\command\Clear.java
+	 */
+
+package logic.command;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import logic.LogicController;
+
+import org.json.simple.JSONObject;
+
+public class Clear extends Command{
+	String fileName;
+	public static ArrayList <JSONObject> oldTaskBuffer;	
+
+	public static void setOldTaskBuffer(ArrayList<JSONObject> oldTaskBuffer) {
+		Clear.oldTaskBuffer = new ArrayList<JSONObject>(LogicController.tasksBuffer);
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	// End of segment: D:\github\main\src\logic\command\Clear.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\command\Command.java
+	 */
+
+package logic.command;
+
+public abstract class Command {
+
+	public abstract boolean executeCommand();
+	public abstract boolean undo();
+}
+
+	// End of segment: D:\github\main\src\logic\command\Command.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\command\Complete.java
+	 */
+
+package logic.command;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import logic.Consts;
+import logic.LogicController;
+
+import org.json.simple.JSONObject;
+
+public class Complete extends Command{
+	String fileName;
+	JSONObject task;
+	int oldStatus;
+	int status;
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public JSONObject getTask() {
+		return task;
+	}
+
+	public void setTask(JSONObject task) {
+		this.task = task;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+
+	// End of segment: D:\github\main\src\logic\command\Complete.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\command\Delete.java
+	 */
+
+package logic.command;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import logic.Consts;
+import logic.LogicController;
+import model.Task;
+
+import org.json.simple.JSONObject;
+
+public class Delete extends Command {
+	JSONObject task;
+	String fileName;
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public JSONObject getTask() {
+		return task;
+	}
+
+	public void setTask(JSONObject task) {
+		this.task = task;
+	}
+
+	public boolean executeCommand() {
+		try {
+			FileWriter fstream = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(fstream);
+			if (LogicController.tasksBuffer.contains(task)) {
+				LogicController.tasksBuffer.remove(task);
+				bw.write("");
+				for (JSONObject jTask : LogicController.tasksBuffer) {
+					bw.write(jTask.toString() + "\r\n");
+				}
+
+				bw.close();
+				return true;
+			}else{
+				bw.close();
+				return false;
+			}
+		} catch (IOException e) {
+		}
+		return false;
+	}
+
+	// End of segment: D:\github\main\src\logic\command\Delete.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\command\Update.java
+	 */
+
+package logic.command;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import logic.Consts;
+import logic.LogicController;
+import model.Task;
+
+import org.json.simple.JSONObject;
+
+public class Update extends Command{
+	String fileName;
+	JSONObject oldObj;
+	Task newTask;
+
+	public JSONObject getOldObj() {
+		return oldObj;
+	}
+
+	public void setOldObj(JSONObject oldObj) {
+		this.oldObj = oldObj;
+	}
+
+	public Task getNewTask() {
+		return newTask;
+	}
+
+	public void setNewTask(Task newTask) {
+		this.newTask = newTask;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	// End of segment: D:\github\main\src\logic\command\Update.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\CommandEnum.java
+	 */
+
+package logic;
+
+public enum CommandEnum {
+	ADD, DISPLAY, DELETE, UPDATE, CLEAR, SORT, SEARCH, BLOCK, QUIT, INVALID, UNDO, SYNC, EXPAND, COMPLETE
+}
+
+	// End of segment: D:\github\main\src\logic\CommandEnum.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\Consts.java
+	 */
+
+package logic;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+// Constant Class 
+public final class Consts {
+	//JSON KEY STRINGS
+	public static final String NAME = "Name";
+	public static final String DESCRIPTION = "Description";
+	public static final String PRIORITY = "Priority";
+	public static final String FREQUENCY = "Frequency";
+	public static final String STARTDATE = "StartDate";
+	public static final String ENDDATE = "EndDate";
+	public static final String STATUS = "Status";
+
+	// GOOGLE STATUS CONSTANTS
+	public static final String CONFIRMED = "confirmed";
+
+	// CACHE FILE KEY CONSTANTS
+	public static final String ADD = "ADD";
+	public static final String DELETE = "DELETE";
+
+	// FILENAME CONSTANTS
+	public static final String GOOGLETOKEN = "GoogleToken";
+	public static final String CACHE = "Cache";
+
+	// FEEDBACK STRINGS
+	public static final String STRING_WELCOME = "Welcome to TaskBox. %1$s is ready for use.\n";
+	public static final String STRING_HELP = "Usage: TextBuddy <FILENAME.txt>\nSupported commands -> add , display , delete , update , clear , sort , search , block, undo, exit, sync, show";
+	public static final String STRING_NOT_SUPPORTED_COMMAND = "Command is not supported";
+	public static final String STRING_ENTER_COMMAND = "Command: ";
+	public static final String STRING_ADD = "Added %s";
+	public static final String STRING_COMPLETE = "Completed %s";
+	public static final String STRING_COMPLETE_FAIL = "Complete fails";
+	public static final String STRING_CLEAR = "All content deleted from %1$s";
+	public static final String STRING_SEARCH_COMPLETE = "Search completed";
+	public static final String STRING_NOT_FOUND = "No item found.";
+	public static final String STRING_FOUND = "%d item(s) found.";
+	public static final String STRING_SORTED = "List Sorted";
+	public static final String STRING_UNDO = "Action Undone";
+	public static final String STRING_EXIT = "Bye!";
+	public static final String STRING_DELETE = "Deleted from %s: \"%s\"";
+	public static final String STRING_UPDATE = "%s is updated.\n";
+	public static final String STRING_UPDATE_CORRECT = "Use \"name\" or \"desc\" or \"date\" or \"important\" or \"normal\"";
+	public static final String STRING_NOT_UPDATE = "%s is not updated.\n";
+	public static final String STRING_CRE_CORRECT = "The credentials are correct.";
+	public static final String STRING_CRE_NOT_CORRECT = "The credentials are not correct.";
+	public static final String STRING_SYNC_COMPLETE = "Synchronization is complete";
+	public static final String STRING_SYNC_NOT_COMPLETE = "Synchronization is not complete";
+	public static final String STRING_SYNC = "TaskBox is synchronizing";
+	public static final String STRING_USER_NOT_ONLINE = "Please check your internet connection.";
+	public static final String STRING_BLOCK = "Blocked %s -> %s";
+	public static final String STRING_BLOCK_FAIL = "Block fail";
+	
+
+	// DATE FORMAT
+	public static final DateFormat FORMAT_DATE = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
+	public static final DateFormat FORMAT_COMPARE_DATE = new SimpleDateFormat("yyyyMMdd");
+	public static final DateFormat FORMAT_PRINT_DATE = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+	public static final DateFormat FORMAT_PRINT_TIME = new SimpleDateFormat("HH:mm:ss");
+
+
+	// ERRORS
+	public static final String ERROR_ADD = "Task cannot be blank.";
+	public static final String ERROR_ADD_BLOCK = "The time frame is blocked.";
+	public static final String ERROR_UNKNOWN = "Unknown error occured!";
+
+	// USAGE
+	public static final String USAGE_ADD = "Usage: add <todo>";
+	public static final String USAGE_UNDO = "Usage: undo <task #>";
+	public static final String USAGE_COMPLETE = "Usage: complete <task #>";
+	public static final String USAGE_DELETE = "Usage: delete <task #>";
+	public static final String USAGE_UPDATE = "Usage: update <task #> <updated string>";
+	public static final String USAGE_BLOCK = "Usage: block <start date/time> <end date/time>";
+
+	// NUMBER CONSTANT
+	public static final int INPUT_REQUIREMENT = 1;
+	public static final int TASK_POSITION = 1;
+	public static final int NO_ARGS_UPDATE = 2;
+	public static final int FILE_TYPE_POSITION = 1;
+	public static final int FILE_VALID_LENGTH = 2;
+	public static final int RENDER_STATUS_INDICATOR = 0;
+	public static final int TASK_IMPORTANT = 1;
+	public static final int TASK_NORMAL = 0;
+
+	// End of segment: D:\github\main\src\logic\Consts.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\Converter.java
+	 */
+
+	@SuppressWarnings("unchecked")
+	public static JSONObject eventToJSON(Event event) throws ParseException {
+		JSONObject temp = new JSONObject();
+		temp.put(Consts.NAME, event.getSummary());
+		temp.put(Consts.DESCRIPTION, event.getDescription()!=null?event.getDescription():"");
+		temp.put(Consts.STARTDATE, startDateOnly(event));
+		//temp.put(Consts.STARTDATE, event.getStart()!=null?convertDate(event.getStart().getDateTime().toString()):"");
+		temp.put(Consts.ENDDATE, endDateOnly(event));
+		//temp.put(Consts.ENDDATE, event.getEnd()!=null?convertDate(event.getEnd().getDateTime().toString()):"");
+		temp.put(Consts.PRIORITY, event.getSequence());
+		if(event.getRecurrence() == null){
+			temp.put(Consts.FREQUENCY,0);
+		}else{
+			temp.put(Consts.FREQUENCY, parseRecurrence(event.getRecurrence().toString()));
+		}
+		temp.put(Consts.STATUS, 1);
+		return temp;
+	}
+
+	private static String startDateOnly(Event event){
+		String str = "";
+		if(event.getStart().getDateTime() != null){
+			str = event.getStart().getDateTime().toString();
+			try {
+				return convertDateTime(str);
+			} catch (ParseException e) {
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}else{
+			// full day event - no start time 
+			str = event.getStart().getDate().toString();
+			try{
+				return convertDate(str)+" 00:00:00";
+			}catch(ParseException e){
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}
+	}
+	
+	private static String endDateOnly(Event event){
+		String str = "";
+		if(event.getEnd().getDateTime() != null){
+			str = event.getEnd().getDateTime().toString();
+			try {
+				return convertDateTime(str);
+			} catch (ParseException e) {
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}else{
+			// full day event - no end time 
+			str = event.getEnd().getDate().toString();
+			try {
+				return convertDate(str)+" 23:59:59";
+			} catch (ParseException e) {
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}
+	}
+	
+	private static String convertDateTime(String str) throws ParseException {
+		String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+		Date newDate = new SimpleDateFormat(pattern).parse(str.split("\\+")[0]);
+		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
+		return DATE_FORMAT.format(newDate);
+	}
+	
+	private static String convertDate(String str) throws ParseException {
+		String pattern = "yyyy-MM-dd";
+		Date newDate = new SimpleDateFormat(pattern).parse(str.split("\\+")[0]);
+		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/M/yyyy");
+		return DATE_FORMAT.format(newDate);
+	}
+
+	private static int parseRecurrence(String str) {
+		if (str.isEmpty() || str == null) {
+			return 0;
+		} else {
+			String delims = "[:=;]+";
+			String[] splittedStr = str.split(delims);
+			if (splittedStr[2].equalsIgnoreCase(Consts.FREQUENCY_DAILY)) {
+				return Consts.FREQUENCY_DAILY_VALUE;
+			} else if (splittedStr[2].equalsIgnoreCase(Consts.FREQUENCY_WEEKLY)) {
+				return Consts.FREQUENCY_WEEKLY_VALUE;
+			} else {
+				return Consts.FREQUENCY_MONTHLY_VALUE;
+			}
+		}
+	}
+}
+
+	// End of segment: D:\github\main\src\logic\Converter.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\google\CacheMap.java
+	 */
+
+package logic.google;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
+import org.json.simple.JSONObject;
+
+// Custom HashMap to support same key multiple values 
+public class CacheMap extends HashMap<String, List<JSONObject>>{ 
+	public void put(String key, JSONObject obj) {
+        List<JSONObject> current = get(key);
+        if (current == null) {
+            current = new ArrayList<JSONObject>();
+            super.put(key, current);
+        }
+        current.add(obj);
+    }
+}
+
+	// End of segment: D:\github\main\src\logic\google\CacheMap.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\google\GoogleCal.java
+	 */
+
+
+package logic.google;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import logic.Consts;
+import logic.Converter;
+import logic.LogicController;
+import model.Task;
+
+import org.json.simple.JSONObject;
+
+import com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.TokenResponse;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.calendar.model.Events;
+
+public class GoogleCal {
+	private static Calendar client;
+	private static Logger logger = Logger.getLogger("GoogleCal");
+
+	GoogleAuthorizationCodeFlow flow;
+	String redirectUrl = "urn:ietf:wg:oauth:2.0:oob";
+	String appName = "TaskBox";
+	HttpTransport httpTransport;
+	JacksonFactory jsonFactory;
+
+	public GoogleCal() {
+		httpTransport = new NetHttpTransport();
+		jsonFactory = new JacksonFactory();
+		String clientId = "743259209106-g4qtcmneg0dhi9efos04d46bnnjiiich.apps.googleusercontent.com";
+		String clientSecret = "AyJjPfMtT0gQPki-eArk4xKG";
+
+		flow = new GoogleAuthorizationCodeFlow.Builder(httpTransport,jsonFactory, clientId, clientSecret,Arrays.asList(CalendarScopes.CALENDAR)).build();
+	}
+
+	public static boolean isOnline() {
+		Socket sock = new Socket();
+		InetSocketAddress addr = new InetSocketAddress("www.google.com", 80); // Can ping to google?
+		try {
+			sock.connect(addr);
+			return true;
+		} catch (IOException e) {
+			System.err.println("User is offline.\n"+e.getMessage());
+			return false;
+		} finally {
+			try {
+				sock.close();
+			} catch (IOException e) {
+				System.err.println(e.getMessage());
+			}
+		}
+	}
+
+	public String getURL() {
+		String url = flow.newAuthorizationUrl().setRedirectUri(redirectUrl).build();
+		return url;
+	}
+
+	public boolean withExistingToken() {
+		TokenResponse tokenRes = new TokenResponse();
+		if (validFile()) {
+			logger.log(Level.CONFIG,readFile(Consts.GOOGLETOKEN));
+			tokenRes.setAccessToken(readFile(Consts.GOOGLETOKEN));
+			try {
+				Credential credential = flow.createAndStoreCredential(tokenRes,appName);
+				HttpRequestInitializer initializer = credential;
+				Calendar.Builder builder = new Calendar.Builder(httpTransport,jsonFactory, initializer);
+				builder.setApplicationName(appName);
+				client = builder.build();
+				return true;
+			} catch (Exception e) {
+				System.err.println(e.getMessage());
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public boolean generateNewToken(String code) throws IOException {
+		try {
+			TokenResponse tokenRes = new TokenResponse();
+			AuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code).setRedirectUri(redirectUrl);
+			tokenRes = tokenRequest.execute();
+			writeFile(Consts.GOOGLETOKEN,tokenRes.getAccessToken(),false);
+			Credential credential = flow.createAndStoreCredential(tokenRes,appName);
+			HttpRequestInitializer initializer = credential;
+			Calendar.Builder builder = new Calendar.Builder(httpTransport,jsonFactory,initializer);
+			builder.setApplicationName(appName);
+			client = builder.build();
+			return true;
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			return false;
+		}
+	}
+	
+	private void cacheSync() throws IOException{
+		if(!LogicController.cacheMap.isEmpty()){
+			Iterator<Entry<String, List<JSONObject>>> it = LogicController.cacheMap.entrySet().iterator();
+			ArrayList<JSONObject> temp = new ArrayList<JSONObject>(); // To store the values from cacheMap
+			while (it.hasNext()) {
+				Map.Entry pairs = (Map.Entry) it.next();
+				logger.log(Level.INFO,pairs.getKey() + " = " + pairs.getValue());
+				String key = (String) pairs.getKey();
+				for (JSONObject obj : (List<JSONObject>) pairs.getValue()) {
+					temp.add(obj);
+				}
+				if (key.equals(Consts.ADD)) {
+					logger.log(Level.INFO,"Adding to google cal - cache file.");
+					syncGCal(temp);
+				} else if (key.equals(Consts.DELETE)) {
+					logger.log(Level.INFO,"Deleting from google cal - cache file");
+					for (JSONObject obj : temp) {
+						deleteEvent((String)obj.get(Consts.NAME));
+					}
+				}
+				it.remove();
+			}
+		}
+	}
+
+	// Service method running in separate thread
+	public void syncGCalService(ArrayList<JSONObject> timeTasks)
+			throws IOException, ParseException {
+		String pageToken = null;
+		String str = "";
+		cacheSync();
+		do {
+			Events events = client.events().list("primary")
+					.setPageToken(pageToken).execute();
+			List<Event> items = events.getItems();
+			if (pageToken != null) {
+				if (items.size() > timeTasks.size()) {
+					for (Event event : items) {
+						if (event.getStatus()
+								.equalsIgnoreCase(Consts.CONFIRMED)) {
+							//System.out.println(event.toPrettyString());
+							boolean found = false;
+							for (int i = 0; i < timeTasks.size(); i++) {
+								if (event.getSummary().equals(
+										Converter.jsonToTask(timeTasks.get(i))
+												.getName())) {
+									found = true;
+								}
+							}
+							if (!found) {
+								logger.log(Level.INFO, "Not match found: "
+										+ event.getSummary());
+								str += Converter.eventToJSON(event).toString()
+										+ "\r\n";
+								LogicController.tasksBuffer.add(Converter
+										.eventToJSON(event));
+								logger.log(Level.INFO, "Writing to file "
+										+ event.getSummary());
+							}
+						}
+					}
+				} else {
+					for (int i = 0; i < timeTasks.size(); i++) {
+						boolean found = false;
+						for (Event event : items) {
+							if (Converter.jsonToTask(timeTasks.get(i))
+									.getName().equals(event.getSummary())) {
+								found = true;
+							}
+						}
+						if (found) {
+							str += timeTasks.get(i).toString() + "\r\n";
+						} else {
+							logger.log(Level.INFO, "Removing task: "
+									+ timeTasks.get(i).get(Consts.NAME));
+							LogicController.tasksBuffer
+									.remove(timeTasks.get(i));
+						}
+					}
+				}
+			}
+			pageToken = events.getNextPageToken();
+			// System.out.println(pageToken); //debugging
+		} while (pageToken != null);
+		assert (!str.isEmpty());
+		writeFile(LogicController.fileName, str, false);
+	}
+
+	public String syncGCal(ArrayList<JSONObject> timeTasks) throws IOException {
+		String pageToken = null;
+		do {
+			Events events = client.events().list("primary").setPageToken(pageToken).execute();
+			List<Event> items = events.getItems();
+			if(pageToken!=null) {
+				for (int i = 0; i < timeTasks.size(); i++) {
+					boolean found = false;
+					for (Event event : items) {
+						if(event.getStatus().equalsIgnoreCase(Consts.CONFIRMED)){
+							if (Converter.jsonToTask(timeTasks.get(i)).getName().equals(event.getSummary())) {
+								found = true;
+							}
+						}
+					}
+					if(!found){
+						createEvent(Converter.jsonToTask(timeTasks.get(i)),"primary");
+						logger.log(Level.INFO,"Creating event.. " + timeTasks.get(i));
+					}
+				}
+			}
+			pageToken = events.getNextPageToken();
+		} while (pageToken != null);
+		return Consts.STRING_SYNC_COMPLETE;
+	}
+
+	public String createEvent(Task tsk, String calId) throws IOException {
+		Event event = new Event();
+		event.setSummary(tsk.getName());
+		event.setDescription(tsk.getDescription());
+		event.setStart(new EventDateTime().setDateTime(new DateTime(tsk.getStartDate())));
+		event.setEnd(new EventDateTime().setDateTime(new DateTime(tsk.getEndDate())));
+		event.setSequence(tsk.getPriority());
+		client.events().insert(calId, event).execute();
+		return event.getId();
+	}
+	
+	public void deleteAllEntries() throws IOException{
+		String pageToken = null;
+		do{
+			Events events = client.events().list("primary").setPageToken(pageToken).execute();
+			List<Event> items = events.getItems();
+			for(Event event:items){
+				logger.log(Level.INFO,"Deleting " + event.getId());
+				client.events().delete("primary", event.getId()).execute();
+			}
+			pageToken = events.getNextPageToken();
+		}while(pageToken != null);
+	}
+
+	public boolean deleteEvent(String name) throws IOException{
+		String pageToken = null;
+		do{
+			Events events = client.events().list("primary").setPageToken(pageToken).execute();
+			List<Event> items = events.getItems();
+			for(Event event:items){
+				if(event.getSummary().equals(name)){
+					logger.log(Level.INFO,"Deleting " + event.getId());
+					client.events().delete("primary", event.getId()).execute();
+					return true;
+				}
+			}
+			pageToken = events.getNextPageToken();
+		}while(pageToken != null);
+		return false;
+	}
+
+	public static boolean writeFile(String fileName,String str,boolean flag) {
+		try {
+			FileWriter fstream = new FileWriter(fileName, flag);
+			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
+			bufferedWriter.write(str);
+			bufferedWriter.close();
+			return true;
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+			return false;
+		}
+	}
+
+	public static void clearFile() {
+		try {
+			FileWriter fstream = new FileWriter(Consts.GOOGLETOKEN, false);
+			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
+			bufferedWriter.write("");
+			bufferedWriter.close();
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+	}
+
+	public static String readFile(String fileName) {
+		String token = "";
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(fileName));
+			token = in.readLine();
+		} catch (Exception e) {
+			System.err.println("Please generate the token again " + e.getMessage());
+		}
+		return token;
+	}
+
+	public static boolean validFile() {
+		File f = new File(Consts.GOOGLETOKEN);
+		if (f.exists()) {
+			if (readFile(Consts.GOOGLETOKEN).equals("")) {
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public ArrayList<JSONObject> getTimedTasksBuffer() {
+		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
+		for (JSONObject jTask : LogicController.tasksBuffer) {
+			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_TIMED_TASK) {
+				// System.out.println(jTask);// For Debuging
+				displayTasksBuffer.add(jTask);
+			}
+		}
+		return displayTasksBuffer;
+	}
+}
+
+	// End of segment: D:\github\main\src\logic\google\GoogleCal.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\google\GoogleCalService.java
+	 */
+
+package logic.google;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class GoogleCalService implements Runnable {
+
+	private static Logger logger = Logger.getLogger("GoogleCalService");
+	GoogleCal gCal = new GoogleCal();
+	boolean flag = true;
+
+	@Override
+	public void run() {
+		while (flag) {
+			logger.log(Level.INFO, "Google sync");
+			if (GoogleCal.isOnline()) {
+				if (gCal.withExistingToken()) {
+					try {
+						gCal.syncGCalService(gCal.getTimedTasksBuffer());
+					} catch (IOException | ParseException e) {
+						logger.log(Level.INFO, "Existing token doesn't work.");
+						System.err.println(e.getMessage());
+					}
+				} else {
+					logger.log(Level.INFO, "Token file doesn't exist.");
+				}
+			}
+
+			try {
+				Thread.sleep(10000); // 10 seconds
+			} catch (InterruptedException e) {
+				System.err.println(e.getMessage());
+			}
+		}
+	}
+}
+
+	// End of segment: D:\github\main\src\logic\google\GoogleCalService.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\google\LoadCache.java
+	 */
+
+package logic.google;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+import logic.Consts;
+import logic.Converter;
+import logic.LogicController;
+import logic.command.Command;
+
+import org.json.simple.parser.ParseException;
+
+public class LoadCache extends Command{
+	
+	@Override
+	public boolean executeCommand() {
+		String line = "";
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(Consts.CACHE));
+			while ((line = in.readLine()) != null) {
+				String [] splittedStr = line.split("=");
+				String key = splittedStr[0];
+				LogicController.cacheMap.put(key, Converter.stringToJSONList(splittedStr[1]));
+			}
+			in.close();
+			//System.out.println(line); //debugging
+			return line == null ? true:false;
+		} catch (ParseException | IOException e) {
+			System.err.println(e.getMessage());
+			return false;
+		}
+	}
+
+	@Override
+	public boolean undo() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}
+
+	// End of segment: D:\github\main\src\logic\google\LoadCache.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\google\SaveCache.java
+	 */
+
+package logic.google;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import logic.Consts;
+import logic.Converter;
+import logic.LogicController;
+import logic.command.Command;
+
+import org.json.simple.JSONObject;
+
+public class SaveCache extends Command {
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public boolean executeCommand() {
+		try {
+			FileWriter fstream = new FileWriter(Consts.CACHE, true);
+			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
+			for(Map.Entry e : LogicController.cacheMap.entrySet()){
+				String entryStr = e.toString();
+				String [] splittedStr = entryStr.split("=");
+				bufferedWriter.write(splittedStr[0]+"="+Converter.jsonListToString((List<JSONObject>)e.getValue())+"\r\n");
+			}
+			bufferedWriter.close();
+			return true;
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+		}
+		return false;
+	}
+
+	@Override
+	public boolean undo() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}
+
+	// End of segment: D:\github\main\src\logic\google\SaveCache.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+package logic;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import logic.command.Add;
+import logic.command.Clear;
+import logic.command.Command;
+import logic.command.Complete;
+import logic.command.Delete;
+import logic.command.Update;
+import logic.google.CacheMap;
+import logic.google.GoogleCal;
+import logic.google.GoogleCalService;
+import logic.google.LoadCache;
+import logic.google.SaveCache;
+import model.SearchResult;
+import model.Task;
+
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
+import com.joestelmach.natty.DateGroup;
+import com.joestelmach.natty.Parser;
+
+import edu.emory.mathcs.backport.java.util.Collections;
+
+public class LogicController {
+	private static final int TIME_EPS = 2;
+
+	public static ArrayList <JSONObject> tasksBuffer; // main task buffer
+	public static String fileName;
+	public static CacheMap cacheMap; // for saving cache purpose
+	private static Logger logger = Logger.getLogger("Logic");
+	Parser dateParser = new Parser();
+	ArrayList <Task> blockBuffer;
+	Add logicAdd;
+	Clear logicClear;
+	Delete logicDelete;
+	Update logicUpdate;
+	Complete logicComplete;
+	SaveCache saveCache;
+	LoadCache loadCache;
+	GoogleCal gCal;
+	GoogleCalService gCalServ;
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+	// Loading the entries from cache file 
+	public void loadCacheBuffer(){
+		File f = new File(Consts.CACHE);
+		if (f.exists()) {
+			loadCache = new LoadCache();
+			if(loadCache.executeCommand()){
+				assert(!cacheMap.isEmpty());
+				if(GoogleCal.isOnline() && gCal.withExistingToken()){
+					try {
+						if(initSync()){
+							f.delete();
+						}
+					} catch (IOException e) {
+						System.err.println(e.getMessage());
+					}
+				}
+				logger.log(Level.INFO,"Cache entries are loaded.");
+			}else{ 
+				logger.log(Level.INFO,"Cache entries are not loaded.");
+			}
+		}else{
+			logger.log(Level.INFO,"File doesnt exist.");
+		}
+	}
+	
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+	// Trying to sync with google server when the app is open
+	@SuppressWarnings("unchecked")
+	public boolean initSync() throws IOException{
+		Iterator<Entry<String, List<JSONObject>>> it = cacheMap.entrySet().iterator();
+		ArrayList<JSONObject> temp = new ArrayList<JSONObject>(); // To store the values from cacheMap
+		while (it.hasNext()) {
+			Map.Entry pairs = (Map.Entry) it.next();
+			logger.log(Level.INFO,pairs.getKey() + " = " + pairs.getValue());
+			String key = (String) pairs.getKey();
+			for (JSONObject obj : (List<JSONObject>) pairs.getValue()) {
+				temp.add(obj);
+			}
+			if (key.equals(Consts.ADD)) {
+				logger.log(Level.INFO,"Adding to google cal - cache file.");
+				gCal.syncGCal(temp);
+			} else if (key.equals(Consts.DELETE)) {
+				logger.log(Level.INFO,"Deleting from google cal - cache file");
+				for (JSONObject obj : temp) {
+					gCal.deleteEvent((String)obj.get(Consts.NAME));
+				}
+			}
+			it.remove();
+		}
+		return temp.isEmpty() ? false : true;
+	}
+
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+	// Fetching all tasks from file in the beginning.	
+	public void loadBuffer(String fileName) throws IOException {
+		JSONParser jsonParser = new JSONParser();
+		String line;
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(fileName));
+			while ((line = in.readLine()) != null) {
+				JSONObject obj = (JSONObject) jsonParser.parse(line);
+				tasksBuffer.add(obj);
+			}
+			in.close();
+		} catch (FileNotFoundException | ParseException e) {
+			System.err.println(e.getMessage());
+		}
+	}
+	
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+			if(GoogleCal.isOnline()){
+				try {
+					if(gCal.withExistingToken()){
+						gCal.createEvent(task, "primary");
+						logger.log(Level.INFO,"Adding - sync with google.");
+					}
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}else{
+				logger.log(Level.INFO,"Adding - offline [saving to file].");
+				cacheMap.put(Consts.ADD,Converter.taskToJSON(task));
+			}
+			return String.format(Consts.STRING_ADD, task.getName());
+		} else {
+			return Consts.ERROR_ADD;
+		}
+			
+	}
+	
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+		if(GoogleCal.isOnline()){
+			try {
+				if(gCal.withExistingToken()){
+					logger.log(Level.INFO,"Deleting all events - sync with google.");
+					gCal.deleteAllEntries(); // Clearing all events from google calendar
+				}
+			} catch (IOException e) {
+				System.err.println(e.getMessage());
+			}
+		}
+		return logicClear.executeCommand();
+	}
+	
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+			if(GoogleCal.isOnline()) {
+				try {
+					if(gCal.withExistingToken()){
+						logger.log(Level.INFO,"Deleting- sync with google.");
+						gCal.deleteEvent(Converter.jsonToTask(task).getName());
+					}
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}else{
+				logger.log(Level.INFO,"Deleting- offline [saving to file].");
+				cacheMap.put("DELETE", task);
+			}
+			return String.format(Consts.STRING_DELETE, fileName,task.get(Consts.NAME));
+		}else{
+			return Consts.USAGE_DELETE;
+		}
+	}
+	
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+	public String getUrl(){
+		return gCal.getURL();
+	}
+	
+	public boolean sycnWithGoogleExistingToken(){
+		return gCal.withExistingToken();
+	}
+
+	public boolean generateNewToken(String code) throws IOException{
+		return gCal.generateNewToken(code);
+	}
+	
+	public String syncWithGoogle() throws IOException{
+		loadCacheBuffer();
+		return gCal.syncGCal(getTimedTasksBuffer());
+	}
+	
+	public void saveCache(){
+		saveCache = new SaveCache();
+		saveCache.executeCommand();
+	}
+	
+	public boolean undo(){
+		if (!opStack.isEmpty()) {
+			opStack.pop().undo();
+			return true;
+		}else{
+			return false;
+		}
+	}
+
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\model\Task.java
+	 */
+
+package model;
+
+import java.util.Date;
+
+public class Task {
+	private String name;
+	private String description;
+	private Date startDate;
+	private Date endDate;
+	private int priority;
+	private int frequency;
+	private int status;
+
+	public Task(String name, String description, Date startDate, Date endDate,
+			int priority, int frequency, int status) {
+		super();
+		this.name = name;
+		this.description = description;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.priority = priority;
+		this.frequency = frequency;
+		this.status = status;
+	}
+
+	public Date getStartDate() {
+		return startDate;
+	}
+	
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+	
+	public Date getEndDate() {
+		return endDate;
+	}
+	
+	public void setEndDate(Date endDate) {
+		this.endDate = endDate;
+	}
+	
+	public int getPriority() {
+		return priority;
+	}
+	
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+	
+	public int getFrequency() {
+		return frequency;
+	}
+	
+	public void setFrequency(int frequency) {
+		this.frequency = frequency;
+	}
+	
+	public int getStatus() {
+		return status;
+	}
+	
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	
+	public Task() {
+		
+	}
+	
+	public Task(String name) {
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public boolean isEmpty() {
+		return name.isEmpty();
+	}
+
+}
+
+	// End of segment: D:\github\main\src\model\Task.java
+
+
+
+
+

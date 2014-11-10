@@ -1,0 +1,1052 @@
+//@author: a0112069m
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\command\Add.java
+	 */
+
+	public boolean executeCommand() {
+		try {
+			FileWriter fstream = new FileWriter(fileName, true);
+			BufferedWriter bufferedWriter = new BufferedWriter(fstream);
+			JSONObject jTask = Converter.taskToJSON(task);
+			bufferedWriter.write(jTask.toString() + "\r\n");
+			bufferedWriter.close();
+			LogicController.tasksBuffer.add(jTask);
+			return true;
+		} catch (IOException e) {
+		}
+		return false;
+	}
+
+	public boolean undo() {
+		LogicController.getInstance().delete(Converter.taskToJSON(task), false);
+		return true;
+	}
+}
+
+	// End of segment: D:\github\main\src\logic\command\Add.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\command\Clear.java
+	 */
+
+	public boolean executeCommand() {
+		try {
+			FileWriter fstream = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(fstream);
+			bw.write("");
+			bw.close();
+			LogicController.tasksBuffer.clear();
+			return true;
+		} catch (IOException e) {
+		}
+		return false;
+	}
+
+	public boolean undo() {
+		LogicController.tasksBuffer = Clear.oldTaskBuffer;
+		return true;
+	}
+
+}
+
+	// End of segment: D:\github\main\src\logic\command\Clear.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\command\Complete.java
+	 */
+
+	@Override
+	public boolean executeCommand() {
+		try {
+			FileWriter fstream = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(fstream);
+			oldStatus = Integer.parseInt(task.get(Consts.STATUS).toString());
+			task.put(Consts.STATUS, status);
+			bw.write("");
+			for (JSONObject jTask : LogicController.tasksBuffer) {
+				bw.write(jTask.toString() + "\r\n");
+			}
+			bw.close();
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
+	
+	@Override
+	public boolean undo() {
+		try {
+			FileWriter fstream = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(fstream);
+			task.put(Consts.STATUS, oldStatus);
+			bw.write("");
+			for (JSONObject jTask : LogicController.tasksBuffer) {
+				bw.write(jTask.toString() + "\r\n");
+			}
+			bw.close();
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
+
+}
+
+	// End of segment: D:\github\main\src\logic\command\Complete.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\command\Delete.java
+	 */
+
+	public boolean undo() {
+		LogicController.getInstance().add(jsonToTask(task), false);
+		return true;
+	}
+
+	private static Task jsonToTask(JSONObject obj) {
+		Task temp = null;
+		try {
+			temp = new Task(obj.get(Consts.NAME).toString());
+			temp.setDescription(obj.get(Consts.DESCRIPTION).toString());
+			temp.setStartDate(Consts.FORMAT_DATE.parse(obj.get(Consts.STARTDATE)
+					.toString()));
+			temp.setEndDate(Consts.FORMAT_DATE.parse(obj.get(Consts.ENDDATE)
+					.toString()));
+			temp.setFrequency((int) obj.get(Consts.FREQUENCY));
+			temp.setPriority((int) obj.get(Consts.PRIORITY));
+		} catch (Exception e) {
+			// e.printStackTrace();
+		}
+		return temp;
+	}
+}
+
+	// End of segment: D:\github\main\src\logic\command\Delete.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\command\Update.java
+	 */
+
+	public boolean executeCommand() {
+		try {
+			FileWriter fstream = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(fstream);
+			LogicController.tasksBuffer.remove(oldObj);
+			System.out.println(newTask.getStatus());
+			LogicController.tasksBuffer.add(taskToJSON(newTask));
+			for (JSONObject jTask: LogicController.tasksBuffer) {
+				bw.write(jTask.toString()+"\r\n");
+			}
+
+			bw.close();		
+			return true;
+		} catch (IOException e) {
+		}
+		return false;
+	}
+
+	public boolean undo() {
+		LogicController.tasksBuffer.remove(taskToJSON(newTask));
+		LogicController.tasksBuffer.add(oldObj);
+
+		try {
+			FileWriter fstream = new FileWriter(fileName);
+			BufferedWriter bw = new BufferedWriter(fstream);
+			for (JSONObject jTask: LogicController.tasksBuffer) {
+				bw.write(jTask.toString()+"\r\n");
+			}
+			bw.close();		
+		} catch (IOException e) {
+		}
+
+		return true;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public JSONObject taskToJSON(Task task)
+	{
+		JSONObject jTask=new JSONObject();
+		jTask.put(Consts.NAME, task.getName());
+		jTask.put(Consts.DESCRIPTION, task.getDescription());
+		jTask.put(Consts.STARTDATE, Consts.FORMAT_DATE.format(task.getStartDate()));
+		jTask.put(Consts.ENDDATE, Consts.FORMAT_DATE.format(task.getEndDate()));
+		jTask.put(Consts.PRIORITY, task.getPriority());
+		jTask.put(Consts.FREQUENCY, task.getFrequency());
+		jTask.put(Consts.STATUS,task.getStatus());
+		return jTask;
+	}
+
+}
+
+	// End of segment: D:\github\main\src\logic\command\Update.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\Consts.java
+	 */
+
+	// FREQUENCY CONSTANT
+	public static final String FREQUENCY_DAILY = "daily";
+	public static final String FREQUENCY_WEEKLY = "weekly";
+	public static final String FREQUENCY_MONTHLY = "monthly";
+	public static final int FREQUENCY_DAILY_VALUE = 1;
+	public static final int FREQUENCY_WEEKLY_VALUE = 2;
+	public static final int FREQUENCY_MONTHLY_VALUE = 3;
+	
+	// UPDATE CONSTANT
+	public static final String UPDATE_NAME = "name";
+	public static final String UPDATE_DATE = "date";
+	public static final String UPDATE_ERROR_DATE = "Please type a correct date";
+	public static final String UPDATE_DESC = "desc";
+
+	// PRIORITY CONSTANT
+	public static final String PRIORITY_IMPORTANT = "important";
+	public static final String PRIORITY_NORMAL = "normal";
+	public static final int PRIORITY_IMPORTANT_VALUE = 1;
+	public static final int PRIORITY_NORMAL_VALUE = 0;
+
+	// STATUS CONSTANT (Task type)
+	public static final int STATUS_TIMED_TASK = 1;
+	public static final int STATUS_FLOATING_TASK = 2;
+	public static final int STATUS_BLOCK_TASK = 3;
+	public static final int STATUS_COMPLETED_TIMED_TASK = 11;
+	public static final int STATUS_COMPLETED_FLOATING_TASK = 12;
+
+	// End of segment: D:\github\main\src\logic\Consts.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\Converter.java
+	 */
+
+
+package logic;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import model.Task;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+import com.google.api.services.calendar.model.Event;
+
+import edu.emory.mathcs.backport.java.util.Arrays;
+
+// Converter class for converting different formats 
+public class Converter {
+
+	@SuppressWarnings("unchecked")
+	public static JSONObject taskToJSON(Task task) {
+		JSONObject jTask = new JSONObject();
+		jTask.put(Consts.NAME, task.getName());
+		jTask.put(Consts.DESCRIPTION, task.getDescription());
+		jTask.put(Consts.STARTDATE,task.getStartDate() != null ? Consts.FORMAT_DATE.format(task.getStartDate()) : "");
+		jTask.put(Consts.ENDDATE,task.getEndDate() != null ? Consts.FORMAT_DATE.format(task.getEndDate()) : "");
+		jTask.put(Consts.PRIORITY, task.getPriority());
+		jTask.put(Consts.FREQUENCY, task.getFrequency());
+		jTask.put(Consts.STATUS, task.getStatus());
+		return jTask;
+	}
+
+	public static Task jsonToTask(JSONObject obj) {
+		Task temp = null;
+		try {
+			temp = new Task(obj.get(Consts.NAME).toString());
+			temp.setDescription(obj.get(Consts.DESCRIPTION).toString());
+			temp.setStartDate(Consts.FORMAT_DATE.parse(obj.get(Consts.STARTDATE).toString()));
+			temp.setEndDate(Consts.FORMAT_DATE.parse(obj.get(Consts.ENDDATE).toString()));
+			temp.setFrequency((int) Integer.parseInt(obj.get(Consts.FREQUENCY).toString()));
+			temp.setPriority((int) Integer.parseInt(obj.get(Consts.PRIORITY).toString()));
+			temp.setStatus((int) Integer.parseInt(obj.get(Consts.STATUS).toString()));
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+		return temp;
+	}
+
+	public static String jsonListToString(List<JSONObject> objList) {
+		String res = "";
+		for (JSONObject obj : objList) {
+			res = res + obj.toString() + '~';
+		}
+		return res;
+	}
+	
+	public static List<JSONObject> stringToJSONList(String strListRaw) throws org.json.simple.parser.ParseException{
+		JSONParser jsonParser = new JSONParser();
+		List<String> strList = Arrays.asList(strListRaw.split("~"));
+		List<JSONObject> res = new ArrayList<JSONObject>(strList.size());
+		for (String objStr : strList) {
+			res.add((JSONObject) jsonParser.parse(objStr));
+		}
+		return res;
+	}
+	
+	// End of segment: D:\github\main\src\logic\Converter.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+	Stack<Command> opStack = new Stack<Command>(); // for undo stuff 
+	String authToken = "";
+   
+	private static LogicController singleton = null;
+   /* Static 'instance' method */
+	
+	public static LogicController getInstance( ) {
+		if (singleton == null)
+		{
+			singleton = new LogicController();
+			
+		}
+		return singleton;
+	}
+	
+	public LogicController() {
+		tasksBuffer = new ArrayList<JSONObject>();
+		cacheMap = new CacheMap();
+		gCal = new GoogleCal();
+		gCalServ = new GoogleCalService();
+	}
+	
+	public void setFileName(String fileName) {
+		LogicController.fileName = fileName;
+	}
+	
+	public String getFileName() {
+		return fileName;
+	}
+	
+	public void init(String fileName) throws IOException
+	{
+		LogicController.fileName = fileName;
+		loadBuffer(fileName);
+		loadCacheBuffer();	
+		try{
+			Thread.sleep(1000);
+		}catch(InterruptedException e){
+			System.err.println(e.getMessage());
+		}
+		new Thread(gCalServ).start(); // Thread for google sync 
+	}
+	
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+	//TasksBuffer without Block task (Timed)
+	public ArrayList<JSONObject> getTimedTasksBuffer() {
+		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
+		Date curDate = new Date();
+		for (JSONObject jTask: tasksBuffer) {
+			
+			if ((Converter.jsonToTask(jTask).getStatus() % 10 == Consts.STATUS_TIMED_TASK || Converter
+					.jsonToTask(jTask).getStatus() == Consts.STATUS_COMPLETED_TIMED_TASK)
+					&& Consts.FORMAT_COMPARE_DATE.format(
+							Converter.jsonToTask(jTask).getStartDate())
+							.compareTo(
+									Consts.FORMAT_COMPARE_DATE.format(curDate)) >= 0) {
+				//System.out.println(jTask);// For Debuging
+				displayTasksBuffer.add(jTask);
+			}
+		}
+		//System.out.println(); // For Debuging
+		return displayTasksBuffer;
+	}
+	
+	//TasksBuffer without Block task (Floating)
+	public ArrayList<JSONObject> getFloatingTasksBuffer() {
+		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
+		for (JSONObject jTask: tasksBuffer) {
+			if (Converter.jsonToTask(jTask).getStatus() % 10 == Consts.STATUS_FLOATING_TASK || Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_COMPLETED_FLOATING_TASK) {
+				//System.out.println(jTask);// For Debuging
+				displayTasksBuffer.add(jTask);
+			}
+		} 
+		
+		//System.out.println(); // For Debuging
+		return displayTasksBuffer;
+	}
+	
+	//TasksBuffer with Block task (Timed)
+	public ArrayList<JSONObject> getBlockTasksBuffer() {
+		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
+		for (JSONObject jTask: tasksBuffer) {
+			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_BLOCK_TASK) {
+				//System.out.println(jTask);// For Debuging
+				displayTasksBuffer.add(jTask);
+			}
+		}
+		//System.out.println(); // For Debuging
+		return displayTasksBuffer;
+	}
+	
+	private boolean intersectTime(Task taskA, Task taskB) {
+		return Math.max(taskA.getStartDate().getTime(), taskB.getStartDate().getTime()) <= Math.min(taskA.getEndDate().getTime(), taskB.getEndDate().getTime());
+	}
+		
+	private boolean intersectTime(Date startDate1, Date endDate1, Date startDate2, Date endDate2) {
+		return Math.max(startDate1.getTime(), startDate2.getTime()) <= Math.min(endDate1.getTime(), endDate2.getTime());
+	}
+		
+	// Adding task
+	public String add(Task task, boolean...addToStack){
+		if (task.getStatus() == Consts.STATUS_TIMED_TASK) { 
+			if (task.getName().compareTo("") == 0) {
+				return Consts.ERROR_ADD;
+			}
+			assert(!task.getName().isEmpty());
+			for (JSONObject jTask: tasksBuffer) {
+				if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_BLOCK_TASK) {
+					Task temp = Converter.jsonToTask(jTask);
+					//intersect
+					if (intersectTime(temp, task)) {
+						return Consts.ERROR_ADD_BLOCK;
+					}
+				}
+			}
+		}
+		logicAdd = new Add();
+		logicAdd.setFileName(fileName);
+		logicAdd.setTask(task);
+		if (addToStack.length == 0 || (addToStack.length > 0 && addToStack[0] == true)){
+			opStack.add(logicAdd);
+		}
+		if (logicAdd.executeCommand()) {
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+	public boolean clear(boolean...addToStack){
+		logicClear = new Clear();
+		logicClear.setFileName(fileName);
+		logicClear.setOldTaskBuffer(tasksBuffer);
+		opStack.add(logicClear);
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+	public String update(JSONObject oldTask, String commandString, String restString, boolean...addToStack){
+	//public String update(JSONObject oldTask, Task newTask, boolean...addToStack){
+		
+		Task newTask = new Task();
+		newTask = Converter.jsonToTask(oldTask);
+		
+		switch (commandString.toLowerCase()) {
+			case Consts.UPDATE_NAME:
+				newTask.setName(restString);
+				break;
+			case Consts.UPDATE_DESC:
+				newTask.setDescription(restString);
+				break;
+			case Consts.UPDATE_DATE:
+				List<DateGroup> dateGrp = dateParser.parse(restString);
+				Date date1 = null;
+				Date date2 = null;
+				if(!dateGrp.isEmpty()){
+					date1 = dateGrp.get(0).getDates().get(0);
+					if (dateGrp.get(0).getDates().size() == 1)
+					{
+						date2 = date1;
+					} else {
+						date2 = dateGrp.get(0).getDates().get(1);
+					}
+					if (isDefaultTime(date1)) {
+						date1 = getStartOfDay(date1);
+					}
+					if (isDefaultTime(date2)) {
+						date2 = getEndOfDay(date2);
+					}
+					newTask.setStartDate(date1);
+					newTask.setEndDate(date2);
+				} else {
+					return Consts.UPDATE_ERROR_DATE;
+				}
+				break;
+			case Consts.PRIORITY_IMPORTANT:
+				newTask.setPriority(Consts.PRIORITY_IMPORTANT_VALUE);
+				break;
+			case Consts.PRIORITY_NORMAL:
+				newTask.setPriority(Consts.PRIORITY_NORMAL_VALUE);
+				break;			
+			default:
+				return Consts.STRING_UPDATE_CORRECT;
+		}
+		
+		logicUpdate = new Update();
+		logicUpdate.setFileName(fileName);
+		logicUpdate.setOldObj(oldTask);
+		logicUpdate.setNewTask(newTask);
+		opStack.add(logicUpdate);
+		if(logicUpdate.executeCommand()){
+			if(GoogleCal.isOnline()){
+				try {
+					if(gCal.withExistingToken()){
+						logger.log(Level.INFO,"Updating event - sync with google");
+						if(gCal.deleteEvent((String)oldTask.get(Consts.NAME))){
+							gCal.createEvent(newTask, "primary");
+						}
+					}
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}
+			return String.format(Consts.STRING_UPDATE,oldTask.get(Consts.NAME));
+		}else{
+			return Consts.STRING_NOT_UPDATE;
+		}
+	}
+
+	class NameComparator implements Comparator<JSONObject>
+	{
+		public int compare(JSONObject u, JSONObject v)
+		{
+			return u.get(Consts.NAME).toString().compareTo(v.get(Consts.NAME).toString());
+		}
+	}
+	
+	public void sort(){
+		try {
+			Collections.sort(tasksBuffer, new NameComparator());
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
+		}
+	}
+	
+	public String delete(JSONObject task, boolean... addToStack){
+		logicDelete = new Delete();
+		logicDelete.setFileName(fileName);
+		logicDelete.setTask(task);
+		if (addToStack.length == 0 || (addToStack.length > 0 && addToStack[0] == true)){
+			opStack.add(logicDelete);
+		}
+		if(logicDelete.executeCommand()){
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+	public String block(String dateString) {
+		List<DateGroup> dateGrp = dateParser.parse(dateString);
+		if(!dateGrp.isEmpty() && dateGrp.get(0).getDates().size() == 2) {
+			Date startDate = dateGrp.get(0).getDates().get(0);
+			Date endDate = dateGrp.get(0).getDates().get(1);			
+			Task task = new Task("Blocked " + Consts.FORMAT_PRINT_TIME.format(startDate) + " > " +  Consts.FORMAT_PRINT_TIME.format(endDate), "", startDate, endDate, 0, 0, Consts.STATUS_BLOCK_TASK);
+			add(task);
+			return String.format(Consts.STRING_BLOCK, Consts.FORMAT_PRINT_DATE.format(startDate), Consts.FORMAT_PRINT_DATE.format(endDate));
+		} else {
+			return Consts.STRING_BLOCK_FAIL;
+		}
+	}
+	
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicController.java
+	 */
+
+	@SuppressWarnings("deprecation")
+	private int getTimeFromDate(Date date) {
+		return date.getHours() *  60 * 60 + date.getMinutes() * 60 + date.getSeconds();
+	}
+	
+	private boolean isDefaultTime(Date date) {
+		Date dateNow = new Date();
+		return (getTimeFromDate(dateNow) - getTimeFromDate(date) <= TIME_EPS);
+	}
+
+	private Date getEndOfDay(Date date) {
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(date);
+	    calendar.set(Calendar.HOUR_OF_DAY, 23);
+	    calendar.set(Calendar.MINUTE, 59);
+	    calendar.set(Calendar.SECOND, 59);
+	    calendar.set(Calendar.MILLISECOND, 999);
+	    return calendar.getTime();
+	}
+
+	private Date getStartOfDay(Date date) {
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(date);
+	    calendar.set(Calendar.HOUR_OF_DAY, 0);
+	    calendar.set(Calendar.MINUTE, 0);
+	    calendar.set(Calendar.SECOND, 0);
+	    calendar.set(Calendar.MILLISECOND, 0);
+	    return calendar.getTime();
+	}
+	
+	private Date checkWeekly(Date dateStart1, Date dateEnd1, Date dateStart2, Date dateEnd2) {
+		DateTime dS1 = new DateTime(dateStart1);
+		DateTime dE1 = new DateTime(dateEnd1);
+		if (dE1.isAfter(dS1.plusDays(6))) {
+			dE1 = dS1.plusDays(6);
+		}
+		DateTime dS2 = new DateTime(dateStart2);
+		DateTime dE2 = new DateTime(dateEnd2);
+		if (dE2.isAfter(dS2.plusDays(6))) {
+			dE2 = dS2.plusDays(6);
+		}
+		for (DateTime curDate1 = dS1; curDate1.isBefore(dE1); curDate1 = curDate1.plusDays(1)) {
+			for (DateTime curDate2 = dS2; curDate2.isBefore(dE2); curDate2 = curDate2.plusDays(1)) {
+				if (Days.daysBetween(curDate1, curDate2).getDays() % 7 == 0) { 
+					return curDate2.toDate();
+				}
+			}
+		}
+		return null;
+	}
+	
+	private Date checkMonthly(Date dateStart1, Date dateEnd1, Date dateStart2, Date dateEnd2) {
+		int dayStart1 = (new DateTime(dateStart1)).getDayOfMonth();
+		int dayEnd1 = (new DateTime(dateEnd1)).getDayOfMonth();
+		int dayStart2 = (new DateTime(dateStart2)).getDayOfMonth();
+		int dayEnd2 = (new DateTime(dateEnd2)).getDayOfMonth();
+		if (Math.max(dayStart1, dayStart2) <= Math.min(dayEnd1, dayEnd2)) {
+			return dateStart1;
+		}
+		else {
+			return null;
+		}
+		
+	}
+	
+	public String complete(JSONObject jTargetTask, int newStatus) {
+		logicComplete = new Complete();
+		logicComplete.setFileName(fileName);
+		logicComplete.setStatus(newStatus);
+		logicComplete.setTask(jTargetTask);
+		opStack.add(logicComplete);
+		if(logicComplete.executeCommand()){
+			return String.format(Consts.STRING_COMPLETE, jTargetTask.get(Consts.NAME));
+		}else{
+			return Consts.STRING_COMPLETE_FAIL;
+		}
+	}
+	
+	private Date maxDate(Date date1, Date date2) {
+		if (date1.after(date2)) {
+			return date1;
+		} else {
+			return date2;
+		}
+	}
+	
+	public SearchResult search(String keyword, int statusType) throws IOException {
+		//tasksBuffer inside is different from outside
+		ArrayList <JSONObject> tasksBuffer;
+		ArrayList <Date> date = new ArrayList<Date>();
+		
+		if (statusType == Consts.STATUS_TIMED_TASK) {
+			tasksBuffer = getTimedTasksBuffer();
+			if (keyword.trim().toLowerCase().equals("block")) {
+				return new SearchResult(getBlockTasksBuffer(), date);
+			}
+		} else {
+			tasksBuffer = getFloatingTasksBuffer();
+		}
+		List<DateGroup> dateGrp = dateParser.parse(keyword);
+		
+		Date date1 = null;
+		Date date2 = null;
+		if(!dateGrp.isEmpty()){
+			date1 = dateGrp.get(0).getDates().get(0);
+			if (dateGrp.get(0).getDates().size() == 1)
+			{
+				date2 = date1;
+			} else {
+				date2 = dateGrp.get(0).getDates().get(1);
+			}
+			if (isDefaultTime(date1)) {
+				date1 = getStartOfDay(date1);
+			}
+			if (isDefaultTime(date2)) {
+				date2 = getEndOfDay(date2);
+			}
+		}
+		
+		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
+		for (int i = 0; i < tasksBuffer.size(); i++) {
+			Task task = Converter.jsonToTask(tasksBuffer.get(i));
+			if (task.getName().contains(keyword)) {
+				foundLine.add(tasksBuffer.get(i));
+			} else if (task.getDescription().contains(keyword)) {
+				foundLine.add(tasksBuffer.get(i));
+			} else if(date1 != null){
+				//if(dateBefore(task.getStartDate(),date) && dateBefore(date,task.getEndDate())){
+				//if (task.getStartDate().getTime() <= date.getTime() && date.getTime() <= task.getEndDate().getTime()) {
+				if (intersectTime(task.getStartDate(), task.getEndDate(), date1, date2)) {
+					foundLine.add(tasksBuffer.get(i));
+					date.add(maxDate(task.getStartDate(), date1));
+				} else if (task.getFrequency() == Consts.FREQUENCY_DAILY_VALUE) {
+					foundLine.add(tasksBuffer.get(i));
+					date.add(maxDate(task.getStartDate(), date1));
+				} else if (task.getFrequency() == Consts.FREQUENCY_WEEKLY_VALUE && 
+						checkWeekly(task.getStartDate(), task.getEndDate(), date1, date2) != null) {
+					foundLine.add(tasksBuffer.get(i));
+					date.add(checkWeekly(task.getStartDate(), task.getEndDate(), date1, date2));
+				} else if (task.getFrequency() == Consts.FREQUENCY_MONTHLY_VALUE && 
+						checkMonthly(task.getStartDate(), task.getEndDate(), date1, date2) != null) {
+					foundLine.add(tasksBuffer.get(i));
+					date.add(checkMonthly(task.getStartDate(), task.getEndDate(), date1, date2));
+				} 
+			}
+		}
+		logger.log(Level.INFO,foundLine.toString());
+		return new SearchResult(foundLine, date);
+	}
+	
+	public Boolean dateBefore(Date x, Date y){
+		return Consts.FORMAT_COMPARE_DATE.format(x).compareTo(Consts.FORMAT_COMPARE_DATE.format(y)) <= 0;
+	}
+}
+
+	// End of segment: D:\github\main\src\logic\LogicController.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\logic\LogicParser.java
+	 */
+
+package logic;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import com.joestelmach.natty.DateGroup;
+import com.joestelmach.natty.Parser;
+//import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
+
+import model.Task;
+
+public class LogicParser {
+	private static final int TIME_EPS = 2;	
+	private static final String IGNORE_LIST = "important normal the at in on from to";
+
+	int nameSeparator;
+	int taskType;
+	Parser dateParser = new Parser();
+	
+	@SuppressWarnings("deprecation")
+	private int getTimeFromDate(Date date) {
+		return date.getHours() *  60 * 60 + date.getMinutes() * 60 + date.getSeconds();
+	}
+	
+	private boolean isDefaultTime(Date date) {
+		Date dateNow = new Date();
+		return (Math.abs(getTimeFromDate(dateNow) - getTimeFromDate(date)) <= TIME_EPS);
+	}
+	
+	private Date getEndOfDay(Date date) {
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(date);
+	    calendar.set(Calendar.HOUR_OF_DAY, 23);
+	    calendar.set(Calendar.MINUTE, 59);
+	    calendar.set(Calendar.SECOND, 59);
+	    calendar.set(Calendar.MILLISECOND, 999);
+	    return calendar.getTime();
+	}
+
+	private Date getStartOfDay(Date date) {
+	    Calendar calendar = Calendar.getInstance();
+	    calendar.setTime(date);
+	    calendar.set(Calendar.HOUR_OF_DAY, 0);
+	    calendar.set(Calendar.MINUTE, 0);
+	    calendar.set(Calendar.SECOND, 0);
+	    calendar.set(Calendar.MILLISECOND, 0);
+	    return calendar.getTime();
+	}
+	
+	private int decomposePriority(ArrayList<String> words) {
+		for (int i = 0; i < words.size(); i++) {
+			if (words.get(i).compareTo(Consts.PRIORITY_IMPORTANT) == 0) {
+				//words.remove(i);
+				//nameSeparator = Math.min(nameSeparator, i - 1);
+				return Consts.PRIORITY_IMPORTANT_VALUE;
+			}
+		}
+		return 0;
+	}
+	
+	private int decomposeFrequency(ArrayList<String> words) {
+		for (int i = 0; i < words.size(); i++) {
+			if (words.get(i).compareTo(Consts.FREQUENCY_DAILY) == 0) {
+				words.remove(i);
+				nameSeparator = Math.min(nameSeparator, i - 1);
+				return Consts.FREQUENCY_DAILY_VALUE;
+			}
+			if (words.get(i).compareTo(Consts.FREQUENCY_WEEKLY) == 0) {
+				words.remove(i);
+				nameSeparator = Math.min(nameSeparator, i - 1);
+				return Consts.FREQUENCY_WEEKLY_VALUE;
+			}
+			if (words.get(i).compareTo(Consts.FREQUENCY_MONTHLY) == 0) {
+				words.remove(i);
+				nameSeparator = Math.min(nameSeparator, i - 1);
+				return Consts.FREQUENCY_MONTHLY_VALUE;
+			}
+		}
+		return 0;
+	}
+	
+	private String decomposeDescription(ArrayList<String> words) {
+		for (int i = 0; i < words.size(); i++) {
+			String tempString = "";
+			for (int j = i; j < words.size(); j++) {
+				if (i == j)
+					tempString = words.get(j);
+				else
+					tempString = tempString + " " + words.get(j); 
+				if (words.get(i).length() >= 2 && words.get(i).charAt(0) == '(' && words.get(j).charAt(words.get(j).length() - 1) == ')') {
+					tempString = tempString.replace("(", "");
+					tempString = tempString.replace(")", "");
+					for (int k = i; k <= j; k++) {
+						words.remove(i);						
+					}
+					nameSeparator = Math.min(nameSeparator, i - 1);
+					return tempString.trim();
+				}
+			}
+		}
+		return "";
+	}
+	
+	private String decomposeOptionalName(ArrayList<String> words) {
+		for (int i = 0; i < words.size(); i++) {
+			String tempString = "";
+			for (int j = i; j < words.size(); j++) {
+				if (i == j)
+					tempString = words.get(j);
+				else
+					tempString = tempString + " " + words.get(j); 
+				if (words.get(i).length() >= 2 && words.get(i).charAt(0) == '"' && words.get(j).charAt(words.get(j).length() - 1) == '"') {
+					tempString = tempString.replace("\"", "");
+					tempString = tempString.replace("\"", "");
+					for (int k = i; k <= j; k++) {
+						words.remove(i);						
+					}
+					nameSeparator = Math.min(nameSeparator, i - 1);
+					return tempString.trim();
+				}
+			}
+		}
+		return "";
+	}
+	
+	private Date[] decomposeDate(ArrayList<String> words) {
+		Date[] date = new Date[2];
+		date[0] = new Date();
+		date[1] = new Date();
+		
+		List<Integer> valid = new ArrayList<Integer>();
+		String fullString = "";
+		for (String s : words) {
+			valid.add(fullString.length() + 1);
+			fullString = fullString + " " + s;
+		}
+		List<DateGroup> dateGroupFull;
+		int l = 0;
+		while (true) {
+			dateGroupFull = dateParser.parse(fullString.substring(l, fullString.length()));
+			if (dateGroupFull.isEmpty()) {
+				taskType = Consts.STATUS_FLOATING_TASK;
+				return date;
+			}
+			l = l + dateGroupFull.get(0).getPosition() + 1;
+			if (valid.contains(l)) break;
+			l++;
+		}
+		List<Date> fullDate = dateGroupFull.get(0).getDates();
+
+		//determine nameSeparator
+		if (!words.isEmpty()) {
+			//int l = dateGroupFull.get(0).getPosition();
+			
+			for (int i = 0; i < words.size(); i++) {
+				l -= words.get(i).length() + 1;
+				if (l < 0) {
+					nameSeparator = Math.min(nameSeparator, i - 1);
+					break;
+				}
+			}			
+			
+			if (fullDate.size() == 0) {
+			} else if (fullDate.size() == 1) {
+				date[0] = fullDate.get(0);
+				date[1] = fullDate.get(0);
+			} else if (fullDate.size() == 2) {
+				date[0] = fullDate.get(0);
+				date[1] = fullDate.get(1);				
+			}
+		}
+
+		if (isDefaultTime(date[0])) {
+			date[0] = getStartOfDay(date[0]);
+		}
+
+		if (isDefaultTime(date[1])) {
+			date[1] = getEndOfDay(date[1]);
+		}
+		return date;	
+	}
+
+	private String decomposeName(ArrayList<String> words, int nameSeparator) {
+		String result = "";
+		for (int i = 0; i <= Math.min(words.size() - 1, nameSeparator); i++) {
+			result = result + words.get(i) + " ";
+		}
+		return result.trim();
+	}
+	
+	public Task decompose(String task)
+	{		
+		taskType = Consts.STATUS_TIMED_TASK;
+		Task resultTask = new Task();
+		ArrayList<String> words = new ArrayList<String>(Arrays.asList(task.split(" ")));
+		nameSeparator = words.size() - 1;
+		String sName = decomposeOptionalName(words);
+		resultTask.setDescription(decomposeDescription(words));
+		resultTask.setPriority(decomposePriority(words));
+		resultTask.setFrequency(decomposeFrequency(words));
+		Date[] date = decomposeDate(words);
+		if (date[0]!=null && date[1]!=null && date[0].compareTo(date[1]) > 0)
+		{
+			Date temp = date[0];
+			date[0] = date[1];
+			date[1] = temp;
+		}
+		resultTask.setStartDate(date[0]);
+		resultTask.setEndDate(date[1]);
+		if (sName.isEmpty()) {
+			nameSeparator = Math.min(nameSeparator, words.size() - 1);
+			while (nameSeparator > 0 && IGNORE_LIST.contains(words.get(nameSeparator)))
+			{
+				nameSeparator--;
+			}
+			resultTask.setName(decomposeName(words, nameSeparator));
+		} else {
+			resultTask.setName(sName);
+		}
+		resultTask.setStatus(taskType);
+		return resultTask;
+	}
+
+	public LogicParser()
+	{
+		
+	}
+}
+
+	// End of segment: D:\github\main\src\logic\LogicParser.java
+
+
+
+
+
+	/**
+	 * origin: D:\github\main\src\model\SearchResult.java
+	 */
+
+package model;
+
+
+import java.util.ArrayList;
+import java.util.Date;
+
+import org.json.simple.JSONObject;
+
+public class SearchResult {
+	ArrayList<JSONObject> tasksBuffer;
+	ArrayList<Date> date;
+	public ArrayList<JSONObject> getTasksBuffer() {
+		return tasksBuffer;
+	}
+	public void setTasksBuffer(ArrayList<JSONObject> tasksBuffer) {
+		this.tasksBuffer = tasksBuffer;
+	}
+	public ArrayList<Date> getDate() {
+		return date;
+	}
+	public void setDate(ArrayList<Date> date) {
+		this.date = date;
+	}
+	public SearchResult(ArrayList<JSONObject> tasksBuffer, ArrayList<Date> date) {
+		this.tasksBuffer = tasksBuffer;
+		this.date = date;
+	}
+	
+}
+
+	// End of segment: D:\github\main\src\model\SearchResult.java
+
+
+
+
+
