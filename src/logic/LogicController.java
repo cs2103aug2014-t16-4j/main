@@ -350,6 +350,18 @@ public class LogicController {
 		logicUpdate.setNewTask(newTask);
 		opStack.add(logicUpdate);
 		if(logicUpdate.executeCommand()){
+			if(GoogleCal.isOnline()){
+				try {
+					if(gCal.withExistingToken()){
+						logger.log(Level.INFO,"Updating event - sync with google");
+						if(gCal.deleteEvent((String)oldTask.get(Consts.NAME))){
+							gCal.createEvent(newTask, "primary");
+						}
+					}
+				} catch (IOException e) {
+					System.err.println(e.getMessage());
+				}
+			}
 			return String.format(Consts.STRING_UPDATE,oldTask.get(Consts.NAME));
 		}else{
 			return Consts.STRING_NOT_UPDATE;

@@ -28,11 +28,12 @@ public class GoogleCalService implements Runnable {
 					logger.log(Level.INFO, "Token file doesn't exist.");
 				}
 			}
-		}
-		try {
-			Thread.sleep(10000); // 10 seconds
-		} catch (InterruptedException e) {
-			System.err.println(e.getMessage());
+
+			try {
+				Thread.sleep(10000); // 10 seconds
+			} catch (InterruptedException e) {
+				System.err.println(e.getMessage());
+			}
 		}
 	}
 }

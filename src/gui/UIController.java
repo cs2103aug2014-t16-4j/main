@@ -1369,7 +1369,7 @@ public class UIController {
 		}
 	}
 
-	private Color getColorWithPriority(int p) {
+	public Color getColorWithPriority(int p) {
 		if (p == Consts.TASK_IMPORTANT) {
 			return display.getSystemColor(SWT.COLOR_RED);
 		} else {
