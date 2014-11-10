@@ -1,3 +1,4 @@
+//@author A0112069M
 package logic;
 
 import static org.junit.Assert.assertEquals;
@@ -117,6 +118,7 @@ public class TaskBoxLogicTest {
 		
 		assertEquals(expectedString, searchResult.getTasksBuffer().toString());
 	}	
+	//@author A0117993R
 	
 	@Test
 	public void testDelete() {
