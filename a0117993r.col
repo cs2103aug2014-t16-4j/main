@@ -3,9 +3,8 @@
 
 
 	/**
-	 * origin: D:\github\main\src\logic\command\Add.java
+	 * origin: .\src\logic\command\Add.java
 	 */
-
 
 package logic.command;
 
@@ -39,14 +38,14 @@ public class Add extends Command {
 		this.fileName = fileName;
 	}
 
-	// End of segment: D:\github\main\src\logic\command\Add.java
+	// End of segment: .\src\logic\command\Add.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\command\Clear.java
+	 * origin: .\src\logic\command\Clear.java
 	 */
 
 package logic.command;
@@ -76,14 +75,14 @@ public class Clear extends Command{
 		this.fileName = fileName;
 	}
 
-	// End of segment: D:\github\main\src\logic\command\Clear.java
+	// End of segment: .\src\logic\command\Clear.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\command\Command.java
+	 * origin: .\src\logic\command\Command.java
 	 */
 
 package logic.command;
@@ -94,14 +93,14 @@ public abstract class Command {
 	public abstract boolean undo();
 }
 
-	// End of segment: D:\github\main\src\logic\command\Command.java
+	// End of segment: .\src\logic\command\Command.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\command\Complete.java
+	 * origin: .\src\logic\command\Complete.java
 	 */
 
 package logic.command;
@@ -145,14 +144,14 @@ public class Complete extends Command{
 		this.status = status;
 	}
 
-	// End of segment: D:\github\main\src\logic\command\Complete.java
+	// End of segment: .\src\logic\command\Complete.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\command\Delete.java
+	 * origin: .\src\logic\command\Delete.java
 	 */
 
 package logic.command;
@@ -162,6 +161,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import logic.Consts;
+import logic.Converter;
 import logic.LogicController;
 import model.Task;
 
@@ -209,14 +209,14 @@ public class Delete extends Command {
 		return false;
 	}
 
-	// End of segment: D:\github\main\src\logic\command\Delete.java
+	// End of segment: .\src\logic\command\Delete.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\command\Update.java
+	 * origin: .\src\logic\command\Update.java
 	 */
 
 package logic.command;
@@ -226,6 +226,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import logic.Consts;
+import logic.Converter;
 import logic.LogicController;
 import model.Task;
 
@@ -260,14 +261,14 @@ public class Update extends Command{
 		this.fileName = fileName;
 	}
 
-	// End of segment: D:\github\main\src\logic\command\Update.java
+	// End of segment: .\src\logic\command\Update.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\CommandEnum.java
+	 * origin: .\src\logic\CommandEnum.java
 	 */
 
 package logic;
@@ -276,14 +277,14 @@ public enum CommandEnum {
 	ADD, DISPLAY, DELETE, UPDATE, CLEAR, SORT, SEARCH, BLOCK, QUIT, INVALID, UNDO, SYNC, EXPAND, COMPLETE
 }
 
-	// End of segment: D:\github\main\src\logic\CommandEnum.java
+	// End of segment: .\src\logic\CommandEnum.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\Consts.java
+	 * origin: .\src\logic\Consts.java
 	 */
 
 package logic;
@@ -357,6 +358,7 @@ public final class Consts {
 
 	// USAGE
 	public static final String USAGE_ADD = "Usage: add <todo>";
+	public static final String USAGE_SEARCH = "Usage: search <keyword>";
 	public static final String USAGE_UNDO = "Usage: undo <task #>";
 	public static final String USAGE_COMPLETE = "Usage: complete <task #>";
 	public static final String USAGE_DELETE = "Usage: delete <task #>";
@@ -373,118 +375,14 @@ public final class Consts {
 	public static final int TASK_IMPORTANT = 1;
 	public static final int TASK_NORMAL = 0;
 
-	// End of segment: D:\github\main\src\logic\Consts.java
+	// End of segment: .\src\logic\Consts.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\Converter.java
-	 */
-
-	@SuppressWarnings("unchecked")
-	public static JSONObject eventToJSON(Event event) throws ParseException {
-		JSONObject temp = new JSONObject();
-		temp.put(Consts.NAME, event.getSummary());
-		temp.put(Consts.DESCRIPTION, event.getDescription()!=null?event.getDescription():"");
-		temp.put(Consts.STARTDATE, startDateOnly(event));
-		//temp.put(Consts.STARTDATE, event.getStart()!=null?convertDate(event.getStart().getDateTime().toString()):"");
-		temp.put(Consts.ENDDATE, endDateOnly(event));
-		//temp.put(Consts.ENDDATE, event.getEnd()!=null?convertDate(event.getEnd().getDateTime().toString()):"");
-		temp.put(Consts.PRIORITY, event.getSequence());
-		if(event.getRecurrence() == null){
-			temp.put(Consts.FREQUENCY,0);
-		}else{
-			temp.put(Consts.FREQUENCY, parseRecurrence(event.getRecurrence().toString()));
-		}
-		temp.put(Consts.STATUS, 1);
-		return temp;
-	}
-
-	private static String startDateOnly(Event event){
-		String str = "";
-		if(event.getStart().getDateTime() != null){
-			str = event.getStart().getDateTime().toString();
-			try {
-				return convertDateTime(str);
-			} catch (ParseException e) {
-				System.err.println(e.getMessage());
-				return "";
-			}
-		}else{
-			// full day event - no start time 
-			str = event.getStart().getDate().toString();
-			try{
-				return convertDate(str)+" 00:00:00";
-			}catch(ParseException e){
-				System.err.println(e.getMessage());
-				return "";
-			}
-		}
-	}
-	
-	private static String endDateOnly(Event event){
-		String str = "";
-		if(event.getEnd().getDateTime() != null){
-			str = event.getEnd().getDateTime().toString();
-			try {
-				return convertDateTime(str);
-			} catch (ParseException e) {
-				System.err.println(e.getMessage());
-				return "";
-			}
-		}else{
-			// full day event - no end time 
-			str = event.getEnd().getDate().toString();
-			try {
-				return convertDate(str)+" 23:59:59";
-			} catch (ParseException e) {
-				System.err.println(e.getMessage());
-				return "";
-			}
-		}
-	}
-	
-	private static String convertDateTime(String str) throws ParseException {
-		String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS";
-		Date newDate = new SimpleDateFormat(pattern).parse(str.split("\\+")[0]);
-		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
-		return DATE_FORMAT.format(newDate);
-	}
-	
-	private static String convertDate(String str) throws ParseException {
-		String pattern = "yyyy-MM-dd";
-		Date newDate = new SimpleDateFormat(pattern).parse(str.split("\\+")[0]);
-		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/M/yyyy");
-		return DATE_FORMAT.format(newDate);
-	}
-
-	private static int parseRecurrence(String str) {
-		if (str.isEmpty() || str == null) {
-			return 0;
-		} else {
-			String delims = "[:=;]+";
-			String[] splittedStr = str.split(delims);
-			if (splittedStr[2].equalsIgnoreCase(Consts.FREQUENCY_DAILY)) {
-				return Consts.FREQUENCY_DAILY_VALUE;
-			} else if (splittedStr[2].equalsIgnoreCase(Consts.FREQUENCY_WEEKLY)) {
-				return Consts.FREQUENCY_WEEKLY_VALUE;
-			} else {
-				return Consts.FREQUENCY_MONTHLY_VALUE;
-			}
-		}
-	}
-}
-
-	// End of segment: D:\github\main\src\logic\Converter.java
-
-
-
-
-
-	/**
-	 * origin: D:\github\main\src\logic\google\CacheMap.java
+	 * origin: .\src\logic\google\CacheMap.java
 	 */
 
 package logic.google;
@@ -507,14 +405,14 @@ public class CacheMap extends HashMap<String, List<JSONObject>>{
     }
 }
 
-	// End of segment: D:\github\main\src\logic\google\CacheMap.java
+	// End of segment: .\src\logic\google\CacheMap.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\google\GoogleCal.java
+	 * origin: .\src\logic\google\GoogleCal.java
 	 */
 
 
@@ -856,14 +754,14 @@ public class GoogleCal {
 	}
 }
 
-	// End of segment: D:\github\main\src\logic\google\GoogleCal.java
+	// End of segment: .\src\logic\google\GoogleCal.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\google\GoogleCalService.java
+	 * origin: .\src\logic\google\GoogleCalService.java
 	 */
 
 package logic.google;
@@ -905,14 +803,14 @@ public class GoogleCalService implements Runnable {
 	}
 }
 
-	// End of segment: D:\github\main\src\logic\google\GoogleCalService.java
+	// End of segment: .\src\logic\google\GoogleCalService.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\google\LoadCache.java
+	 * origin: .\src\logic\google\LoadCache.java
 	 */
 
 package logic.google;
@@ -957,14 +855,14 @@ public class LoadCache extends Command{
 
 }
 
-	// End of segment: D:\github\main\src\logic\google\LoadCache.java
+	// End of segment: .\src\logic\google\LoadCache.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\google\SaveCache.java
+	 * origin: .\src\logic\google\SaveCache.java
 	 */
 
 package logic.google;
@@ -1011,14 +909,14 @@ public class SaveCache extends Command {
 
 }
 
-	// End of segment: D:\github\main\src\logic\google\SaveCache.java
+	// End of segment: .\src\logic\google\SaveCache.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 package logic;
@@ -1072,8 +970,10 @@ public class LogicController {
 	public static String fileName;
 	public static CacheMap cacheMap; // for saving cache purpose
 	private static Logger logger = Logger.getLogger("Logic");
+	
 	Parser dateParser = new Parser();
 	ArrayList <Task> blockBuffer;
+	
 	Add logicAdd;
 	Clear logicClear;
 	Delete logicDelete;
@@ -1083,14 +983,15 @@ public class LogicController {
 	LoadCache loadCache;
 	GoogleCal gCal;
 	GoogleCalService gCalServ;
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 	// Loading the entries from cache file 
@@ -1118,14 +1019,14 @@ public class LogicController {
 		}
 	}
 	
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 	// Trying to sync with google server when the app is open
@@ -1134,6 +1035,7 @@ public class LogicController {
 		Iterator<Entry<String, List<JSONObject>>> it = cacheMap.entrySet().iterator();
 		ArrayList<JSONObject> temp = new ArrayList<JSONObject>(); // To store the values from cacheMap
 		while (it.hasNext()) {
+			@SuppressWarnings("rawtypes")
 			Map.Entry pairs = (Map.Entry) it.next();
 			logger.log(Level.INFO,pairs.getKey() + " = " + pairs.getValue());
 			String key = (String) pairs.getKey();
@@ -1154,14 +1056,14 @@ public class LogicController {
 		return temp.isEmpty() ? false : true;
 	}
 
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 	// Fetching all tasks from file in the beginning.	
@@ -1180,14 +1082,14 @@ public class LogicController {
 		}
 	}
 	
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 			if(GoogleCal.isOnline()){
@@ -1210,14 +1112,14 @@ public class LogicController {
 			
 	}
 	
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 		if(GoogleCal.isOnline()){
@@ -1233,14 +1135,14 @@ public class LogicController {
 		return logicClear.executeCommand();
 	}
 	
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 			if(GoogleCal.isOnline()) {
@@ -1262,14 +1164,14 @@ public class LogicController {
 		}
 	}
 	
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 	public String getUrl(){
@@ -1303,14 +1205,14 @@ public class LogicController {
 		}
 	}
 
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\model\Task.java
+	 * origin: .\src\model\Task.java
 	 */
 
 package model;
@@ -1408,7 +1310,124 @@ public class Task {
 
 }
 
-	// End of segment: D:\github\main\src\model\Task.java
+	// End of segment: .\src\model\Task.java
+
+
+
+
+
+	/**
+	 * origin: .\test\logic\TaskBoxLogicTest.java
+	 */
+
+	
+	@Test
+	public void testDelete() {
+		System.out.println("=== Testing delete function ===");
+		logic.clear();
+		Task soonToBeDeletedTask = parser.decompose("Second line");
+		Task first = parser.decompose("First line");
+		Task third = parser.decompose("Third line");
+		Task fourth = parser.decompose("Fourth line");
+		logic.add(first,false);
+		logic.add(soonToBeDeletedTask, false);
+		logic.add(third,false);
+		logic.add(fourth,false);
+		String expectedString = String.format(Consts.STRING_DELETE, fileName[0],soonToBeDeletedTask.getName());
+		String returnString = logic.delete(Converter.taskToJSON(soonToBeDeletedTask));
+		assertEquals(expectedString,returnString);
+	}
+	
+	@Test
+	public void testDeleteAndUndo() {
+		System.out.println("=== Testing delete and undo function ===");
+		logic.clear();
+		Task soonToBeDeletedTask = parser.decompose("Second line");
+		Task first = parser.decompose("First line");
+		Task third = parser.decompose("Third line");
+		Task fourth = parser.decompose("Fourth line");
+		logic.add(first,true);
+		logic.add(soonToBeDeletedTask, true);
+		logic.add(third,true);
+		logic.add(fourth,true);
+		logic.delete(Converter.taskToJSON(soonToBeDeletedTask),true);
+		logic.undo();
+		boolean returnBoolean = false;
+		for(JSONObject i:LogicController.tasksBuffer){
+			if(Converter.jsonToTask(i).getName().equalsIgnoreCase(soonToBeDeletedTask.getName())){
+				returnBoolean = true;
+			}
+		}
+		assertTrue(returnBoolean);
+	}
+	
+	@Test
+	public void testAddAndUndo() {
+		System.out.println("=== Testing add and undo  ===");
+		logic.clear();
+		Task first = parser.decompose("First line");
+		Task third = parser.decompose("Third line");
+		Task fourth = parser.decompose("Fourth line");
+		logic.add(first,true);
+		logic.add(third,true);
+		logic.add(fourth,true);
+		logic.undo();
+		boolean returnBoolean = true;
+		for(JSONObject i:LogicController.tasksBuffer){
+			if(Converter.jsonToTask(i).getName().equalsIgnoreCase(fourth.getName())){
+				returnBoolean = false;
+			}
+		}
+		assertTrue(returnBoolean);
+	}
+
+
+	@Test
+	public void testDeleteLineNotFound(){
+		System.out.println("=== Testing delete function with invalid selection ===");
+		logic.clear();
+		Task soonToBeDeletedTask = parser.decompose("Second line");
+		Task first = parser.decompose("First line");
+		Task third = parser.decompose("Third line");
+		Task fourth = parser.decompose("Fourth line");
+		logic.add(first,false);
+		logic.add(third,false);
+		logic.add(fourth,false);
+		String expectedString = Consts.USAGE_DELETE;
+		String returnString = logic.delete(Converter.taskToJSON(soonToBeDeletedTask));
+		assertEquals(expectedString,returnString);
+	}
+	
+	@Test
+	public void testClear() {
+		System.out.println("=== Testing clear function ===");
+		logic.add(parser.decompose("first one"),false);
+		logic.add(parser.decompose("second one"),false);
+		Boolean returnBoolean = logic.clear(false);
+		assertEquals(true, returnBoolean);
+	}
+
+	@Test
+	public void testAdd() {
+		System.out.println("=== Testing add function ===");
+		logic.clear();
+		Task newTask = parser.decompose("To eat");
+		String returnString= logic.add(newTask,false);
+		String expectedString = String.format(Consts.STRING_ADD, newTask.getName(), newTask.getStartDate(), newTask.getEndDate());
+		assertEquals(expectedString,returnString);
+	}
+	
+	@Test
+	public void testAddWithBlankNameTask(){
+		System.out.println("=== Testing add function with blank todo ===");
+		logic.clear();
+		String returnString = logic.add(parser.decompose(" today "),false);
+		String expectedString = Consts.ERROR_ADD;
+		assertEquals(expectedString,returnString);
+	}
+}
+
+	// End of segment: .\test\logic\TaskBoxLogicTest.java
 
 
 

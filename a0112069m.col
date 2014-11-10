@@ -3,7 +3,7 @@
 
 
 	/**
-	 * origin: D:\github\main\src\logic\command\Add.java
+	 * origin: .\src\logic\command\Add.java
 	 */
 
 	public boolean executeCommand() {
@@ -26,14 +26,14 @@
 	}
 }
 
-	// End of segment: D:\github\main\src\logic\command\Add.java
+	// End of segment: .\src\logic\command\Add.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\command\Clear.java
+	 * origin: .\src\logic\command\Clear.java
 	 */
 
 	public boolean executeCommand() {
@@ -56,16 +56,17 @@
 
 }
 
-	// End of segment: D:\github\main\src\logic\command\Clear.java
+	// End of segment: .\src\logic\command\Clear.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\command\Complete.java
+	 * origin: .\src\logic\command\Complete.java
 	 */
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean executeCommand() {
 		try {
@@ -84,6 +85,7 @@
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean undo() {
 		try {
@@ -103,47 +105,31 @@
 
 }
 
-	// End of segment: D:\github\main\src\logic\command\Complete.java
+	// End of segment: .\src\logic\command\Complete.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\command\Delete.java
+	 * origin: .\src\logic\command\Delete.java
 	 */
 
 	public boolean undo() {
-		LogicController.getInstance().add(jsonToTask(task), false);
+		LogicController.getInstance().add(Converter.jsonToTask(task), false);
 		return true;
 	}
 
-	private static Task jsonToTask(JSONObject obj) {
-		Task temp = null;
-		try {
-			temp = new Task(obj.get(Consts.NAME).toString());
-			temp.setDescription(obj.get(Consts.DESCRIPTION).toString());
-			temp.setStartDate(Consts.FORMAT_DATE.parse(obj.get(Consts.STARTDATE)
-					.toString()));
-			temp.setEndDate(Consts.FORMAT_DATE.parse(obj.get(Consts.ENDDATE)
-					.toString()));
-			temp.setFrequency((int) obj.get(Consts.FREQUENCY));
-			temp.setPriority((int) obj.get(Consts.PRIORITY));
-		} catch (Exception e) {
-			// e.printStackTrace();
-		}
-		return temp;
-	}
 }
 
-	// End of segment: D:\github\main\src\logic\command\Delete.java
+	// End of segment: .\src\logic\command\Delete.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\command\Update.java
+	 * origin: .\src\logic\command\Update.java
 	 */
 
 	public boolean executeCommand() {
@@ -152,7 +138,7 @@
 			BufferedWriter bw = new BufferedWriter(fstream);
 			LogicController.tasksBuffer.remove(oldObj);
 			System.out.println(newTask.getStatus());
-			LogicController.tasksBuffer.add(taskToJSON(newTask));
+			LogicController.tasksBuffer.add(Converter.taskToJSON(newTask));
 			for (JSONObject jTask: LogicController.tasksBuffer) {
 				bw.write(jTask.toString()+"\r\n");
 			}
@@ -165,7 +151,7 @@
 	}
 
 	public boolean undo() {
-		LogicController.tasksBuffer.remove(taskToJSON(newTask));
+		LogicController.tasksBuffer.remove(Converter.taskToJSON(newTask));
 		LogicController.tasksBuffer.add(oldObj);
 
 		try {
@@ -180,31 +166,17 @@
 
 		return true;
 	}
-	
-	@SuppressWarnings("unchecked")
-	public JSONObject taskToJSON(Task task)
-	{
-		JSONObject jTask=new JSONObject();
-		jTask.put(Consts.NAME, task.getName());
-		jTask.put(Consts.DESCRIPTION, task.getDescription());
-		jTask.put(Consts.STARTDATE, Consts.FORMAT_DATE.format(task.getStartDate()));
-		jTask.put(Consts.ENDDATE, Consts.FORMAT_DATE.format(task.getEndDate()));
-		jTask.put(Consts.PRIORITY, task.getPriority());
-		jTask.put(Consts.FREQUENCY, task.getFrequency());
-		jTask.put(Consts.STATUS,task.getStatus());
-		return jTask;
-	}
 
 }
 
-	// End of segment: D:\github\main\src\logic\command\Update.java
+	// End of segment: .\src\logic\command\Update.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\Consts.java
+	 * origin: .\src\logic\Consts.java
 	 */
 
 	// FREQUENCY CONSTANT
@@ -233,15 +205,19 @@
 	public static final int STATUS_BLOCK_TASK = 3;
 	public static final int STATUS_COMPLETED_TIMED_TASK = 11;
 	public static final int STATUS_COMPLETED_FLOATING_TASK = 12;
+	
+	// EXPAND UI
+	public static final int EXPAND_NONE = -1;
+	public static final int EXPAND_ALL = -9;
 
-	// End of segment: D:\github\main\src\logic\Consts.java
+	// End of segment: .\src\logic\Consts.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\Converter.java
+	 * origin: .\src\logic\Converter.java
 	 */
 
 
@@ -304,6 +280,7 @@ public class Converter {
 	
 	public static List<JSONObject> stringToJSONList(String strListRaw) throws org.json.simple.parser.ParseException{
 		JSONParser jsonParser = new JSONParser();
+		@SuppressWarnings("unchecked")
 		List<String> strList = Arrays.asList(strListRaw.split("~"));
 		List<JSONObject> res = new ArrayList<JSONObject>(strList.size());
 		for (String objStr : strList) {
@@ -312,14 +289,108 @@ public class Converter {
 		return res;
 	}
 	
-	// End of segment: D:\github\main\src\logic\Converter.java
+	@SuppressWarnings("unchecked")
+	public static JSONObject eventToJSON(Event event) throws ParseException {
+		JSONObject temp = new JSONObject();
+		temp.put(Consts.NAME, event.getSummary());
+		temp.put(Consts.DESCRIPTION, event.getDescription()!=null?event.getDescription():"");
+		temp.put(Consts.STARTDATE, startDateOnly(event));
+		//temp.put(Consts.STARTDATE, event.getStart()!=null?convertDate(event.getStart().getDateTime().toString()):"");
+		temp.put(Consts.ENDDATE, endDateOnly(event));
+		//temp.put(Consts.ENDDATE, event.getEnd()!=null?convertDate(event.getEnd().getDateTime().toString()):"");
+		temp.put(Consts.PRIORITY, event.getSequence());
+		if(event.getRecurrence() == null){
+			temp.put(Consts.FREQUENCY,0);
+		}else{
+			temp.put(Consts.FREQUENCY, parseRecurrence(event.getRecurrence().toString()));
+		}
+		temp.put(Consts.STATUS, 1);
+		return temp;
+	}
+
+	private static String startDateOnly(Event event){
+		String str = "";
+		if(event.getStart().getDateTime() != null){
+			str = event.getStart().getDateTime().toString();
+			try {
+				return convertDateTime(str);
+			} catch (ParseException e) {
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}else{
+			// full day event - no start time 
+			str = event.getStart().getDate().toString();
+			try{
+				return convertDate(str)+" 00:00:00";
+			}catch(ParseException e){
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}
+	}
+	
+	private static String endDateOnly(Event event){
+		String str = "";
+		if(event.getEnd().getDateTime() != null){
+			str = event.getEnd().getDateTime().toString();
+			try {
+				return convertDateTime(str);
+			} catch (ParseException e) {
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}else{
+			// full day event - no end time 
+			str = event.getEnd().getDate().toString();
+			try {
+				return convertDate(str)+" 23:59:59";
+			} catch (ParseException e) {
+				System.err.println(e.getMessage());
+				return "";
+			}
+		}
+	}
+	
+	private static String convertDateTime(String str) throws ParseException {
+		String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+		Date newDate = new SimpleDateFormat(pattern).parse(str.split("\\+")[0]);
+		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
+		return DATE_FORMAT.format(newDate);
+	}
+	
+	private static String convertDate(String str) throws ParseException {
+		String pattern = "yyyy-MM-dd";
+		Date newDate = new SimpleDateFormat(pattern).parse(str.split("\\+")[0]);
+		SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd/M/yyyy");
+		return DATE_FORMAT.format(newDate);
+	}
+
+	private static int parseRecurrence(String str) {
+		if (str.isEmpty() || str == null) {
+			return 0;
+		} else {
+			String delims = "[:=;]+";
+			String[] splittedStr = str.split(delims);
+			if (splittedStr[2].equalsIgnoreCase(Consts.FREQUENCY_DAILY)) {
+				return Consts.FREQUENCY_DAILY_VALUE;
+			} else if (splittedStr[2].equalsIgnoreCase(Consts.FREQUENCY_WEEKLY)) {
+				return Consts.FREQUENCY_WEEKLY_VALUE;
+			} else {
+				return Consts.FREQUENCY_MONTHLY_VALUE;
+			}
+		}
+	}
+}
+
+	// End of segment: .\src\logic\Converter.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 	Stack<Command> opStack = new Stack<Command>(); // for undo stuff 
@@ -332,7 +403,6 @@ public class Converter {
 		if (singleton == null)
 		{
 			singleton = new LogicController();
-			
 		}
 		return singleton;
 	}
@@ -365,14 +435,14 @@ public class Converter {
 		new Thread(gCalServ).start(); // Thread for google sync 
 	}
 	
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 	//TasksBuffer without Block task (Timed)
@@ -384,14 +454,14 @@ public class Converter {
 			if ((Converter.jsonToTask(jTask).getStatus() % 10 == Consts.STATUS_TIMED_TASK || Converter
 					.jsonToTask(jTask).getStatus() == Consts.STATUS_COMPLETED_TIMED_TASK)
 					&& Consts.FORMAT_COMPARE_DATE.format(
-							Converter.jsonToTask(jTask).getStartDate())
+							Converter.jsonToTask(jTask).getEndDate())
 							.compareTo(
 									Consts.FORMAT_COMPARE_DATE.format(curDate)) >= 0) {
-				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
 		}
-		//System.out.println(); // For Debuging
+		
+		//logger.log(Level.INFO,displayTasksBuffer.toString());
 		return displayTasksBuffer;
 	}
 	
@@ -400,12 +470,11 @@ public class Converter {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
 			if (Converter.jsonToTask(jTask).getStatus() % 10 == Consts.STATUS_FLOATING_TASK || Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_COMPLETED_FLOATING_TASK) {
-				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
 		} 
 		
-		//System.out.println(); // For Debuging
+		//logger.log(Level.INFO,displayTasksBuffer.toString());
 		return displayTasksBuffer;
 	}
 	
@@ -414,11 +483,11 @@ public class Converter {
 		ArrayList<JSONObject> displayTasksBuffer = new ArrayList<JSONObject>();
 		for (JSONObject jTask: tasksBuffer) {
 			if (Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_BLOCK_TASK) {
-				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}
 		}
-		//System.out.println(); // For Debuging
+		
+		//logger.log(Level.INFO,displayTasksBuffer.toString());
 		return displayTasksBuffer;
 	}
 	
@@ -447,6 +516,7 @@ public class Converter {
 				}
 			}
 		}
+		
 		logicAdd = new Add();
 		logicAdd.setFileName(fileName);
 		logicAdd.setTask(task);
@@ -454,29 +524,30 @@ public class Converter {
 			opStack.add(logicAdd);
 		}
 		if (logicAdd.executeCommand()) {
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
+	@SuppressWarnings("static-access")
 	public boolean clear(boolean...addToStack){
 		logicClear = new Clear();
 		logicClear.setFileName(fileName);
 		logicClear.setOldTaskBuffer(tasksBuffer);
 		opStack.add(logicClear);
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 	public String update(JSONObject oldTask, String commandString, String restString, boolean...addToStack){
@@ -574,14 +645,14 @@ public class Converter {
 			opStack.add(logicDelete);
 		}
 		if(logicDelete.executeCommand()){
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 	public String block(String dateString) {
@@ -597,14 +668,14 @@ public class Converter {
 		}
 	}
 	
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicController.java
+	 * origin: .\src\logic\LogicController.java
 	 */
 
 	@SuppressWarnings("deprecation")
@@ -708,6 +779,7 @@ public class Converter {
 		}
 		List<DateGroup> dateGrp = dateParser.parse(keyword);
 		
+		// date1, date2 will be the two date parsed from keyword
 		Date date1 = null;
 		Date date2 = null;
 		if(!dateGrp.isEmpty()){
@@ -726,6 +798,7 @@ public class Converter {
 			}
 		}
 		
+		//looping throught the tasksBuffer and check
 		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
 		for (int i = 0; i < tasksBuffer.size(); i++) {
 			Task task = Converter.jsonToTask(tasksBuffer.get(i));
@@ -734,8 +807,6 @@ public class Converter {
 			} else if (task.getDescription().contains(keyword)) {
 				foundLine.add(tasksBuffer.get(i));
 			} else if(date1 != null){
-				//if(dateBefore(task.getStartDate(),date) && dateBefore(date,task.getEndDate())){
-				//if (task.getStartDate().getTime() <= date.getTime() && date.getTime() <= task.getEndDate().getTime()) {
 				if (intersectTime(task.getStartDate(), task.getEndDate(), date1, date2)) {
 					foundLine.add(tasksBuffer.get(i));
 					date.add(maxDate(task.getStartDate(), date1));
@@ -762,14 +833,14 @@ public class Converter {
 	}
 }
 
-	// End of segment: D:\github\main\src\logic\LogicController.java
+	// End of segment: .\src\logic\LogicController.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\logic\LogicParser.java
+	 * origin: .\src\logic\LogicParser.java
 	 */
 
 package logic;
@@ -1004,47 +1075,170 @@ public class LogicParser {
 	}
 }
 
-	// End of segment: D:\github\main\src\logic\LogicParser.java
+	// End of segment: .\src\logic\LogicParser.java
 
 
 
 
 
 	/**
-	 * origin: D:\github\main\src\model\SearchResult.java
+	 * origin: .\test\logic\ParserTest.java
 	 */
 
-package model;
+package logic;
+
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
+
+public class ParserTest {
+
+	LogicParser parser = new LogicParser();
+
+	@Test
+	public void test() {
+		assertEquals("{\"Name\":\"a task\",\"Status\":1,\"Description\":\"some desc\",\"EndDate\":\"11\\/11\\/2014 23:59:59\",\"StartDate\":\"11\\/11\\/2014 00:00:00\",\"Frequency\":0,\"Priority\":1}",
+				Converter.taskToJSON(parser.decompose("a task day after today (some desc) important")).toString());
+		assertEquals("{\"Name\":\"an impotant task\",\"Status\":1,\"Description\":\"some desc\",\"EndDate\":\"19\\/12\\/2014 23:59:59\",\"StartDate\":\"15\\/12\\/2014 00:00:00\",\"Frequency\":0,\"Priority\":0}",
+				Converter.taskToJSON(parser.decompose("an impotant task 12/15/2014 to 12/19/2014 (some desc)")).toString());
+		assertEquals("{\"Name\":\"a task\",\"Status\":1,\"Description\":\"\",\"EndDate\":\"10\\/11\\/2014 23:59:59\",\"StartDate\":\"10\\/11\\/2014 00:00:00\",\"Frequency\":1,\"Priority\":0}", 
+				Converter.taskToJSON(parser.decompose("a task today daily")).toString());
+		assertEquals("{\"Name\":\"a task\",\"Status\":1,\"Description\":\"\",\"EndDate\":\"13\\/11\\/2014 23:59:59\",\"StartDate\":\"13\\/11\\/2014 00:00:00\",\"Frequency\":2,\"Priority\":0}",
+				Converter.taskToJSON(parser.decompose("a task on the day after day after tomorrow weekly")).toString());
+	}
+
+}
+
+	// End of segment: .\test\logic\ParserTest.java
 
 
+
+
+
+	/**
+	 * origin: .\test\logic\TaskBoxLogicTest.java
+	 */
+
+package logic;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.json.simple.JSONObject;
+import logic.Consts;
+import logic.Converter;
+import logic.LogicController;
+import logic.LogicParser;
+import model.SearchResult;
+import model.Task;
 
-public class SearchResult {
-	ArrayList<JSONObject> tasksBuffer;
-	ArrayList<Date> date;
-	public ArrayList<JSONObject> getTasksBuffer() {
-		return tasksBuffer;
+import org.json.simple.JSONObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+public class TaskBoxLogicTest {
+
+	String[] fileName = {"kaunghtet.txt"};
+	LogicController logic;
+	LogicParser parser;
+	@Before
+	public void setUp() throws Exception {
+		logic = new LogicController();
+		logic.setFileName(fileName[0]);
+		parser = new LogicParser();
 	}
-	public void setTasksBuffer(ArrayList<JSONObject> tasksBuffer) {
-		this.tasksBuffer = tasksBuffer;
-	}
-	public ArrayList<Date> getDate() {
-		return date;
-	}
-	public void setDate(ArrayList<Date> date) {
-		this.date = date;
-	}
-	public SearchResult(ArrayList<JSONObject> tasksBuffer, ArrayList<Date> date) {
-		this.tasksBuffer = tasksBuffer;
-		this.date = date;
+
+	@After
+	public void tearDown() throws Exception {
 	}
 	
-}
+	@Test
+	public void testSearch() {
+		System.out.println("=== Testing search function ===");
+		logic.clear();
+		logic.add(parser.decompose("do CS2103 today"),false);
+		logic.add(parser.decompose("do CS2104 tomorrow"), false);
+		logic.add(parser.decompose("do CS2105 day after tomorrow"),false);
+		logic.add(parser.decompose("do CS2106 today to tomorrow"),false);
+		String expectedStringJSON = "[{\"Name\":\"do CS2104\",\"Status\":1,\"Description\":\"\",\"EndDate\":\"11\\/11\\/2014 23:59:59\",\"StartDate\":\"11\\/11\\/2014 00:00:00\",\"Frequency\":0,\"Priority\":0}, {\"Name\":\"do CS2106\",\"Status\":1,\"Description\":\"\",\"EndDate\":\"11\\/11\\/2014 23:59:59\",\"StartDate\":\"10\\/11\\/2014 00:00:00\",\"Frequency\":0,\"Priority\":0}]";
+		String expectedStringDate = "[Tue Nov 11 00:00:00 GMT+08:00 2014, Tue Nov 11 00:00:00 GMT+08:00 2014]";
+		SearchResult searchResult = new SearchResult(new ArrayList<JSONObject>(), new ArrayList<Date>());
+		try {
+			searchResult = logic.search("tomorrow", Consts.STATUS_TIMED_TASK);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		assertEquals(expectedStringJSON, searchResult.getTasksBuffer().toString());
+		assertEquals(expectedStringDate, searchResult.getDate().toString());
+	}	
+	
+	@Test
+	public void testCompleted() {
+		System.out.println("=== Testing completed function ===");
+		logic.clear();
+		Task completeTask = parser.decompose("do CS2101");
+		logic.add(completeTask);
+		logic.add(parser.decompose("do CS2101"),false);
+		logic.add(parser.decompose("do CS2103 today"),false);
+		logic.add(parser.decompose("do CS2104 tomorrow"), false);
+		logic.add(parser.decompose("do CS2105 day after tomorrow"),false);
+		logic.add(parser.decompose("do CS2106 today to tomorrow"),false);
+		String expectedString = "Completed do CS2101";
+		assertEquals(expectedString, logic.complete(logic.getFloatingTasksBuffer().get(0), Consts.STATUS_COMPLETED_FLOATING_TASK));
+		assertEquals(Consts.STATUS_COMPLETED_FLOATING_TASK, logic.getFloatingTasksBuffer().get(0).get(Consts.STATUS));		
+	}	
+	
+	@Test
+	public void testBlock() {
+		System.out.println("=== Testing block function ===");
+		logic.clear();
+		String expectedString = "Blocked 10/11/2014 14:00:00 -> 10/11/2014 16:00:00";
+		assertEquals(expectedString, logic.block("from 2pm to 4pm"));
+		expectedString = "The time frame is blocked.";
+		assertEquals(expectedString, logic.add(parser.decompose("do CS2101 2pm"),false));
+	}	
 
-	// End of segment: D:\github\main\src\model\SearchResult.java
+	@Test
+	public void testUpdate() {
+		System.out.println("=== Testing update function ===");
+		logic.clear();
+		Task updateTask = parser.decompose("do CS2101 today");
+		logic.add(updateTask);
+		logic.add(parser.decompose("do CS2101"),false);
+		logic.add(parser.decompose("do CS2103 today"),false);
+		logic.add(parser.decompose("do CS2104 tomorrow"), false);
+		logic.add(parser.decompose("do CS2105 day after tomorrow"),false);
+		logic.add(parser.decompose("do CS2106 today to tomorrow"),false);
+		String expectedString = "do CS2101 is updated.\n";
+		assertEquals(expectedString, logic.update(logic.getTimedTasksBuffer().get(0), "date", "today"));
+		expectedString = "do CS2101 is updated.";
+		assertEquals("10/11/2014 00:00:00", logic.getTimedTasksBuffer().get(0).get(Consts.STARTDATE));
+	}	
+	
+	@Test
+	public void testRepeatedFeature() {
+		System.out.println("=== Testing repeated feature ===");
+		logic.clear();
+		logic.add(parser.decompose("do CS2103 today weekly"),false);
+		logic.add(parser.decompose("do CS2104 tomorrow daily"), false);
+		logic.add(parser.decompose("do CS2105 today monthly"), false);
+		String expectedString = "[{\"Name\":\"do CS2103\",\"Status\":1,\"Description\":\"\",\"EndDate\":\"10\\/11\\/2014 23:59:59\",\"StartDate\":\"10\\/11\\/2014 00:00:00\",\"Frequency\":2,\"Priority\":0}, {\"Name\":\"do CS2104\",\"Status\":1,\"Description\":\"\",\"EndDate\":\"11\\/11\\/2014 23:59:59\",\"StartDate\":\"11\\/11\\/2014 00:00:00\",\"Frequency\":1,\"Priority\":0}]";
+		SearchResult searchResult = new SearchResult(new ArrayList<JSONObject>(), new ArrayList<Date>());
+		try {
+			searchResult = logic.search("11/15/2014 to 11/20/2014", Consts.STATUS_TIMED_TASK);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		assertEquals(expectedString, searchResult.getTasksBuffer().toString());
+	}	
+	// End of segment: .\test\logic\TaskBoxLogicTest.java
 
 
 
