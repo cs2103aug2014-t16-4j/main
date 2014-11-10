@@ -67,6 +67,7 @@ public class Converter {
 		return res;
 	}
 	
+	//@author A0117993R
 	@SuppressWarnings("unchecked")
 	public static JSONObject eventToJSON(Event event) throws ParseException {
 		JSONObject temp = new JSONObject();
