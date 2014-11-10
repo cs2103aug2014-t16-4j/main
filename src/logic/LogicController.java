@@ -301,8 +301,48 @@ public class LogicController {
 	//public String update(JSONObject oldTask, Task newTask, boolean...addToStack){
 		
 		Task newTask = new Task();
-//		newTask.setDescription(description);
-//		newTask.setDescription(oldTask.get(Consts.DESCRIPTION));
+		newTask = Converter.jsonToTask(oldTask);
+		
+		switch (commandString.toLowerCase()) {
+			case Consts.UPDATE_NAME:
+				newTask.setName(restString);
+				break;
+			case Consts.UPDATE_DESC:
+				newTask.setDescription(restString);
+				break;
+			case Consts.UPDATE_DATE:
+				List<DateGroup> dateGrp = dateParser.parse(restString);
+				Date date1 = null;
+				Date date2 = null;
+				if(!dateGrp.isEmpty()){
+					date1 = dateGrp.get(0).getDates().get(0);
+					if (dateGrp.get(0).getDates().size() == 1)
+					{
+						date2 = date1;
+					} else {
+						date2 = dateGrp.get(0).getDates().get(1);
+					}
+					if (isDefaultTime(date1)) {
+						date1 = getStartOfDay(date1);
+					}
+					if (isDefaultTime(date2)) {
+						date2 = getEndOfDay(date2);
+					}
+					newTask.setStartDate(date1);
+					newTask.setEndDate(date2);
+				} else {
+					return Consts.UPDATE_ERROR_DATE;
+				}
+				break;
+			case Consts.PRIORITY_IMPORTANT:
+				newTask.setPriority(Consts.PRIORITY_IMPORTANT_VALUE);
+				break;
+			case Consts.PRIORITY_NOT_IMPORTANT:
+				newTask.setPriority(Consts.PRIORITY_NOT_IMPORTANT_VALUE);
+				break;			
+			default:
+				return Consts.STRING_UPDATE_CORRECT;
+		}
 		
 		logicUpdate = new Update();
 		logicUpdate.setFileName(fileName);
