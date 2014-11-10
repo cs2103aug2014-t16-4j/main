@@ -62,7 +62,7 @@ public class LogicController {
 	GoogleCal gCal;
 	GoogleCalService gCalServ;
 	//@author A0112069M
-	Stack<Command> opStack = new Stack<Command>(); // for redo stuff 
+	Stack<Command> opStack = new Stack<Command>(); // for undo stuff 
 	String authToken = "";
    
 	private static LogicController singleton = null;
@@ -182,7 +182,12 @@ public class LogicController {
 		Date curDate = new Date();
 		for (JSONObject jTask: tasksBuffer) {
 			
-			if ((Converter.jsonToTask(jTask).getStatus() % 10 == Consts.STATUS_TIMED_TASK || Converter.jsonToTask(jTask).getStatus() == Consts.STATUS_COMPLETED_TIMED_TASK) && Consts.FORMAT_COMPARE_DATE.format(Converter.jsonToTask(jTask).getStartDate()).compareTo(Consts.FORMAT_COMPARE_DATE.format(curDate)) >= 0) {
+			if ((Converter.jsonToTask(jTask).getStatus() % 10 == Consts.STATUS_TIMED_TASK || Converter
+					.jsonToTask(jTask).getStatus() == Consts.STATUS_COMPLETED_TIMED_TASK)
+					&& Consts.FORMAT_COMPARE_DATE.format(
+							Converter.jsonToTask(jTask).getStartDate())
+							.compareTo(
+									Consts.FORMAT_COMPARE_DATE.format(curDate)) >= 0) {
 				//System.out.println(jTask);// For Debuging
 				displayTasksBuffer.add(jTask);
 			}

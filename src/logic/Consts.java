@@ -54,7 +54,7 @@ public final class Consts {
 	// DATE FORMAT
 	public static final DateFormat FORMAT_DATE = new SimpleDateFormat("dd/M/yyyy HH:mm:ss");
 	public static final DateFormat FORMAT_COMPARE_DATE = new SimpleDateFormat("yyyyMMdd");
-	public static final DateFormat FORMAT_PRINT_DATE = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+	public static final DateFormat FORMAT_PRINT_DATE = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 	public static final DateFormat FORMAT_PRINT_TIME = new SimpleDateFormat("HH:mm:ss");
 
 
