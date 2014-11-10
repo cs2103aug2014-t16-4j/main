@@ -35,7 +35,6 @@ public class TaskBoxLogicTest {
 	public void tearDown() throws Exception {
 	}
 	
-
 	@Test
 	public void testSearch() {
 		System.out.println("=== Testing search function ===");
@@ -53,52 +52,28 @@ public class TaskBoxLogicTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//System.out.println(returnString);
-		//System.out.println(expectedString);
 		assertEquals(expectedStringJSON, searchResult.getTasksBuffer().toString());
 		assertEquals(expectedStringDate, searchResult.getDate().toString());
-	}
+	}	
 	
 	@Test
-	public void testSearchNotFound(){
+	public void testRepeatedFeature() {
 		System.out.println("=== Testing search function ===");
-		String expectedString = "None was found";
-		//System.out.println(returnString);
-		//assertEquals(expectedString,returnObjects);
-	}
-
-//	@Test
-//	public void testSort() throws Exception {
-//		System.out.println("=== Testing sort function ===");
-//		String expectedString = "1. AAAA\n2. CCCC\n3. DDDD\n4. EEEE\n5. FFFF";
-//		logic.clear();
-//		logic.add("AAAA");
-//		logic.add("DDDD");
-//		logic.add("CCCC");
-//		logic.add("FFFF");
-//		logic.add("EEEE");
-//		logic.sort();
-//		ArrayList<JSONObject> returnObjects= logic.getDisplayList();
-//		//System.out.println(returnString);
-//		assertEquals(expectedString,returnObjects);
-//	}
-//
-//	@Test
-//	public void testSortwithSameFirstWord() throws Exception{
-//		System.out.println("=== Testing sort function ===");
-//		String expectedString = "1. to do A\n2. to do B\n3. to do C\n4. to do D\n5. to do E";
-//		logic.clear();
-//		logic.add("to do A");
-//		logic.add("to do C");
-//		logic.add("to do B");
-//		logic.add("to do E");
-//		logic.add("to do D");
-//		logic.sort();
-//		ArrayList<JSONObject> returnObjects = logic.getDisplayList();
-//		//System.out.println(returnString);
-//		assertEquals(expectedString,returnObjects);
-//	}
-
+		logic.clear();
+		logic.add(parser.decompose("do CS2103 today weekly"),false);
+		logic.add(parser.decompose("do CS2104 tomorrow daily"), false);
+		logic.add(parser.decompose("do CS2105 today monthly"), false);
+		String expectedString = "[{\"Name\":\"do CS2103\",\"Status\":1,\"Description\":\"\",\"EndDate\":\"10\\/11\\/2014 23:59:59\",\"StartDate\":\"10\\/11\\/2014 00:00:00\",\"Frequency\":2,\"Priority\":0}, {\"Name\":\"do CS2104\",\"Status\":1,\"Description\":\"\",\"EndDate\":\"11\\/11\\/2014 23:59:59\",\"StartDate\":\"11\\/11\\/2014 00:00:00\",\"Frequency\":1,\"Priority\":0}]";
+		SearchResult searchResult = new SearchResult(new ArrayList<JSONObject>(), new ArrayList<Date>());
+		try {
+			searchResult = logic.search("11/15/2014 to 11/20/2014", Consts.STATUS_TIMED_TASK);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		assertEquals(expectedString, searchResult.getTasksBuffer().toString());
+	}	
 	
 	@Test
 	public void testDelete() {
