@@ -138,7 +138,6 @@ public final class Consts {
 			+ "\nCtrl + a: Quick Add"
 			+ "\nCtrl + d: Quick Delete"
 			+ "\nCtrl + r: Refresh Tasks"
-			+ "\nCtrl + p: TaskBox Preferences"
 			+ "\nCtrl + s: Sync" 
 			+ "\nCtrl + q: Quit";
 	

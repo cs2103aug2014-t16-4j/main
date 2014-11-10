@@ -2,17 +2,16 @@
 
 package gui;
 
-import gui.common.HotKey;
-import gui.common.HotKeyListener;
-import gui.common.Provider;
+import logic.*;
+import model.*;
+import gui.common.*;
+import logic.google.GoogleCal;
 
+import javax.swing.KeyStroke;
 import java.awt.event.InputEvent;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import static java.awt.event.KeyEvent.*;
+
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,24 +21,6 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.KeyStroke;
-
-import static java.awt.event.KeyEvent.*;
-import logic.CommandEnum;
-import logic.Consts;
-import logic.LogicController;
-import logic.LogicParser;
-import logic.google.GoogleCal;
-import model.SearchResult;
-import model.Task;
-
-import org.eclipse.ui.forms.widgets.ColumnLayout;
-import org.eclipse.ui.forms.widgets.Form;
-import org.eclipse.ui.forms.widgets.FormText;
-import org.eclipse.ui.forms.widgets.FormToolkit;
-import org.eclipse.ui.forms.widgets.Section;
-import org.eclipse.ui.forms.widgets.TableWrapLayout;
-import org.apache.commons.lang.SystemUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.*;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -51,13 +32,16 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
+import org.eclipse.ui.forms.widgets.*;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.joda.time.Minutes;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.json.simple.JSONObject;
+import org.apache.commons.lang.SystemUtils;
 
+// renders everything UI related
 public class UIController {
 	// logic
 	LogicController logic = LogicController.getInstance();
@@ -71,14 +55,7 @@ public class UIController {
 	// constants
 	private final Provider PROVIDER = Provider.getCurrentProvider(false);
 	private final static String NON_THIN = "[^iIl1\\.,']";
-	private final int REMINDER_TIME_CHECK = 300000;
-	private final int MINUTES_TO_REMIND = 60;
-	private final int DEFAULT_JUMP_LINE = 0;
-	private final int DEFAULT_EXPAND_LINE = -1;
 	private final ArrayList<Date> DEFAULT_SEARCH_DATE = null;
-	private final int DEFAULT_FLOATING_SCROLL_SIZE = 5;
-	private final int DEFAULT_TIMED_SCROLL_SIZE = 40;
-	private final boolean DEFAULT_START_WITH_WINDOWS = true;
 	private final char UNDO_HOTKEY = 'z';
 	private final char REFRESH_HOTKEY = 'r';
 	private final char ADD_HOTKEY = 'a';
@@ -86,7 +63,10 @@ public class UIController {
 	private final char HELP_HOTKEY = '/';
 	private final char QUIT_HOTKEY = 'q';
 	private final char SYNC_HOTKEY = 's';
-	private final char PREFERENCES_HOTKEY = 'p';
+	private final int REMINDER_TIME_CHECK = 300000;
+	private final int MINUTES_TO_REMIND = 60;
+	private final int DEFAULT_JUMP_LINE = 0;
+	private final int DEFAULT_EXPAND_LINE = -1;
 
 	// statics
 	private static Boolean blnMouseDown = false;
@@ -96,7 +76,6 @@ public class UIController {
 
 	// system Preferences
 	private String system_font = "MyriadPro-Regular";
-	private boolean start_with_windows = true;
 	private int floating_scroll_size = 5;
 	private int timed_scroll_size = 40;
 
@@ -149,7 +128,6 @@ public class UIController {
 		logic = LogicController.getInstance();
 		logic.init(fileName);
 
-		readConfig();
 		updateTaskList();
 		renderDisplay();
 		renderShell();
@@ -160,7 +138,6 @@ public class UIController {
 		renderStatusIndicator();
 		renderTimedTaskContainer();
 		renderAuthPopup();
-		renderPreferencesPopup();
 
 		renderTasks(DEFAULT_EXPAND_LINE, DEFAULT_SEARCH_DATE, DEFAULT_JUMP_LINE);
 		updateStatusIndicator(String.format(Consts.STRING_WELCOME, fileName));
@@ -168,169 +145,6 @@ public class UIController {
 		startReminder();
 		enableDrag();
 		disposeDisplay();
-	}
-
-	//read from existing config file 
-	private void readConfig() {
-		System.out.println("reading from config");
-		BufferedReader reader = null;
-		String line = null;
-		try {
-			reader = new BufferedReader(new FileReader("config"));
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			floating_scroll_size = DEFAULT_FLOATING_SCROLL_SIZE;
-			timed_scroll_size = DEFAULT_TIMED_SCROLL_SIZE;
-			start_with_windows = DEFAULT_START_WITH_WINDOWS;
-			return;
-		}
-		try {
-			line = reader.readLine();
-			floating_scroll_size = Integer.parseInt(line);
-			line = reader.readLine();
-			timed_scroll_size = Integer.parseInt(line);
-			line = reader.readLine();
-			start_with_windows = line.compareTo("true") == 0 ? true : false;
-			reader.close();
-		} catch (IOException e) {
-			floating_scroll_size = DEFAULT_FLOATING_SCROLL_SIZE;
-			timed_scroll_size = DEFAULT_TIMED_SCROLL_SIZE;
-			start_with_windows = DEFAULT_START_WITH_WINDOWS;
-			e.printStackTrace();
-		}
-	}
-
-	private void renderPreferencesPopup() {
-		final Shell preferencesWindow = new Shell(shell, SWT.APPLICATION_MODAL
-				| SWT.DIALOG_TRIM);
-		preferencesWindow.setText("TaskBox Preferences");
-		preferencesWindow.setSize(400, 300);
-
-		GridLayout gridLayout = new GridLayout(5, false);
-		gridLayout.verticalSpacing = 8;
-		gridLayout.makeColumnsEqualWidth = true;
-
-		preferencesWindow.setLayout(gridLayout);
-		Label label;
-		GridData gridData;
-
-		label = new Label(preferencesWindow, SWT.CENTER);
-		label.setText("Scroll Size");
-		label.setBackground(display.getSystemColor(SWT.COLOR_DARK_GRAY));
-		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		gridData.horizontalSpan = 5;
-		label.setLayoutData(gridData);
-
-		label = new Label(preferencesWindow, SWT.NULL);
-		label.setText("Floating task:");
-
-		final Text fScroll = new Text(preferencesWindow, SWT.SINGLE
-				| SWT.BORDER);
-		fScroll.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-		fScroll.setText(Integer.toString(floating_scroll_size));
-
-		label = new Label(preferencesWindow, SWT.NULL);
-
-		label = new Label(preferencesWindow, SWT.NULL);
-		label.setText("Timed task:");
-
-		final Text tScroll = new Text(preferencesWindow, SWT.SINGLE
-				| SWT.BORDER);
-		tScroll.setLayoutData(new GridData(GridData.HORIZONTAL_ALIGN_FILL));
-		tScroll.setText(Integer.toString(timed_scroll_size));
-
-		// label = new Label(preferencesWindow, SWT.CENTER);
-		// label.setBackground(DISPLAY.getSystemColor(SWT.COLOR_DARK_GRAY));
-		// gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		// gridData.horizontalSpan = 5;
-		// label.setLayoutData(gridData);
-		// label.setText("Sync Priority");
-		//
-		// final Combo rating = new Combo(preferencesWindow, SWT.READ_ONLY |
-		// SWT.CENTER);
-		// gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		// gridData.horizontalSpan = 5;
-		// rating.setLayoutData(gridData);
-		// rating.add("Google Calendar");
-		// rating.add("TaskBox");
-		// rating.select(0);
-
-		final Button checkbox = new Button(preferencesWindow, SWT.CHECK);
-		checkbox.setText("Start up with Windows");
-		gridData = new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		gridData.horizontalSpan = 5;
-		checkbox.setLayoutData(gridData);
-		checkbox.setSelection(start_with_windows);
-
-		// Save
-		Button save = new Button(preferencesWindow, SWT.CENTER);
-		save.setText("Save");
-
-		gridData = new GridData();
-		gridData.horizontalSpan = 5;
-		gridData.horizontalAlignment = GridData.CENTER;
-		save.setLayoutData(gridData);
-
-		save.addMouseListener(new MouseListener() {
-			public void mouseDown(MouseEvent e) {
-				System.out.println(tScroll.getText());
-				System.out.println(fScroll.getText());
-				System.out.println(checkbox.getSelection());
-				PrintWriter writer = null;
-				try {
-					writer = new PrintWriter("config", "UTF-8");
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				} catch (UnsupportedEncodingException e1) {
-					e1.printStackTrace();
-				}
-				writer.println(tScroll.getText());
-				writer.println(fScroll.getText());
-				writer.println(checkbox.getSelection());
-				writer.close();
-				preferencesWindow.setVisible(false);
-			}
-
-			public void mouseUp(MouseEvent e) {
-			}
-
-			public void mouseDoubleClick(MouseEvent e) {
-			}
-		});
-
-		preferencesWindow.addListener(SWT.Close, new Listener() {
-			public void handleEvent(Event event) {
-				event.doit = false;
-				preferencesWindow.setVisible(false);
-			}
-		});
-
-		mi.addListener(SWT.Selection, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				preferencesWindow.setVisible(true);
-				preferencesWindow.setFocus();
-			}
-		});
-
-		// add ctrl + p hotkey
-		display.addFilter(SWT.KeyDown, new Listener() {
-			public void handleEvent(Event e) {
-				if (((e.stateMask & SWT.CTRL) == SWT.CTRL)
-						&& (e.keyCode == PREFERENCES_HOTKEY)) {
-					if (preferencesWindow.isVisible()) {
-						preferencesWindow.setVisible(false);
-					} else {
-						preferencesWindow.setVisible(true);
-						preferencesWindow.setFocus();
-					}
-				}
-			}
-		});
-		positionWindow(preferencesWindow);
-		preferencesWindow.open();
-		preferencesWindow.pack();
-		preferencesWindow.setVisible(false);
 	}
 
 	private void startReminder() {
@@ -345,6 +159,7 @@ public class UIController {
 					DateTime now = new DateTime();
 					String toCheck;
 					int i = 0, status = 0;
+
 					do {
 						try {
 							status = Integer.parseInt(timedList.get(i)
@@ -356,16 +171,18 @@ public class UIController {
 								.toString();
 						d = formatter.parseDateTime(toCheck);
 					} while (d.isBeforeNow() || status != 1);
+
 					final JSONObject o = timedList.get(--i);
 					Minutes min = Minutes.minutesBetween(now, d);
+
 					if (min.getMinutes() + 1 == MINUTES_TO_REMIND) {
 						display.asyncExec(new Runnable() {
 							public void run() {
 								showNotification(o.get(Consts.NAME).toString()
 										+ " is starting in 1 hour!", "Ends: "
-												+ o.get(Consts.ENDDATE).toString()
-												+ "\n"
-												+ o.get(Consts.DESCRIPTION).toString());
+										+ o.get(Consts.ENDDATE).toString()
+										+ "\n"
+										+ o.get(Consts.DESCRIPTION).toString());
 							}
 						});
 					}
@@ -457,7 +274,6 @@ public class UIController {
 			}
 		});
 
-
 	}
 
 	private void showNotification(String title, String text) {
@@ -494,8 +310,8 @@ public class UIController {
 		statusComposite.setBounds(10, 596, 280, 14);
 
 		statusInd = new Label(statusComposite, SWT.NONE);
-		statusInd.setFont(SWTResourceManager.getFont(system_font, isMac ? 11 : 9,
-				SWT.NORMAL));
+		statusInd.setFont(SWTResourceManager.getFont(system_font, isMac ? 11
+				: 9, SWT.NORMAL));
 		statusInd.setBounds(0, 0, 280, 14);
 		statusInd.setAlignment(SWT.CENTER);
 	}
@@ -711,6 +527,7 @@ public class UIController {
 	private void renderTrayIcon() {
 		Image image = new Image(shell.getDisplay(), "resource/1box.png");
 		tray = display.getSystemTray();
+		
 		if (tray == null) {
 			System.out.println("The system tray is not available");
 		} else {
@@ -733,21 +550,6 @@ public class UIController {
 					}
 				}
 			});
-			item.addListener(SWT.DefaultSelection, new Listener() {
-				@Override
-				public void handleEvent(Event event) {
-					System.out.println("default selection");
-				}
-			});
-			final Menu menu = new Menu(shell, SWT.POP_UP);
-			mi = new MenuItem(menu, SWT.PUSH);
-			mi.setText("TaskBox Preferences");
-			item.addListener(SWT.MenuDetect, new Listener() {
-				@Override
-				public void handleEvent(Event event) {
-					menu.setVisible(true);
-				}
-			});
 			item.setImage(image);
 			item.setHighlightImage(image);
 		}
@@ -759,6 +561,7 @@ public class UIController {
 		shell.setLayout(null);
 		Image image = new Image(shell.getDisplay(), "resource/1box.png");
 		shell.setImage(image);
+		
 		// allow user to input once shell gets focus
 		shell.addFocusListener(new FocusListener() {
 			public void focusGained(FocusEvent event) {
@@ -819,13 +622,14 @@ public class UIController {
 		sh.setLocation(x, y);
 	}
 
-	//delegate tasks from input
+	// delegate tasks from input
 	private void delegateTask(String userInput) {
 		String[] splittedString;
 		String task = "";
 		String statusString = "";
 		splittedString = getSplittedString(userInput);
 		selectedCommand = getCommandType(splittedString[0]);
+		
 		if (splittedString.length > Consts.TASK_POSITION) {
 			task = splittedString[Consts.TASK_POSITION];
 		}
@@ -897,7 +701,7 @@ public class UIController {
 		}
 	}
 
-	//calls and returns string value from logic's block function
+	// calls and returns string value from logic's block function
 	private String block(String userInput) {
 		if (userInput != null && !userInput.isEmpty()) {
 			try {
@@ -958,11 +762,14 @@ public class UIController {
 				if (lineNumber < taskNo + floatingList.size() && lineNumber > 0) {
 					try {
 						String[] newSplitted = getSplittedString(splittedString[1]);
-							// calculate whether task is in timed or floating
-							return logic.update(
-									lineNumber >= taskNo ? floatingList.get(lineNumber
-											- taskNo) : timedList.get(lineNumber - 1),
-											newSplitted[0],newSplitted.length == Consts.NO_ARGS_UPDATE?newSplitted[1]:"");
+						// calculate whether task is in timed or floating
+						return logic
+								.update(lineNumber >= taskNo ? floatingList
+										.get(lineNumber - taskNo) : timedList
+										.get(lineNumber - 1),
+										newSplitted[0],
+										newSplitted.length == Consts.NO_ARGS_UPDATE ? newSplitted[1]
+												: "");
 					} catch (NumberFormatException e) {
 						return Consts.USAGE_UPDATE;
 					}
@@ -1055,13 +862,13 @@ public class UIController {
 					return logic.complete(
 							lineNumber >= taskNo ? floatingList.get(lineNumber
 									- taskNo) : timedList.get(lineNumber - 1),
-									lineNumber >= taskNo ? Consts.STATUS_FLOATING_TASK
-											: Consts.STATUS_TIMED_TASK);
+							lineNumber >= taskNo ? Consts.STATUS_FLOATING_TASK
+									: Consts.STATUS_TIMED_TASK);
 				} catch (NumberFormatException e) {
 					return Consts.USAGE_UNDO;
 				}
 			}
-		} 
+		}
 		return Consts.USAGE_UNDO;
 	}
 
@@ -1080,10 +887,10 @@ public class UIController {
 					return logic
 							.complete(
 									lineNumber >= taskNo ? floatingList
-											.get(lineNumber - taskNo) : timedList
-											.get(lineNumber - 1),
-											lineNumber >= taskNo ? Consts.STATUS_COMPLETED_FLOATING_TASK
-													: Consts.STATUS_COMPLETED_TIMED_TASK);
+											.get(lineNumber - taskNo)
+											: timedList.get(lineNumber - 1),
+									lineNumber >= taskNo ? Consts.STATUS_COMPLETED_FLOATING_TASK
+											: Consts.STATUS_COMPLETED_TIMED_TASK);
 				} catch (NumberFormatException e) {
 					return Consts.USAGE_COMPLETE;
 				}
@@ -1162,7 +969,8 @@ public class UIController {
 		return CommandEnum.INVALID;
 	}
 
-	private void renderTasks(int expandLine, ArrayList<Date> resultsDate, int jumpLine) {
+	private void renderTasks(int expandLine, ArrayList<Date> resultsDate,
+			int jumpLine) {
 		taskNo = 1;
 		if (timedInnerComposite != null) {
 			timedInnerComposite.dispose();
@@ -1179,7 +987,8 @@ public class UIController {
 		}
 	}
 
-	private void updateTimedTask(int line, ArrayList<Date> resultsDate, int jumpLine) {
+	private void updateTimedTask(int line, ArrayList<Date> resultsDate,
+			int jumpLine) {
 		int noOfDays = 0;
 		String currentDateString = "";
 		timedInnerComposite = new Composite(timedTaskComposite, SWT.NONE);
@@ -1189,12 +998,15 @@ public class UIController {
 
 		for (; taskNo < timedList.size() + 1; taskNo++) {
 			JSONObject o = timedList.get(taskNo - 1);
+	
 			String start;
-			if(resultsDate!=null && resultsDate.size()>0){
-				start = Consts.FORMAT_PRINT_DATE.format(resultsDate.get(taskNo-1));
+			if (resultsDate != null && resultsDate.size() > 0) {
+				start = Consts.FORMAT_PRINT_DATE.format(resultsDate
+						.get(taskNo - 1));
 			} else {
 				start = o.get(Consts.STARTDATE).toString();
 			}
+			
 			String startTime = start.substring(11, start.length() - 3) + "hr";
 			String startDate = start.substring(0, 10);
 			String end = o.get(Consts.ENDDATE).toString();
@@ -1202,17 +1014,20 @@ public class UIController {
 			String endDate = end.substring(0, 10);
 			String desc = o.get(Consts.DESCRIPTION).toString();
 			String taskName = o.get(Consts.NAME).toString();
-			int status = 0;
-			int priority = 0;
-			int frequency = 0;
+			int status;
+			int priority;
+			int frequency;
 			try {
 				status = Integer.parseInt(o.get(Consts.STATUS).toString());
 				priority = Integer.parseInt(o.get(Consts.PRIORITY).toString());
 				frequency = Integer
 						.parseInt(o.get(Consts.FREQUENCY).toString());
 			} catch (Exception e) {
+				status = 0;
+				priority = 0;
+				frequency = 0;
 			}
-			String shortenedTaskName = ellipsize(taskName, 24);
+			String shortenedTaskName = ellipsize(taskName, 35);
 
 			if (currentDateString.compareTo(startDate) != 0) {
 				noOfDays++;
@@ -1221,6 +1036,7 @@ public class UIController {
 				form = toolkit.createForm(timedInnerComposite);
 				form.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 				form.setText(currentDateString);
+				
 				if (!isMac) {
 					form.setFont(SWTResourceManager.getFont(system_font, 13,
 							SWT.BOLD, false, true));
@@ -1228,11 +1044,13 @@ public class UIController {
 					form.setFont(SWTResourceManager.getFont(system_font, 13,
 							SWT.BOLD));
 				}
+				
 				ColumnLayout cl = new ColumnLayout();
 				cl.maxNumColumns = 1;
 				form.getBody().setLayout(cl);
 			}
 			Section section;
+			
 			if (taskNo == line || line == -9) {
 				section = toolkit.createSection(form.getBody(), Section.COMPACT
 						| Section.TITLE_BAR | Section.TWISTIE
@@ -1274,14 +1092,17 @@ public class UIController {
 			// time
 			text = toolkit.createFormText(sectionClient, false);
 			if (start.compareTo(end) == 0) {
-				text.setText("Due by: " + startDate+" "+startTime, false, false);
-			} else if ((startTime.compareTo("00:00hr") == 0
-					&& endTime.compareTo("23:59hr") == 0)&&(startDate.compareTo(endDate)==0)) {
+				text.setText("Due by: " + startDate + " " + startTime, false,
+						false);
+			} else if ((startTime.compareTo("00:00hr") == 0 && endTime
+					.compareTo("23:59hr") == 0)
+					&& (startDate.compareTo(endDate) == 0)) {
 				text.setText("Full Day Event", false, false);
 			} else {
-				text.setText("Start: " + startDate+" "+startTime, false, false);
+				text.setText("Start: " + startDate + " " + startTime, false,
+						false);
 				text = toolkit.createFormText(sectionClient, false);
-				text.setText("End: " + endDate+" "+endTime, false, false);
+				text.setText("End: " + endDate + " " + endTime, false, false);
 			}
 
 			// description
@@ -1305,7 +1126,8 @@ public class UIController {
 		timedTaskComposite.setMinHeight(timedList.size()
 				* (line == -9 ? 70 : 40) + noOfDays * (line == -9 ? 40 : 30));
 		timedTaskComposite.setOrigin(0, jumpLine);
-		if(resultsDate!=null){
+		
+		if (resultsDate != null) {
 			resultsDate.clear();
 		}
 	}
@@ -1345,6 +1167,7 @@ public class UIController {
 		for (int i = 0; i < floatingList.size(); i++) {
 			JSONObject o = floatingList.get(i);
 			int status;
+			
 			try {
 				status = Integer.parseInt(o.get(Consts.STATUS).toString());
 			} catch (Exception e) {
@@ -1353,12 +1176,14 @@ public class UIController {
 
 			TableItem item = new TableItem(floatingTaskTable, 0);
 			item.setText((i + taskNo) + ". " + o.get(Consts.NAME).toString());
+			
 			try {
 				item.setForeground(getColorWithPriority(Integer.parseInt(o.get(
 						Consts.PRIORITY).toString())));
 			} catch (Exception e) {
 				item.setForeground(getColorWithPriority(0));
 			}
+			
 			if (!isMac && status == Consts.STATUS_COMPLETED_FLOATING_TASK) {
 				item.setFont(SWTResourceManager.getFont(system_font, 10,
 						SWT.NORMAL, true, false));
