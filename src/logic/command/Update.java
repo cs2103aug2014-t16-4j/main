@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import logic.Consts;
+import logic.Converter;
 import logic.LogicController;
 import model.Task;
 
@@ -47,7 +48,7 @@ public class Update extends Command{
 			BufferedWriter bw = new BufferedWriter(fstream);
 			LogicController.tasksBuffer.remove(oldObj);
 			System.out.println(newTask.getStatus());
-			LogicController.tasksBuffer.add(taskToJSON(newTask));
+			LogicController.tasksBuffer.add(Converter.taskToJSON(newTask));
 			for (JSONObject jTask: LogicController.tasksBuffer) {
 				bw.write(jTask.toString()+"\r\n");
 			}
@@ -60,7 +61,7 @@ public class Update extends Command{
 	}
 
 	public boolean undo() {
-		LogicController.tasksBuffer.remove(taskToJSON(newTask));
+		LogicController.tasksBuffer.remove(Converter.taskToJSON(newTask));
 		LogicController.tasksBuffer.add(oldObj);
 
 		try {
@@ -74,20 +75,6 @@ public class Update extends Command{
 		}
 
 		return true;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public JSONObject taskToJSON(Task task)
-	{
-		JSONObject jTask=new JSONObject();
-		jTask.put(Consts.NAME, task.getName());
-		jTask.put(Consts.DESCRIPTION, task.getDescription());
-		jTask.put(Consts.STARTDATE, Consts.FORMAT_DATE.format(task.getStartDate()));
-		jTask.put(Consts.ENDDATE, Consts.FORMAT_DATE.format(task.getEndDate()));
-		jTask.put(Consts.PRIORITY, task.getPriority());
-		jTask.put(Consts.FREQUENCY, task.getFrequency());
-		jTask.put(Consts.STATUS,task.getStatus());
-		return jTask;
 	}
 
 }

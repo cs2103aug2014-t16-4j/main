@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import logic.Consts;
+import logic.Converter;
 import logic.LogicController;
 import model.Task;
 
@@ -55,24 +56,8 @@ public class Delete extends Command {
 
 	//@author A0112069M
 	public boolean undo() {
-		LogicController.getInstance().add(jsonToTask(task), false);
+		LogicController.getInstance().add(Converter.jsonToTask(task), false);
 		return true;
 	}
 
-	private static Task jsonToTask(JSONObject obj) {
-		Task temp = null;
-		try {
-			temp = new Task(obj.get(Consts.NAME).toString());
-			temp.setDescription(obj.get(Consts.DESCRIPTION).toString());
-			temp.setStartDate(Consts.FORMAT_DATE.parse(obj.get(Consts.STARTDATE)
-					.toString()));
-			temp.setEndDate(Consts.FORMAT_DATE.parse(obj.get(Consts.ENDDATE)
-					.toString()));
-			temp.setFrequency((int) obj.get(Consts.FREQUENCY));
-			temp.setPriority((int) obj.get(Consts.PRIORITY));
-		} catch (Exception e) {
-			// e.printStackTrace();
-		}
-		return temp;
-	}
 }
