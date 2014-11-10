@@ -22,16 +22,16 @@ public class LogicParser {
 	Parser dateParser = new Parser();
 	
 	@SuppressWarnings("deprecation")
-	public int getTimeFromDate(Date date) {
+	private int getTimeFromDate(Date date) {
 		return date.getHours() *  60 * 60 + date.getMinutes() * 60 + date.getSeconds();
 	}
 	
-	public boolean isDefaultTime(Date date) {
+	private boolean isDefaultTime(Date date) {
 		Date dateNow = new Date();
 		return (Math.abs(getTimeFromDate(dateNow) - getTimeFromDate(date)) <= TIME_EPS);
 	}
 	
-	public Date getEndOfDay(Date date) {
+	private Date getEndOfDay(Date date) {
 	    Calendar calendar = Calendar.getInstance();
 	    calendar.setTime(date);
 	    calendar.set(Calendar.HOUR_OF_DAY, 23);
@@ -41,7 +41,7 @@ public class LogicParser {
 	    return calendar.getTime();
 	}
 
-	public Date getStartOfDay(Date date) {
+	private Date getStartOfDay(Date date) {
 	    Calendar calendar = Calendar.getInstance();
 	    calendar.setTime(date);
 	    calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -51,7 +51,7 @@ public class LogicParser {
 	    return calendar.getTime();
 	}
 	
-	public int decomposePriority(ArrayList<String> words) {
+	private int decomposePriority(ArrayList<String> words) {
 		for (int i = 0; i < words.size(); i++) {
 			if (words.get(i).compareTo(Consts.PRIORITY_IMPORTANT) == 0) {
 				//words.remove(i);
@@ -62,7 +62,7 @@ public class LogicParser {
 		return 0;
 	}
 	
-	public int decomposeFrequency(ArrayList<String> words) {
+	private int decomposeFrequency(ArrayList<String> words) {
 		for (int i = 0; i < words.size(); i++) {
 			if (words.get(i).compareTo(Consts.FREQUENCY_DAILY) == 0) {
 				words.remove(i);
@@ -83,7 +83,7 @@ public class LogicParser {
 		return 0;
 	}
 	
-	public String decomposeDescription(ArrayList<String> words) {
+	private String decomposeDescription(ArrayList<String> words) {
 		for (int i = 0; i < words.size(); i++) {
 			String tempString = "";
 			for (int j = i; j < words.size(); j++) {
@@ -105,7 +105,7 @@ public class LogicParser {
 		return "";
 	}
 	
-	public String decomposeOptionalName(ArrayList<String> words) {
+	private String decomposeOptionalName(ArrayList<String> words) {
 		for (int i = 0; i < words.size(); i++) {
 			String tempString = "";
 			for (int j = i; j < words.size(); j++) {
@@ -127,7 +127,7 @@ public class LogicParser {
 		return "";
 	}
 	
-	public Date[] decomposeDate(ArrayList<String> words) {
+	private Date[] decomposeDate(ArrayList<String> words) {
 		Date[] date = new Date[2];
 		date[0] = new Date();
 		date[1] = new Date();
@@ -184,7 +184,7 @@ public class LogicParser {
 		return date;	
 	}
 
-	public String decomposeName(ArrayList<String> words, int nameSeparator) {
+	private String decomposeName(ArrayList<String> words, int nameSeparator) {
 		String result = "";
 		for (int i = 0; i <= Math.min(words.size() - 1, nameSeparator); i++) {
 			result = result + words.get(i) + " ";

@@ -448,16 +448,16 @@ public class LogicController {
 
 	//@author A0112069M
 	@SuppressWarnings("deprecation")
-	public int getTimeFromDate(Date date) {
+	private int getTimeFromDate(Date date) {
 		return date.getHours() *  60 * 60 + date.getMinutes() * 60 + date.getSeconds();
 	}
 	
-	public boolean isDefaultTime(Date date) {
+	private boolean isDefaultTime(Date date) {
 		Date dateNow = new Date();
 		return (getTimeFromDate(dateNow) - getTimeFromDate(date) <= TIME_EPS);
 	}
 
-	public Date getEndOfDay(Date date) {
+	private Date getEndOfDay(Date date) {
 	    Calendar calendar = Calendar.getInstance();
 	    calendar.setTime(date);
 	    calendar.set(Calendar.HOUR_OF_DAY, 23);
@@ -467,7 +467,7 @@ public class LogicController {
 	    return calendar.getTime();
 	}
 
-	public Date getStartOfDay(Date date) {
+	private Date getStartOfDay(Date date) {
 	    Calendar calendar = Calendar.getInstance();
 	    calendar.setTime(date);
 	    calendar.set(Calendar.HOUR_OF_DAY, 0);
@@ -547,6 +547,7 @@ public class LogicController {
 			tasksBuffer = getFloatingTasksBuffer();
 		}
 		List<DateGroup> dateGrp = dateParser.parse(keyword);
+		
 		Date date1 = null;
 		Date date2 = null;
 		if(!dateGrp.isEmpty()){
@@ -564,6 +565,7 @@ public class LogicController {
 				date2 = getEndOfDay(date2);
 			}
 		}
+		
 		ArrayList<JSONObject> foundLine = new ArrayList<JSONObject>();
 		for (int i = 0; i < tasksBuffer.size(); i++) {
 			Task task = Converter.jsonToTask(tasksBuffer.get(i));

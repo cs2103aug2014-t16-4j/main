@@ -86,6 +86,7 @@ public final class Consts {
 	public static final int TASK_IMPORTANT = 1;
 	public static final int TASK_NORMAL = 0;
 
+	//@author A0112069M
 	// FREQUENCY CONSTANT
 	public static final String FREQUENCY_DAILY = "daily";
 	public static final String FREQUENCY_WEEKLY = "weekly";
@@ -113,6 +114,7 @@ public final class Consts {
 	public static final int STATUS_COMPLETED_TIMED_TASK = 11;
 	public static final int STATUS_COMPLETED_FLOATING_TASK = 12;
 
+	//@author A0097699X
 	// HELP TEXT
 	public static final String HELP_TEXT = 
 			"TaskBox Commands:\n"
