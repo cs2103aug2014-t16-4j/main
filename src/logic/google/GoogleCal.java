@@ -51,6 +51,7 @@ public class GoogleCal {
 	String appName = "TaskBox";
 	HttpTransport httpTransport;
 	JacksonFactory jsonFactory;
+	boolean isEnded = true;
 
 	public GoogleCal() {
 		httpTransport = new NetHttpTransport();
@@ -152,7 +153,6 @@ public class GoogleCal {
 	public void syncGCalService(ArrayList<JSONObject> timeTasks) throws IOException, ParseException {
 		String pageToken = null;
 		String str = "";
-		boolean isEnded = true;
 		cacheSync();
 		if (isEnded) {
 			isEnded = false;
