@@ -67,7 +67,7 @@ public class UIController {
 	private ArrayList<JSONObject> timedList;
 	private ArrayList<JSONObject> floatingList;
 	private ArrayList<Date> resultsDate;
-	
+
 	// constants
 	private final Provider PROVIDER = Provider.getCurrentProvider(false);
 	private final static String NON_THIN = "[^iIl1\\.,']";
@@ -169,7 +169,7 @@ public class UIController {
 		enableDrag();
 		disposeDisplay();
 	}
-	
+
 	//read from existing config file 
 	private void readConfig() {
 		System.out.println("reading from config");
@@ -363,9 +363,9 @@ public class UIController {
 							public void run() {
 								showNotification(o.get(Consts.NAME).toString()
 										+ " is starting in 1 hour!", "Ends: "
-										+ o.get(Consts.ENDDATE).toString()
-										+ "\n"
-										+ o.get(Consts.DESCRIPTION).toString());
+												+ o.get(Consts.ENDDATE).toString()
+												+ "\n"
+												+ o.get(Consts.DESCRIPTION).toString());
 							}
 						});
 					}
@@ -456,8 +456,8 @@ public class UIController {
 				}
 			}
 		});
-		
-		
+
+
 	}
 
 	private void showNotification(String title, String text) {
@@ -818,7 +818,7 @@ public class UIController {
 
 		sh.setLocation(x, y);
 	}
-	
+
 	//delegate tasks from input
 	private void delegateTask(String userInput) {
 		String[] splittedString;
@@ -962,6 +962,9 @@ public class UIController {
 			}
 			try {
 				String[] newSplitted = getSplittedString(splittedString[1]);
+				if(newSplitted.length < 2){
+					return Consts.USAGE_UPDATE;
+				}
 				// calculate whether task is in timed or floating
 				return logic.update(
 						lineNumber >= taskNo ? floatingList.get(lineNumber
@@ -1064,8 +1067,8 @@ public class UIController {
 				return logic.complete(
 						lineNumber >= taskNo ? floatingList.get(lineNumber
 								- taskNo) : timedList.get(lineNumber - 1),
-						lineNumber >= taskNo ? Consts.STATUS_FLOATING_TASK
-								: Consts.STATUS_TIMED_TASK);
+								lineNumber >= taskNo ? Consts.STATUS_FLOATING_TASK
+										: Consts.STATUS_TIMED_TASK);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_UNDO;
 			}
@@ -1093,8 +1096,8 @@ public class UIController {
 								lineNumber >= taskNo ? floatingList
 										.get(lineNumber - taskNo) : timedList
 										.get(lineNumber - 1),
-								lineNumber >= taskNo ? Consts.STATUS_COMPLETED_FLOATING_TASK
-										: Consts.STATUS_COMPLETED_TIMED_TASK);
+										lineNumber >= taskNo ? Consts.STATUS_COMPLETED_FLOATING_TASK
+												: Consts.STATUS_COMPLETED_TIMED_TASK);
 			} catch (NumberFormatException e) {
 				return Consts.USAGE_COMPLETE;
 			}
@@ -1199,14 +1202,17 @@ public class UIController {
 
 		for (; taskNo < timedList.size() + 1; taskNo++) {
 			JSONObject o = timedList.get(taskNo - 1);
-			String start = resultsDate.size()>0?resultsDate.get(taskNo).toString():o.get(Consts.STARTDATE).toString();
-			System.out.println(start);
+			String start;
+			if(resultsDate!=null && resultsDate.size()>0){
+				start = Consts.FORMAT_PRINT_DATE.format(resultsDate.get(taskNo-1));
+			} else {
+				start = o.get(Consts.STARTDATE).toString();
+			}
 			String startTime = start.substring(11, start.length() - 3) + "hr";
 			String startDate = start.substring(0, 10);
-			// startDate =
-			// startDate.substring(3,6)+startDate.substring(0,3)+startDate.substring(6);
 			String end = o.get(Consts.ENDDATE).toString();
 			String endTime = end.substring(11, end.length() - 3) + "hr";
+			String endDate = end.substring(0, 10);
 			String desc = o.get(Consts.DESCRIPTION).toString();
 			String taskName = o.get(Consts.NAME).toString();
 			int status = 0;
@@ -1281,14 +1287,14 @@ public class UIController {
 			// time
 			text = toolkit.createFormText(sectionClient, false);
 			if (start.compareTo(end) == 0) {
-				text.setText("Due by: " + startTime, false, false);
-			} else if (startTime.compareTo("00:00hr") == 0
-					&& endTime.compareTo("23:59hr") == 0) {
+				text.setText("Due by: " + startDate+" "+startTime, false, false);
+			} else if ((startTime.compareTo("00:00hr") == 0
+					&& endTime.compareTo("23:59hr") == 0)&&(startDate.compareTo(endDate)==0)) {
 				text.setText("Full Day Event", false, false);
 			} else {
-				text.setText("Start: " + startTime, false, false);
+				text.setText("Start: " + startDate+" "+startTime, false, false);
 				text = toolkit.createFormText(sectionClient, false);
-				text.setText("End: " + endTime, false, false);
+				text.setText("End: " + endDate+" "+endTime, false, false);
 			}
 
 			// description
